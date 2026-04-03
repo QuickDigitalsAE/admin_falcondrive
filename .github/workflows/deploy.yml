@@ -1,0 +1,52 @@
+name: Laravel Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy-to-cpanel:
+    name: Deploy to cPanel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: mbstring, intl, pdo, pdo_mysql, curl, bcmath, openssl, tokenizer, xml, ctype, json
+          coverage: none
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --no-check-publish
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ./
+          local-dir: ./
+          port: 21
+          protocol: ftp
+          dry-run: false
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/tests/**
+            **/storage/*.key
+            **/.env
+            **/.env.*
+            **/README.md
+
+      - name: Done
+        run: echo "Laravel deployment to cPanel complete"
