@@ -22,25 +22,22 @@ jobs:
           coverage: none
 
       - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/
+          server-dir: ./
           local-dir: ./
           port: 21
-          protocol: ftps
+          protocol: ftp
           dry-run: false
           exclude: |
-            **/.git*
-            **/.github/**
-            **/node_modules/**
-            **/tests/**
-            **/vendor/**
-            **/storage/*.key
-            **/.env
-            **/.editorconfig
+            .git*
+            node_modules/
+            tests/
+            storage/*.key
+            vendor/
 
       - name: Done
         run: echo "Laravel deployment to cPanel complete"
