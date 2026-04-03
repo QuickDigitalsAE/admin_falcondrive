@@ -1,4 +1,4 @@
-name: Laravel Deploy to cPanel
+name: Deploy to cPanel
 
 on:
   push:
@@ -7,46 +7,22 @@ on:
 
 jobs:
   deploy-to-cpanel:
-    name: Deploy to cPanel
     runs-on: ubuntu-latest
-    timeout-minutes: 30
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, intl, pdo, pdo_mysql, curl, bcmath, openssl, tokenizer, xml, ctype, json
-          coverage: none
-
-      - name: Deploy via FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+      - name: Deploy via FTP (cPanel)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          security: loose
-          timeout: 120000
           local-dir: ./
           server-dir: ./
-          dry-run: false
-          log-level: verbose
+          port: 21
+          protocol: ftp
           exclude: |
             **/.git*
-            **/.github/**
-            **/node_modules/**
-            **/tests/**
-            **/vendor/**
-            **/.env
-            **/.env.*
-            **/storage/*.key
-            **/storage/logs/**
-            **/README.md
-
-      - name: Done
-        run: echo "Laravel deployment to cPanel complete"
+            **/.htaccess*
