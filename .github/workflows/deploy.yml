@@ -27,8 +27,8 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ./
-          local-dir: ./
+          server-dir: ./   # <-- adjust path for your subdomain
+          local-dir: ./ 
           port: 21
           protocol: ftp
           dry-run: false
