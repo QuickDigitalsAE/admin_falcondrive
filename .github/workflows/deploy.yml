@@ -21,7 +21,7 @@ jobs:
           extensions: mbstring, intl, pdo, pdo_mysql, curl, bcmath, openssl, tokenizer, xml, ctype, json
           coverage: none
 
-      - name: Deploy via SFTP
+      - name: Deploy via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
@@ -29,8 +29,9 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ./
           local-dir: ./
-          port: 22
-          protocol: sftp
+          port: 21
+          protocol: ftps
+          dry-run: false
           exclude: |
             **/.git*
             **/.github/**
