@@ -39,15 +39,11 @@ jobs:
           protocol: ftp
           dry-run: false
           exclude: |
-            **/.git*
-            **/.github/**
-            **/node_modules/**
-            **/tests/**
-            **/vendor/**
-            **/storage/*.key
-            **/.env
-            **/.env.*
-            **/README.md
+            .git*
+            node_modules/
+            tests/
+            storage/*.key
+            vendor/
 
       - name: Done
         run: echo "Laravel deployment to cPanel complete"
