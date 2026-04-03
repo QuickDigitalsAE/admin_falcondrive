@@ -21,12 +21,6 @@ jobs:
           extensions: mbstring, intl, pdo, pdo_mysql, curl, bcmath, openssl, tokenizer, xml, ctype, json
           coverage: none
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate --no-check-publish
-
-      - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader
-
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
