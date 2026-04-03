@@ -43,6 +43,7 @@ jobs:
             **/.github/**
             **/node_modules/**
             **/tests/**
+            **/vendor/**
             **/storage/*.key
             **/.env
             **/.env.*
