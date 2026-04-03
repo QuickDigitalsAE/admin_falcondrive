@@ -21,23 +21,25 @@ jobs:
           extensions: mbstring, intl, pdo, pdo_mysql, curl, bcmath, openssl, tokenizer, xml, ctype, json
           coverage: none
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Deploy via SFTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ./   # <-- adjust path for your subdomain
-          local-dir: ./ 
-          port: 21
-          protocol: ftp
-          dry-run: false
+          server-dir: ./
+          local-dir: ./
+          port: 22
+          protocol: sftp
           exclude: |
-            .git*
-            node_modules/
-            tests/
-            storage/*.key
-            vendor/
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/tests/**
+            **/vendor/**
+            **/storage/*.key
+            **/.env
+            **/.editorconfig
 
       - name: Done
         run: echo "Laravel deployment to cPanel complete"
