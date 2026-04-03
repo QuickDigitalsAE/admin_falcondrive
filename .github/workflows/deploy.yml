@@ -11,18 +11,20 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Deploy via FTP (cPanel)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Deploy via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
           local-dir: ./
           server-dir: ./
-          port: 21
-          protocol: ftp
           exclude: |
             **/.git*
+            **/.github/**
+            **/node_modules/**
             **/.htaccess*
