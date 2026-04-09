@@ -17,14 +17,14 @@ class RolesTableSeeder extends Seeder
     public function run(): void
     {
         // Create the admin roles using firstOrCreate
-        $role = Role::firstOrCreate(['name' => 'Super Administrator', 'guard_name' => 'sanctum']);
+        $role = Role::firstOrCreate(['name' => 'Super Administrator', 'guard_name' => 'web']);
 
         // Retrieve all permissions
         $permissions = Permission::all();
 
         // // Sync all permissions to the admin role
         $role->syncPermissions($permissions);
-        
+
         // Retrieve the admin role
         $adminRole = Role::where('name', 'Super Administrator')->first();
 

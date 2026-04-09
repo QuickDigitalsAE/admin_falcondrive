@@ -14,15 +14,28 @@ class PermissionsSeeder extends Seeder
     public function run()
     {
         $permissions = [
-                'User_Menu', 'User_View', 'User_Add', 'User_Edit', 'User_Delete',
-                'Role_Menu', 'Role_View', 'Role_Add', 'Role_Edit', 'Role_Delete'
-        ];    
-        
+            'User_Menu',
+            'User_ViewAll',
+            'User_ViewMine',
+            'User_View',
+            'User_Add',
+            'User_Edit',
+            'User_Delete',
+            'User_Revoke',
+            'Role_Menu',
+            'Role_ViewAll',
+            'Role_View',
+            'Role_Add',
+            'Role_Edit',
+            'Role_Delete',
+            'Role_Revoke'
+        ];
+
         // Create the permissions using firstOrCreate
         foreach ($permissions as $permission) {
             Permission::Create([
                 'name' => $permission,
-                'guard_name' => 'sanctum'
+                'guard_name' => 'web'
             ]);
         }
     }
