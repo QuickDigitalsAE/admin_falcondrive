@@ -15,18 +15,32 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:User_ViewAll', ['only' => ['getUsers', 'showUser']]);
-        $this->middleware('permission:User_ViewMine', ['only' => ['getMyUsers', 'showUser']]);
+        $this->middleware('permission:User_ViewAll|User_ViewMine', ['only' => ['index']]);
+        $this->middleware('permission:User_ViewAll|User_ViewMine|User_View', ['only' => ['showUser']]);
         $this->middleware('permission:User_Add', ['only' => ['createUser', 'postUser']]);
-        $this->middleware('permission:User_View', ['only' => ['editUser']]);
-        $this->middleware('permission:User_Edit', ['only' => ['updateUser', 'changePassword']]);
+        $this->middleware('permission:User_Edit', ['only' => ['editUser', 'updateUser', 'changePassword']]);
         $this->middleware('permission:User_Delete', ['only' => ['deleteUser']]);
         $this->middleware('permission:User_Revoke', ['only' => ['revokeUser']]);
     }
 
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->can('User_ViewAll')) {
+            return $this->getUsers($request);
+        }
+
+        if ($user->can('User_ViewMine')) {
+            return $this->getMyUsers($request);
+        }
+
+        abort(403, 'You do not have permission to view users.');
+    }
+
     public function getUsers(Request $request)
     {
-        $per_page = 15;
+        $per_page = $request->query('per_page', 10);
         $search = trim((string) $request->query('search', ''));
         $is_deleted = $request->boolean('is_deleted');
         $is_export = $request->query('is_export');
@@ -58,6 +72,8 @@ class UserController extends Controller
 
         if ($request->ajax() || $request->wantsJson()) {
             $list = $users->getCollection()->map(function ($user) {
+                $authUser = Auth::user();
+
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -72,10 +88,18 @@ class UserController extends Controller
                     'status' => (int) $user->status,
                     'deleted_at' => $user->deleted_at ? $user->deleted_at->toDateTimeString() : null,
                     'created_at_human' => optional($user->created_at)->format('d M Y, h:i A'),
+
                     'show_url' => route('admin.users.show', $user->id),
                     'edit_url' => route('admin.users.edit', $user->id),
                     'delete_url' => route('admin.users.delete', $user->id),
                     'restore_url' => route('admin.users.revoke', $user->id),
+
+                    'permissions' => [
+                        'can_view' => $authUser->can('User_ViewAll') || $authUser->can('User_ViewMine') || $authUser->can('User_View'),
+                        'can_edit' => $authUser->can('User_Edit'),
+                        'can_delete' => $authUser->can('User_Delete'),
+                        'can_restore' => $authUser->can('User_Revoke'),
+                    ],
                 ];
             });
 
@@ -106,7 +130,7 @@ class UserController extends Controller
 
     public function getMyUsers(Request $request)
     {
-        $per_page = 15;
+        $per_page = $request->query('per_page', 10);
         $search = trim((string) $request->query('search', ''));
         $is_deleted = $request->boolean('is_deleted');
         $is_export = $request->query('is_export');
@@ -141,6 +165,8 @@ class UserController extends Controller
 
         if ($request->ajax() || $request->wantsJson()) {
             $list = $users->getCollection()->map(function ($user) {
+                $authUser = Auth::user();
+
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -155,10 +181,18 @@ class UserController extends Controller
                     'status' => (int) $user->status,
                     'deleted_at' => $user->deleted_at ? $user->deleted_at->toDateTimeString() : null,
                     'created_at_human' => optional($user->created_at)->format('d M Y, h:i A'),
+
                     'show_url' => route('admin.users.show', $user->id),
                     'edit_url' => route('admin.users.edit', $user->id),
                     'delete_url' => route('admin.users.delete', $user->id),
                     'restore_url' => route('admin.users.revoke', $user->id),
+
+                    'permissions' => [
+                        'can_view' => $authUser->can('User_ViewAll') || $authUser->can('User_ViewMine') || $authUser->can('User_View'),
+                        'can_edit' => $authUser->can('User_Edit'),
+                        'can_delete' => $authUser->can('User_Delete'),
+                        'can_restore' => $authUser->can('User_Revoke'),
+                    ],
                 ];
             });
 
@@ -184,7 +218,7 @@ class UserController extends Controller
             ]);
         }
 
-        return view('admin.users.my-users', compact('users'));
+        return view('admin.users.index', compact('users'));
     }
     public function createUser()
     {
