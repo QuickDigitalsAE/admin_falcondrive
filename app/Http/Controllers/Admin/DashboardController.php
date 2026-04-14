@@ -3,8 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AboutUs;
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Faq;
+use App\Models\Lease;
+use App\Models\Location;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Testimonial;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use App\Support\SystemVisibility;
@@ -58,6 +65,62 @@ class DashboardController extends Controller
         $user = auth()->user();
 
         return collect([
+            [
+                'visible' => $user->can('AboutUs_Menu'),
+                'title' => 'About Us',
+                'description' => 'Bilingual company story and SEO content',
+                'count' => AboutUs::query()->count(),
+                'icon' => 'fa-circle-info',
+                'url' => route('admin.about-us'),
+            ],
+            [
+                'visible' => $user->can('Brand_Menu'),
+                'title' => 'Brands',
+                'description' => 'Car brands and brand SEO pages',
+                'count' => Brand::query()->count(),
+                'icon' => 'fa-copyright',
+                'url' => route('admin.brands'),
+            ],
+            [
+                'visible' => $user->can('Category_Menu'),
+                'title' => 'Categories',
+                'description' => 'Vehicle category content and structure',
+                'count' => Category::query()->count(),
+                'icon' => 'fa-layer-group',
+                'url' => route('admin.categories'),
+            ],
+            [
+                'visible' => $user->can('Faq_Menu'),
+                'title' => 'FAQ',
+                'description' => 'Frequently asked questions',
+                'count' => Faq::query()->count(),
+                'icon' => 'fa-circle-question',
+                'url' => route('admin.faq'),
+            ],
+            [
+                'visible' => $user->can('Lease_Menu'),
+                'title' => 'Lease',
+                'description' => 'Lease landing and SEO content',
+                'count' => Lease::query()->count(),
+                'icon' => 'fa-file-signature',
+                'url' => route('admin.lease'),
+            ],
+            [
+                'visible' => $user->can('Location_Menu'),
+                'title' => 'Locations',
+                'description' => 'Location landing pages and SEO',
+                'count' => Location::query()->count(),
+                'icon' => 'fa-location-dot',
+                'url' => route('admin.locations'),
+            ],
+            [
+                'visible' => $user->can('Testimonial_Menu'),
+                'title' => 'Testimonials',
+                'description' => 'Customer review content',
+                'count' => Testimonial::query()->count(),
+                'icon' => 'fa-comments',
+                'url' => route('admin.testimonials'),
+            ],
             [
                 'visible' => $user->can('User_Menu'),
                 'title' => 'Users',

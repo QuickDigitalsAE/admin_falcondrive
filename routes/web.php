@@ -4,10 +4,17 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\AboutUsController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\LeaseController;
+use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
 use App\Http\Controllers\Admin\ResetPasswordController;
@@ -66,6 +73,83 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
 
         Route::get('/settings', [AccountController::class, 'editSettings'])->name('settings');
         Route::put('/settings/password', [AccountController::class, 'updatePassword'])->name('settings.password');
+    });
+
+    Route::prefix('about-us')->name('about-us')->group(function () {
+        Route::get('/', [AboutUsController::class, 'index'])->name('');
+        Route::get('/create', [AboutUsController::class, 'create'])->name('.create');
+        Route::post('/store', [AboutUsController::class, 'store'])->name('.store');
+        Route::get('/{id}', [AboutUsController::class, 'show'])->name('.show');
+        Route::get('/{id}/edit', [AboutUsController::class, 'edit'])->name('.edit');
+        Route::put('/{id}/update', [AboutUsController::class, 'update'])->name('.update');
+        Route::delete('/{id}/delete', [AboutUsController::class, 'destroy'])->name('.delete');
+        Route::put('/{id}/restore', [AboutUsController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('brands')->name('brands')->group(function () {
+        Route::get('/', [BrandController::class, 'index'])->name('');
+        Route::get('/create', [BrandController::class, 'create'])->name('.create');
+        Route::post('/store', [BrandController::class, 'store'])->name('.store');
+        Route::get('/{id}', [BrandController::class, 'show'])->name('.show');
+        Route::get('/{id}/edit', [BrandController::class, 'edit'])->name('.edit');
+        Route::put('/{id}/update', [BrandController::class, 'update'])->name('.update');
+        Route::delete('/{id}/delete', [BrandController::class, 'destroy'])->name('.delete');
+        Route::put('/{id}/restore', [BrandController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('categories')->name('categories')->group(function () {
+        Route::get('/', [CategoryController::class, 'index'])->name('');
+        Route::get('/create', [CategoryController::class, 'create'])->name('.create');
+        Route::post('/store', [CategoryController::class, 'store'])->name('.store');
+        Route::get('/{id}', [CategoryController::class, 'show'])->name('.show');
+        Route::get('/{id}/edit', [CategoryController::class, 'edit'])->name('.edit');
+        Route::put('/{id}/update', [CategoryController::class, 'update'])->name('.update');
+        Route::delete('/{id}/delete', [CategoryController::class, 'destroy'])->name('.delete');
+        Route::put('/{id}/restore', [CategoryController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('faq')->name('faq')->group(function () {
+        Route::get('/', [FaqController::class, 'index'])->name('');
+        Route::get('/create', [FaqController::class, 'create'])->name('.create');
+        Route::post('/store', [FaqController::class, 'store'])->name('.store');
+        Route::get('/{id}', [FaqController::class, 'show'])->name('.show');
+        Route::get('/{id}/edit', [FaqController::class, 'edit'])->name('.edit');
+        Route::put('/{id}/update', [FaqController::class, 'update'])->name('.update');
+        Route::delete('/{id}/delete', [FaqController::class, 'destroy'])->name('.delete');
+        Route::put('/{id}/restore', [FaqController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('lease')->name('lease')->group(function () {
+        Route::get('/', [LeaseController::class, 'index'])->name('');
+        Route::get('/create', [LeaseController::class, 'create'])->name('.create');
+        Route::post('/store', [LeaseController::class, 'store'])->name('.store');
+        Route::get('/{id}', [LeaseController::class, 'show'])->name('.show');
+        Route::get('/{id}/edit', [LeaseController::class, 'edit'])->name('.edit');
+        Route::put('/{id}/update', [LeaseController::class, 'update'])->name('.update');
+        Route::delete('/{id}/delete', [LeaseController::class, 'destroy'])->name('.delete');
+        Route::put('/{id}/restore', [LeaseController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('locations')->name('locations')->group(function () {
+        Route::get('/', [LocationController::class, 'index'])->name('');
+        Route::get('/create', [LocationController::class, 'create'])->name('.create');
+        Route::post('/store', [LocationController::class, 'store'])->name('.store');
+        Route::get('/{id}', [LocationController::class, 'show'])->name('.show');
+        Route::get('/{id}/edit', [LocationController::class, 'edit'])->name('.edit');
+        Route::put('/{id}/update', [LocationController::class, 'update'])->name('.update');
+        Route::delete('/{id}/delete', [LocationController::class, 'destroy'])->name('.delete');
+        Route::put('/{id}/restore', [LocationController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('testimonials')->name('testimonials')->group(function () {
+        Route::get('/', [TestimonialController::class, 'index'])->name('');
+        Route::get('/create', [TestimonialController::class, 'create'])->name('.create');
+        Route::post('/store', [TestimonialController::class, 'store'])->name('.store');
+        Route::get('/{id}', [TestimonialController::class, 'show'])->name('.show');
+        Route::get('/{id}/edit', [TestimonialController::class, 'edit'])->name('.edit');
+        Route::put('/{id}/update', [TestimonialController::class, 'update'])->name('.update');
+        Route::delete('/{id}/delete', [TestimonialController::class, 'destroy'])->name('.delete');
+        Route::put('/{id}/restore', [TestimonialController::class, 'restore'])->name('.restore');
     });
 
     Route::prefix('roles')->name('roles')->group(function () {

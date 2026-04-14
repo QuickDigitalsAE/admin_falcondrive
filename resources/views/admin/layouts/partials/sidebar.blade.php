@@ -78,6 +78,76 @@
                 </a>
             @endcan
 
+            @can('AboutUs_Menu')
+                <a href="{{ route('admin.about-us') }}"
+                    class="sidebar-link flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.about-us') || request()->routeIs('admin.about-us.*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0c1d35] {{ request()->routeIs('admin.about-us') || request()->routeIs('admin.about-us.*') ? 'text-[#f8dd7c]' : 'text-slate-200' }}">
+                        <i class="fas fa-circle-info text-[11px]"></i>
+                    </span>
+                    <span class="truncate sidebar-text">About Us</span>
+                </a>
+            @endcan
+
+            @can('Brand_Menu')
+                <a href="{{ route('admin.brands') }}"
+                    class="sidebar-link flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.brands') || request()->routeIs('admin.brands.*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0c1d35] {{ request()->routeIs('admin.brands') || request()->routeIs('admin.brands.*') ? 'text-[#f8dd7c]' : 'text-slate-200' }}">
+                        <i class="fas fa-copyright text-[11px]"></i>
+                    </span>
+                    <span class="truncate sidebar-text">Brands</span>
+                </a>
+            @endcan
+
+            @can('Category_Menu')
+                <a href="{{ route('admin.categories') }}"
+                    class="sidebar-link flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.categories') || request()->routeIs('admin.categories.*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0c1d35] {{ request()->routeIs('admin.categories') || request()->routeIs('admin.categories.*') ? 'text-[#f8dd7c]' : 'text-slate-200' }}">
+                        <i class="fas fa-layer-group text-[11px]"></i>
+                    </span>
+                    <span class="truncate sidebar-text">Categories</span>
+                </a>
+            @endcan
+
+            @can('Faq_Menu')
+                <a href="{{ route('admin.faq') }}"
+                    class="sidebar-link flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.faq') || request()->routeIs('admin.faq.*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0c1d35] {{ request()->routeIs('admin.faq') || request()->routeIs('admin.faq.*') ? 'text-[#f8dd7c]' : 'text-slate-200' }}">
+                        <i class="fas fa-circle-question text-[11px]"></i>
+                    </span>
+                    <span class="truncate sidebar-text">FAQ</span>
+                </a>
+            @endcan
+
+            @can('Lease_Menu')
+                <a href="{{ route('admin.lease') }}"
+                    class="sidebar-link flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.lease') || request()->routeIs('admin.lease.*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0c1d35] {{ request()->routeIs('admin.lease') || request()->routeIs('admin.lease.*') ? 'text-[#f8dd7c]' : 'text-slate-200' }}">
+                        <i class="fas fa-file-signature text-[11px]"></i>
+                    </span>
+                    <span class="truncate sidebar-text">Lease</span>
+                </a>
+            @endcan
+
+            @can('Location_Menu')
+                <a href="{{ route('admin.locations') }}"
+                    class="sidebar-link flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.locations') || request()->routeIs('admin.locations.*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0c1d35] {{ request()->routeIs('admin.locations') || request()->routeIs('admin.locations.*') ? 'text-[#f8dd7c]' : 'text-slate-200' }}">
+                        <i class="fas fa-location-dot text-[11px]"></i>
+                    </span>
+                    <span class="truncate sidebar-text">Locations</span>
+                </a>
+            @endcan
+
+            @can('Testimonial_Menu')
+                <a href="{{ route('admin.testimonials') }}"
+                    class="sidebar-link flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.testimonials') || request()->routeIs('admin.testimonials.*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0c1d35] {{ request()->routeIs('admin.testimonials') || request()->routeIs('admin.testimonials.*') ? 'text-[#f8dd7c]' : 'text-slate-200' }}">
+                        <i class="fas fa-comments text-[11px]"></i>
+                    </span>
+                    <span class="truncate sidebar-text">Testimonials</span>
+                </a>
+            @endcan
+
             @can('Role_Menu')
                 <a href="{{ route('admin.roles') }}"
                     class="sidebar-link flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.roles') || request()->routeIs('admin.roles.*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
