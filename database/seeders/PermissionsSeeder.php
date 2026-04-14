@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
+use App\Models\Permission;
 
 class PermissionsSeeder extends Seeder
 {
@@ -14,6 +14,7 @@ class PermissionsSeeder extends Seeder
     public function run()
     {
         $permissions = [
+            'Dashboard_View',
             'User_Menu',
             'User_ViewAll',
             'User_ViewMine',
@@ -28,14 +29,25 @@ class PermissionsSeeder extends Seeder
             'Role_Add',
             'Role_Edit',
             'Role_Delete',
-            'Role_Revoke'
+            'Role_Revoke',
+            'Permissions_Menu',
+            'Permissions_ViewAll',
+            'Permissions_View',
+            'Permissions_Add',
+            'Permissions_Edit',
+            'Permissions_Delete',
+            'Permissions_Revoke',
+            'ActivityLogs_Menu',
+            'ActivityLogs_ViewAll',
+            'ActivityLogs_View',
         ];
 
-        // Create the permissions using firstOrCreate
         foreach ($permissions as $permission) {
-            Permission::Create([
+            Permission::firstOrCreate([
                 'name' => $permission,
-                'guard_name' => 'web'
+                'guard_name' => 'web',
+            ], [
+                'table_name' => str($permission)->before('_')->snake()->plural()->toString(),
             ]);
         }
     }

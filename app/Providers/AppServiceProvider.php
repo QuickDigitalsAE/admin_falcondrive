@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\SystemVisibility;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Gate;
@@ -35,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
                 return null;
             }
 
-            return $user->roles()->where('id', 1)->exists() ? true : null;
+            return $user->roles()->where('id', SystemVisibility::superAdminRoleId())->exists() ? true : null;
         });
     }
 }

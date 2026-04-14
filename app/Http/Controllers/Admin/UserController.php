@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\SystemVisibility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -51,7 +52,7 @@ class UserController extends Controller
             $usersQuery = User::with(['roles', 'createdByUser', 'updatedByUser']);
         }
 
-        $usersQuery->where('id', '!=', 1)->orderByDesc('created_at');
+        SystemVisibility::hideSuperAdminUsers($usersQuery)->orderByDesc('created_at');
 
         if ($search !== '') {
             $usersQuery->where(function ($query) use ($search) {
@@ -142,9 +143,8 @@ class UserController extends Controller
             $usersQuery = User::with(['roles', 'createdByUser', 'updatedByUser']);
         }
 
-        $usersQuery->where('id', '!=', 1)
-            ->where('created_by', $user_id)
-            ->orderByDesc('created_at');
+        SystemVisibility::hideSuperAdminUsers($usersQuery);
+        $usersQuery->where('created_by', $user_id)->orderByDesc('created_at');
 
         if ($search !== '') {
             $usersQuery->where(function ($query) use ($search) {
@@ -222,9 +222,7 @@ class UserController extends Controller
     }
     public function createUser()
     {
-        $roles = Role::query()
-            ->where('guard_name', 'web')
-            ->whereNull('deleted_at')
+        $roles = SystemVisibility::selectableRoles()
             ->orderBy('name')
             ->get();
 
@@ -235,9 +233,7 @@ class UserController extends Controller
     {
         $validated = $request->validate($this->validationRules());
 
-        $role = Role::query()
-            ->where('guard_name', 'web')
-            ->whereNull('deleted_at')
+        $role = SystemVisibility::selectableRoles()
             ->find($validated['role_id']);
 
         if (!$role) {
@@ -277,7 +273,7 @@ class UserController extends Controller
             ->with(['roles', 'createdByUser', 'updatedByUser', 'deletedByUser'])
             ->find($id);
 
-        if (!$user) {
+        if (!$user || SystemVisibility::isSuperAdminUser($user)) {
             return redirect()->route('admin.users')->with('error', 'User not found.');
         }
 
@@ -288,13 +284,11 @@ class UserController extends Controller
     {
         $user = User::with('roles')->find($id);
 
-        if (!$user) {
+        if (!$user || SystemVisibility::isSuperAdminUser($user)) {
             return back()->with('error', 'User not found.');
         }
 
-        $roles = Role::query()
-            ->where('guard_name', 'web')
-            ->whereNull('deleted_at')
+        $roles = SystemVisibility::selectableRoles()
             ->orderBy('name')
             ->get();
 
@@ -305,16 +299,14 @@ class UserController extends Controller
     {
         $user = User::with('roles')->find($id);
 
-        if (!$user) {
+        if (!$user || SystemVisibility::isSuperAdminUser($user)) {
             return back()->with('error', 'User not found.');
         }
 
         $validated = $request->validate($this->validationRules($id, true));
 
         if (!empty($validated['role_id'])) {
-            $role = Role::query()
-                ->where('guard_name', 'web')
-                ->whereNull('deleted_at')
+            $role = SystemVisibility::selectableRoles()
                 ->find($validated['role_id']);
 
             if (!$role) {
@@ -376,7 +368,7 @@ class UserController extends Controller
 
         $user = User::find($id);
 
-        if (!$user) {
+        if (!$user || SystemVisibility::isSuperAdminUser($user->loadMissing('roles'))) {
             return back()->with('error', 'User not found.');
         }
 
@@ -393,9 +385,9 @@ class UserController extends Controller
 
     public function deleteUser($id)
     {
-        $user = User::where('id', '!=', 1)->find($id);
+        $user = User::with('roles')->find($id);
 
-        if (!$user) {
+        if (!$user || SystemVisibility::isSuperAdminUser($user)) {
             return back()->with('error', 'User not found.');
         }
 
@@ -410,7 +402,7 @@ class UserController extends Controller
     {
         $user = User::withTrashed()->find($id);
 
-        if (!$user) {
+        if (!$user || SystemVisibility::isSuperAdminUser($user->loadMissing('roles'))) {
             return back()->with('error', 'User not found.');
         }
 
@@ -441,7 +433,15 @@ class UserController extends Controller
                 Rule::unique('users', 'email')->ignore($userId),
             ],
             'password' => $passwordRules,
-            'role_id' => ['required', 'integer', 'exists:roles,id'],
+            'role_id' => [
+                'required',
+                'integer',
+                Rule::exists('roles', 'id')->where(function ($query) {
+                    $query->where('guard_name', 'web')
+                        ->where('id', '!=', SystemVisibility::superAdminRoleId())
+                        ->whereNull('deleted_at');
+                }),
+            ],
             'status' => ['required', 'numeric', 'in:0,1'],
 
             'phone' => ['nullable', 'string', 'max:50'],

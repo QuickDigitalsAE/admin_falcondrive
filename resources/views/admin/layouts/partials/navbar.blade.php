@@ -31,26 +31,24 @@
 @endphp
 
 <header class="sticky top-0 z-20 border-b border-[#eadfbe] bg-[#fcfbf7]/95 backdrop-blur">
-    <div class="px-4 py-4 sm:px-6 lg:px-8">
-        <div class="flex items-start justify-between gap-3">
-            <!-- LEFT -->
+    <div class="px-3 py-3 sm:px-4 md:px-5 lg:px-8">
+        <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div class="flex min-w-0 items-start gap-3">
                 <button id="sidebarToggle"
-                    class="flex h-11 w-11 items-center justify-center rounded-xl border border-[#eadfbe] bg-white text-[#9b7a28] shadow-sm transition hover:bg-[#fff8e7] hover:text-[#7a5d18]">
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#eadfbe] bg-white text-[#9b7a28] shadow-sm transition hover:bg-[#fff8e7] hover:text-[#7a5d18] sm:h-11 sm:w-11">
                     <i class="fas fa-bars text-[16px]"></i>
                 </button>
 
                 <div class="min-w-0">
-
-                    <h1 class="truncate text-[20px] font-semibold leading-tight text-slate-900">
+                    <h1 class="truncate text-[18px] font-semibold leading-tight text-slate-900 sm:text-[20px]">
                         {{ $pageTitle }}
                     </h1>
 
-                    <div class="mt-2">
+                    <div class="mt-1.5 sm:mt-2">
                         @hasSection('breadcrumbs')
                             {!! $pageBreadcrumbs !!}
                         @else
-                            <nav class="flex flex-wrap items-center gap-2 text-[12px] text-slate-500">
+                            <nav class="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500 sm:gap-2 sm:text-[12px]">
                                 <a href="{{ route('admin.dashboard') }}" class="transition hover:text-[#9b7a28]">
                                     <i class="fas fa-house text-[11px]"></i>
                                     <span class="ml-1">Dashboard</span>
@@ -63,10 +61,8 @@
                 </div>
             </div>
 
-            <!-- RIGHT -->
-            <div class="flex shrink-0 items-center gap-2.5">
-                <!-- Desktop Search -->
-                <div class="hidden xl:flex w-[300px] items-center">
+            <div class="flex w-full flex-wrap items-center justify-end gap-2 sm:gap-2.5 md:w-auto md:shrink-0 md:flex-nowrap">
+                <div class="hidden xl:flex w-[280px] items-center 2xl:w-[300px]">
                     <div class="relative w-full">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#b49543]">
                             <i class="fas fa-magnifying-glass text-[14px]"></i>
@@ -77,13 +73,12 @@
                     </div>
                 </div>
 
-                <!-- Mobile Search -->
                 <button
-                    class="xl:hidden flex h-10 w-10 items-center justify-center rounded-xl border border-[#eadfbe] bg-white text-[#9b7a28] shadow-sm transition hover:bg-[#fff8e7]">
+                    id="mobileSearchToggle"
+                    class="xl:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#eadfbe] bg-white text-[#9b7a28] shadow-sm transition hover:bg-[#fff8e7]">
                     <i class="fas fa-magnifying-glass text-[14px]"></i>
                 </button>
 
-                <!-- Notification -->
                 <div class="relative" id="notificationDropdownWrapper">
                     <button id="notificationDropdownToggle"
                         class="relative flex h-10 w-10 items-center justify-center rounded-xl border border-[#eadfbe] bg-white text-[#9b7a28] shadow-sm transition hover:bg-[#fff8e7]">
@@ -92,7 +87,7 @@
                     </button>
 
                     <div id="notificationDropdownMenu"
-                        class="absolute right-0 top-[calc(100%+10px)] hidden w-[340px] overflow-hidden rounded-2xl border border-[#eadfbe] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.12)]">
+                        class="absolute right-0 top-[calc(100%+10px)] z-40 hidden w-[340px] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl border border-[#eadfbe] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.12)]">
                         <div class="border-b border-[#f0e6ca] bg-[#fffaf0] px-4 py-3">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -146,17 +141,16 @@
                     </div>
                 </div>
 
-                <!-- Profile -->
-                <div class="relative" id="profileDropdownWrapper">
+                <div class="relative min-w-0" id="profileDropdownWrapper">
                     <button id="profileDropdownToggle"
-                        class="flex max-w-[200px] items-center gap-2 rounded-xl border border-[#eadfbe] bg-white px-2.5 py-1.5 shadow-sm transition hover:bg-[#fffaf2]">
+                        class="flex max-w-[58px] items-center gap-2 rounded-xl border border-[#eadfbe] bg-white px-2 py-1.5 shadow-sm transition hover:bg-[#fffaf2] sm:max-w-[200px] sm:px-2.5">
 
                         <span
                             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f4dd70] text-slate-900">
                             <i class="fas fa-user text-[14px]"></i>
                         </span>
 
-                        <span class="hidden min-w-0 text-left sm:block">
+                        <span class="hidden min-w-0 text-left sm:block lg:max-w-[130px] xl:max-w-none">
                             <span class="block truncate text-[13px] font-semibold text-slate-800">
                                 {{ auth()->user()->name ?? 'Admin' }}
                             </span>
@@ -165,28 +159,31 @@
                             </span>
                         </span>
 
-                        <i class="fas fa-chevron-down ml-auto text-[11px] text-slate-400"></i>
+                        <i id="profileDropdownChevron"
+                            class="fas fa-chevron-down ml-auto hidden text-[11px] text-slate-400 transition-transform duration-200 sm:block"></i>
                     </button>
 
                     <div id="profileDropdownMenu"
-                        class="absolute right-0 top-[calc(100%+10px)] hidden w-[260px] overflow-hidden rounded-2xl border border-[#eadfbe] bg-white shadow-lg">
+                        class="absolute right-0 top-[calc(100%+10px)] z-40 hidden w-72 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl border border-[#eadfbe] bg-white shadow-lg sm:w-[260px]">
 
                         <div class="border-b border-[#f0e6ca] px-5 py-4 bg-[#fffaf0]">
                             <p class="text-[14px] font-semibold text-slate-900">
                                 {{ auth()->user()->name ?? 'Admin User' }}
                             </p>
-                            <p class="text-[12px] text-slate-500">
+                            <p class="break-all text-[12px] text-slate-500">
                                 {{ auth()->user()->email ?? 'admin@falcondrive.ae' }}
                             </p>
                         </div>
 
                         <div class="py-2">
-                            <a href="#" class="flex items-center gap-3 px-5 py-3 text-slate-700 hover:bg-[#fffaf2]">
+                            <a href="{{ route('admin.account.profile') }}"
+                                class="flex items-center gap-3 px-5 py-3 text-slate-700 transition hover:bg-[#fffaf2] {{ request()->routeIs('admin.account.profile') ? 'bg-[#fff8e8] text-[#7d6220]' : '' }}">
                                 <i class="far fa-user text-[14px] text-[#b49543]"></i>
                                 <span class="text-[14px]">Profile</span>
                             </a>
 
-                            <a href="#" class="flex items-center gap-3 px-5 py-3 text-slate-700 hover:bg-[#fffaf2]">
+                            <a href="{{ route('admin.account.settings') }}"
+                                class="flex items-center gap-3 px-5 py-3 text-slate-700 transition hover:bg-[#fffaf2] {{ request()->routeIs('admin.account.settings') ? 'bg-[#fff8e8] text-[#7d6220]' : '' }}">
                                 <i class="fas fa-gear text-[14px] text-[#b49543]"></i>
                                 <span class="text-[14px]">Settings</span>
                             </a>
@@ -205,55 +202,14 @@
             </div>
         </div>
 
-        <!-- Tablet Search -->
-        <div class="mt-3 xl:hidden">
+        <div id="mobileSearchPanel" class="mt-3 hidden xl:hidden">
             <div class="relative">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#b49543]">
                     <i class="fas fa-magnifying-glass text-[13px]"></i>
                 </span>
-                <input type="text" placeholder="Search..."
+                <input id="mobileSearchInput" type="text" placeholder="Search..."
                     class="h-10 w-full rounded-xl border border-[#eadfbe] bg-[#fffaf0] pl-9 pr-3 text-[13px] shadow-sm focus:border-[#d8bf79] focus:bg-white focus:outline-none" />
             </div>
         </div>
     </div>
 </header>
-
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const notificationToggle = document.getElementById('notificationDropdownToggle');
-            const notificationMenu = document.getElementById('notificationDropdownMenu');
-            const notificationWrapper = document.getElementById('notificationDropdownWrapper');
-
-            const profileToggle = document.getElementById('profileDropdownToggle');
-            const profileMenu = document.getElementById('profileDropdownMenu');
-            const profileWrapper = document.getElementById('profileDropdownWrapper');
-
-            if (notificationToggle && notificationMenu) {
-                notificationToggle.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    notificationMenu.classList.toggle('hidden');
-                    if (profileMenu) profileMenu.classList.add('hidden');
-                });
-            }
-
-            if (profileToggle && profileMenu) {
-                profileToggle.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    profileMenu.classList.toggle('hidden');
-                    if (notificationMenu) notificationMenu.classList.add('hidden');
-                });
-            }
-
-            document.addEventListener('click', function (e) {
-                if (notificationWrapper && !notificationWrapper.contains(e.target) && notificationMenu) {
-                    notificationMenu.classList.add('hidden');
-                }
-
-                if (profileWrapper && !profileWrapper.contains(e.target) && profileMenu) {
-                    profileMenu.classList.add('hidden');
-                }
-            });
-        });
-    </script>
-@endpush

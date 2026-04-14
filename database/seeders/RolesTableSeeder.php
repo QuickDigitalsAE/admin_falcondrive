@@ -6,8 +6,8 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Models\Role;
+use App\Models\Permission;
 
 class RolesTableSeeder extends Seeder
 {
@@ -17,7 +17,15 @@ class RolesTableSeeder extends Seeder
     public function run(): void
     {
         // Create the admin roles using firstOrCreate
-        $role = Role::firstOrCreate(['name' => 'Super Administrator', 'guard_name' => 'web']);
+        $role = Role::firstOrCreate(
+            ['name' => 'Super Administrator', 'guard_name' => 'web'],
+            ['role_level' => 'superadmin']
+        );
+
+        if ($role->role_level !== 'superadmin') {
+            $role->role_level = 'superadmin';
+            $role->save();
+        }
 
         // Retrieve all permissions
         $permissions = Permission::all();
@@ -29,14 +37,15 @@ class RolesTableSeeder extends Seeder
         $adminRole = Role::where('name', 'Super Administrator')->first();
 
         // Create admin user
-        $admin = User::create([
-            'name' => 'Super Admin',
-            'email' => 'superadmin@gmail.com',
-            'status' => 1,
-            'password' => Hash::make('admin123@'), // Use a secure password here
-        ]);
+        $admin = User::firstOrCreate(
+            ['email' => 'superadmin@gmail.com'],
+            [
+                'name' => 'Super Admin',
+                'status' => 1,
+                'password' => Hash::make('admin123@'),
+            ]
+        );
 
-        // Assign the admin role to the created user
         $admin->assignRole($adminRole);
     }
 }

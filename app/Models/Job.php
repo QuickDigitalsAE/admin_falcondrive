@@ -41,11 +41,6 @@ class Job extends Model
         'quantity' => 'integer'
     ];
 
-    public function department()
-    {
-        return $this->belongsTo(Department::class, 'department_id');
-    }
-
     public function createdByUser()
     {
         return $this->belongsTo(User::class, 'created_by');

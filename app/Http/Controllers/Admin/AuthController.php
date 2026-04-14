@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Support\ActivityLogHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,19 +24,43 @@ class AuthController extends Controller
             'password' => ['required', 'min:6'],
         ]);
 
-        $credentials = $request->only('email', 'password');
+        $credentials = [
+            'email' => $request->input('email'),
+            'password' => $request->input('password'),
+            'status' => 1,
+        ];
         $remember = $request->boolean('remember');
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
+            ActivityLogHelper::logAuth('login', Auth::user(), [
+                'user_name' => Auth::user()->name,
+                'email' => Auth::user()->email,
+                'ip_address' => $request->ip(),
+                'user_agent' => (string) $request->userAgent(),
+            ]);
+
             return redirect()->route('admin.dashboard')
                 ->with('success', 'Login successful');
         }
 
+        $user = User::withTrashed()->where('email', $request->input('email'))->first();
+
+        ActivityLogHelper::logAuth('failed_login', $user, [
+            'user_name' => $user?->name,
+            'email' => (string) $request->input('email'),
+            'ip_address' => $request->ip(),
+            'user_agent' => (string) $request->userAgent(),
+        ]);
+
+        $message = ((int) ($user?->status ?? 1) === 0)
+            ? 'Your account is inactive. Please contact admin.'
+            : 'Invalid email or password.';
+
         return back()
             ->withErrors([
-                'email' => 'Invalid email or password.',
+                'email' => $message,
             ])
             ->withInput($request->only('email', 'remember'));
     }
@@ -42,6 +68,15 @@ class AuthController extends Controller
     // Logout
     public function logout(Request $request)
     {
+        if (Auth::check()) {
+            ActivityLogHelper::logAuth('logout', Auth::user(), [
+                'user_name' => Auth::user()->name,
+                'email' => Auth::user()->email,
+                'ip_address' => $request->ip(),
+                'user_agent' => (string) $request->userAgent(),
+            ]);
+        }
+
         Auth::logout();
 
         $request->session()->invalidate();

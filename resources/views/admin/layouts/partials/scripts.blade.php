@@ -1,177 +1,220 @@
-{{-- Sidebar / Collapse / Modal / Toast Scripts --}}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const collapseButtons = document.querySelectorAll('.sidebar-collapse-btn');
 
         const profileDropdownWrapper = document.getElementById('profileDropdownWrapper');
         const profileDropdownToggle = document.getElementById('profileDropdownToggle');
         const profileDropdownMenu = document.getElementById('profileDropdownMenu');
         const profileDropdownChevron = document.getElementById('profileDropdownChevron');
 
-        if (profileDropdownToggle && profileDropdownMenu) {
-            profileDropdownToggle.addEventListener('click', function (e) {
-                e.stopPropagation();
-                profileDropdownMenu.classList.toggle('hidden');
+        const notificationDropdownWrapper = document.getElementById('notificationDropdownWrapper');
+        const notificationDropdownToggle = document.getElementById('notificationDropdownToggle');
+        const notificationDropdownMenu = document.getElementById('notificationDropdownMenu');
 
-                if (profileDropdownChevron) {
-                    profileDropdownChevron.classList.toggle('rotate-180');
-                }
-            });
+        const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+        const mobileSearchPanel = document.getElementById('mobileSearchPanel');
+        const mobileSearchInput = document.getElementById('mobileSearchInput');
 
-            document.addEventListener('click', function (e) {
-                if (!profileDropdownWrapper.contains(e.target)) {
-                    profileDropdownMenu.classList.add('hidden');
-
-                    if (profileDropdownChevron) {
-                        profileDropdownChevron.classList.remove('rotate-180');
-                    }
-                }
-            });
-        }
+        const DESKTOP_BREAKPOINT = 1000;
+        const SIDEBAR_STORAGE_KEY = 'admin_sidebar_desktop_collapsed';
 
         function isDesktop() {
-            return window.innerWidth >= 1024;
+            return window.innerWidth >= DESKTOP_BREAKPOINT;
         }
 
-        function closeAllSubmenus(exceptId = null) {
-            const allMenus = document.querySelectorAll('.sidebar-submenu');
-            const allButtons = document.querySelectorAll('.sidebar-collapse-btn');
-            const allArrows = document.querySelectorAll('.sidebar-arrow');
-
-            allMenus.forEach(menu => {
-                if (!exceptId || menu.id !== exceptId) {
-                    menu.classList.add('hidden');
-                }
-            });
-
-            allButtons.forEach(button => {
-                const targetId = button.getAttribute('data-target');
-                if (!exceptId || targetId !== exceptId) {
-                    button.setAttribute('aria-expanded', 'false');
-                }
-            });
-
-            allArrows.forEach(arrow => {
-                const arrowTarget = arrow.getAttribute('data-arrow');
-                if (!exceptId || arrowTarget !== exceptId) {
-                    arrow.classList.remove('rotate-180');
-                }
-            });
-        }
-
-        function openSubmenu(targetId, button) {
-            const targetMenu = document.getElementById(targetId);
-            const arrow = document.querySelector(`[data-arrow="${targetId}"]`);
-
-            if (!targetMenu) return;
-
-            closeAllSubmenus(targetId);
-
-            targetMenu.classList.remove('hidden');
-            button.setAttribute('aria-expanded', 'true');
-
-            if (arrow) {
-                arrow.classList.add('rotate-180');
+        function setBodyScrollLock(locked) {
+            if (locked) {
+                document.body.classList.add('overflow-hidden');
+                document.documentElement.classList.add('overflow-hidden');
+            } else {
+                document.body.classList.remove('overflow-hidden');
+                document.documentElement.classList.remove('overflow-hidden');
             }
         }
 
-        function closeSubmenu(targetId, button) {
-            const targetMenu = document.getElementById(targetId);
-            const arrow = document.querySelector(`[data-arrow="${targetId}"]`);
+        function closeProfileDropdown() {
+            if (profileDropdownMenu) profileDropdownMenu.classList.add('hidden');
+            if (profileDropdownChevron) profileDropdownChevron.classList.remove('rotate-180');
+        }
 
-            if (!targetMenu) return;
+        function closeNotificationDropdown() {
+            if (notificationDropdownMenu) notificationDropdownMenu.classList.add('hidden');
+        }
 
-            targetMenu.classList.add('hidden');
-            button.setAttribute('aria-expanded', 'false');
+        function closeMobileSearch() {
+            if (mobileSearchPanel) mobileSearchPanel.classList.add('hidden');
+        }
 
-            if (arrow) {
-                arrow.classList.remove('rotate-180');
+        function openMobileSidebar() {
+            if (!sidebar || isDesktop()) return;
+
+            sidebar.classList.add('sidebar-open');
+            sidebar.classList.remove('-translate-x-full');
+
+            if (sidebarOverlay) sidebarOverlay.classList.remove('hidden');
+
+            setBodyScrollLock(true);
+        }
+
+        function closeMobileSidebar() {
+            if (!sidebar || isDesktop()) return;
+
+            sidebar.classList.remove('sidebar-open');
+            sidebar.classList.add('-translate-x-full');
+
+            if (sidebarOverlay) sidebarOverlay.classList.add('hidden');
+
+            setBodyScrollLock(false);
+        }
+
+        function setDesktopCollapsedState(collapsed) {
+            if (!sidebar) return;
+
+            if (collapsed) {
+                sidebar.classList.add('sidebar-desktop-collapsed');
+            } else {
+                sidebar.classList.remove('sidebar-desktop-collapsed');
             }
+
+            localStorage.setItem(SIDEBAR_STORAGE_KEY, collapsed ? '1' : '0');
+        }
+
+        function getDesktopCollapsedState() {
+            return localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1';
         }
 
         function toggleSidebar() {
             if (!sidebar) return;
 
             if (isDesktop()) {
-                sidebar.classList.toggle('sidebar-desktop-collapsed');
-
-                // desktop collapse ke waqt saare submenu close kar do
-                if (sidebar.classList.contains('sidebar-desktop-collapsed')) {
-                    closeAllSubmenus();
-                }
+                const isCollapsed = sidebar.classList.contains('sidebar-desktop-collapsed');
+                setDesktopCollapsedState(!isCollapsed);
             } else {
-                sidebar.classList.toggle('-translate-x-full');
-                if (sidebarOverlay) sidebarOverlay.classList.toggle('hidden');
+                const isOpen = sidebar.classList.contains('sidebar-open');
+                if (isOpen) {
+                    closeMobileSidebar();
+                } else {
+                    openMobileSidebar();
+                }
             }
-        }
-
-        function closeMobileSidebar() {
-            if (!sidebar || isDesktop()) return;
-            sidebar.classList.add('-translate-x-full');
-            if (sidebarOverlay) sidebarOverlay.classList.add('hidden');
         }
 
         function handleResize() {
             if (!sidebar) return;
 
             if (isDesktop()) {
+                sidebar.classList.remove('sidebar-open');
                 sidebar.classList.remove('-translate-x-full');
                 if (sidebarOverlay) sidebarOverlay.classList.add('hidden');
+                setBodyScrollLock(false);
+
+                const desktopCollapsed = getDesktopCollapsedState();
+                setDesktopCollapsedState(desktopCollapsed);
             } else {
-                sidebar.classList.add('-translate-x-full');
                 sidebar.classList.remove('sidebar-desktop-collapsed');
+                sidebar.classList.remove('sidebar-open');
+                sidebar.classList.add('-translate-x-full');
                 if (sidebarOverlay) sidebarOverlay.classList.add('hidden');
+                setBodyScrollLock(false);
             }
         }
 
+        if (notificationDropdownToggle && notificationDropdownMenu) {
+            notificationDropdownToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                notificationDropdownMenu.classList.toggle('hidden');
+                closeProfileDropdown();
+                closeMobileSearch();
+            });
+        }
+
+        if (profileDropdownToggle && profileDropdownMenu) {
+            profileDropdownToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                profileDropdownMenu.classList.toggle('hidden');
+                closeNotificationDropdown();
+                closeMobileSearch();
+
+                if (profileDropdownChevron) {
+                    profileDropdownChevron.classList.toggle('rotate-180');
+                }
+            });
+        }
+
+        if (mobileSearchToggle && mobileSearchPanel) {
+            mobileSearchToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                mobileSearchPanel.classList.toggle('hidden');
+                closeProfileDropdown();
+                closeNotificationDropdown();
+
+                if (!mobileSearchPanel.classList.contains('hidden') && mobileSearchInput) {
+                    setTimeout(() => mobileSearchInput.focus(), 50);
+                }
+            });
+        }
+
         if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', toggleSidebar);
+            sidebarToggle.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeProfileDropdown();
+                closeNotificationDropdown();
+                closeMobileSearch();
+                toggleSidebar();
+            });
         }
 
         if (sidebarOverlay) {
             sidebarOverlay.addEventListener('click', closeMobileSidebar);
         }
 
-        window.addEventListener('resize', handleResize);
-        handleResize();
+        document.addEventListener('click', function (e) {
+            if (profileDropdownWrapper && !profileDropdownWrapper.contains(e.target)) {
+                closeProfileDropdown();
+            }
 
-        const toggleButtons = document.querySelectorAll('.sidebar-collapse-btn');
+            if (notificationDropdownWrapper && !notificationDropdownWrapper.contains(e.target)) {
+                closeNotificationDropdown();
+            }
 
-        toggleButtons.forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-
-                const targetId = this.getAttribute('data-target');
-                const targetMenu = document.getElementById(targetId);
-
-                if (!targetId || !targetMenu) return;
-
-                // agar desktop collapsed mode me hai to pehle sidebar expand ho
-                if (isDesktop() && sidebar.classList.contains('sidebar-desktop-collapsed')) {
-                    sidebar.classList.remove('sidebar-desktop-collapsed');
-
-                    setTimeout(() => {
-                        openSubmenu(targetId, this);
-                    }, 180);
-
-                    return;
-                }
-
-                const isExpanded = this.getAttribute('aria-expanded') === 'true';
-                const isHidden = targetMenu.classList.contains('hidden');
-
-                if (isHidden || !isExpanded) {
-                    openSubmenu(targetId, this);
-                } else {
-                    closeSubmenu(targetId, this);
-                }
-            });
+            if (
+                mobileSearchPanel &&
+                mobileSearchToggle &&
+                !mobileSearchPanel.contains(e.target) &&
+                !mobileSearchToggle.contains(e.target)
+            ) {
+                closeMobileSearch();
+            }
         });
 
-        // Toast container dynamically
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeDeleteModal();
+                closeProfileDropdown();
+                closeNotificationDropdown();
+                closeMobileSearch();
+                closeMobileSidebar();
+            }
+        });
+
+        if (sidebar) {
+            sidebar.addEventListener('click', function (e) {
+                const clickedLink = e.target.closest('a, button[type="submit"]');
+                if (!clickedLink) return;
+
+                if (!isDesktop()) {
+                    closeMobileSidebar();
+                }
+            });
+        }
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', handleResize);
+        handleResize();
+
         if (!document.getElementById('toast-container')) {
             const container = document.createElement('div');
             container.id = 'toast-container';
@@ -179,14 +222,11 @@
             document.body.appendChild(container);
         }
 
-        // Expose globally
         window.openDeleteModal = function (actionUrl) {
             const modal = document.getElementById('deleteModal');
             const form = document.getElementById('deleteForm');
 
-            if (form) {
-                form.action = actionUrl;
-            }
+            if (form) form.action = actionUrl;
 
             if (modal) {
                 modal.classList.remove('hidden');
@@ -209,11 +249,7 @@
             let bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
 
             const toast = document.createElement('div');
-            toast.className = `
-                flex items-start gap-3 text-white px-5 py-4 rounded-2xl shadow-2xl
-                transform translate-x-full opacity-0 transition-all duration-500
-                ${bgColor}
-            `;
+            toast.className = `flex items-start gap-3 text-white px-5 py-4 rounded-2xl shadow-2xl transform translate-x-full opacity-0 transition-all duration-500 ${bgColor}`;
 
             toast.innerHTML = `
                 <div class="flex-1 text-sm leading-snug break-words">${message}</div>
@@ -239,20 +275,10 @@
 
             toast.classList.add('translate-x-full', 'opacity-0');
             setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.remove();
-                }
+                if (toast.parentNode) toast.remove();
             }, 500);
         };
 
-        // ESC closes delete modal
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                closeDeleteModal();
-            }
-        });
-
-        // Session toasts
         @if(session('success'))
             showToast(@json(session('success')), 'success');
         @endif

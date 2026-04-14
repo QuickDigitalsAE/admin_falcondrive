@@ -7,6 +7,13 @@
     <script>
         tailwind.config = {
             theme: {
+                screens: {
+                    sm: '640px',
+                    md: '768px',
+                    lg: '1000px',
+                    xl: '1280px',
+                    '2xl': '1536px',
+                },
                 extend: {
                     boxShadow: {
                         material: '0 12px 30px rgba(15,23,42,.08), 0 2px 10px rgba(15,23,42,.06)',

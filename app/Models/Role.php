@@ -13,9 +13,16 @@ class Role extends SpatieRole
     protected $fillable = [
         'name',
         'guard_name',
+        'role_level',
         'created_by',
         'updated_by',
         'deleted_by',
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     public function createdByUser()

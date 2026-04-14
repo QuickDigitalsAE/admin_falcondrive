@@ -41,17 +41,10 @@ class AuthController extends Controller
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        // Attempt to log the user in
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        // Attempt to log the user in (active users only)
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'status' => 1])) {
             // Authentication passed, get the authenticated user
             $user = Auth::user();
-            
-            if($user->status == 0){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Your account is inactive. Please contact the admin to have your account activated first.'
-                ], Response::HTTP_UNAUTHORIZED);
-            }
 
             $role = $user->roles->first(); // Get first assigned role
             $roleId = $roleName = null;
@@ -87,12 +80,21 @@ class AuthController extends Controller
                     'profile_image' => $profile_image
                 ],
             ], Response::HTTP_OK);
-        }else{
+        } else {
+            $inactiveUser = User::where('email', $request->email)->where('status', 0)->first();
+
+            if ($inactiveUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Your account is inactive. Please contact the admin to have your account activated first.'
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+
             return response()->json([
                 'status' => false,
                 'message' => 'Credentials do not match!'
             ], Response::HTTP_BAD_REQUEST);
-        }        
+        }
     }
 
     public function register(Request $request)

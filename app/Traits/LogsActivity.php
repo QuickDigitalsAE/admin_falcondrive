@@ -8,6 +8,11 @@ use App\Models\UserActivityLog;
 
 trait LogsActivity
 {
+    protected static array $sensitiveActivityFields = [
+        'password',
+        'remember_token',
+    ];
+
     public static function bootLogsActivity()
     {
         static::created(function ($model) {
@@ -17,7 +22,7 @@ trait LogsActivity
                     'model_type' => get_class($model),
                     'table_name' => $model->getTable(),
                     'action'     => 'created',
-                    'changes'    => $model->getAttributes(),
+                    'changes'    => self::sanitizeActivityPayload($model->getAttributes()),
                 ]);
             }
         });
@@ -37,6 +42,15 @@ trait LogsActivity
             }
 
             foreach ($changed as $key => $newValue) {
+                if (in_array($key, self::$sensitiveActivityFields, true)) {
+                    $changes[$key] = [
+                        'old' => '[hidden]',
+                        'new' => '[hidden]',
+                    ];
+
+                    continue;
+                }
+
                 $changes[$key] = [
                     'old' => $original[$key] ?? null,
                     'new' => $newValue,
@@ -49,7 +63,7 @@ trait LogsActivity
                     'model_type' => get_class($model),
                     'table_name' => $tableName,
                     'action'     => 'updated',
-                    'changes'    => $changes,
+                    'changes'    => self::sanitizeActivityPayload($changes),
                 ]);
             }
         });
@@ -61,7 +75,7 @@ trait LogsActivity
                     'model_type' => get_class($model),
                     'table_name' => $model->getTable(),
                     'action'     => 'deleted',
-                    'changes'    => $model->getOriginal(),
+                    'changes'    => self::sanitizeActivityPayload($model->getOriginal()),
                 ]);
             }
         });
@@ -73,7 +87,7 @@ trait LogsActivity
                     'model_type' => get_class($model),
                     'table_name' => $model->getTable(),
                     'action'     => 'restored',
-                    'changes'    => $model->getOriginal(),
+                    'changes'    => self::sanitizeActivityPayload($model->getOriginal()),
                 ]);
             }
         });
@@ -94,5 +108,25 @@ trait LogsActivity
         }
 
         return true;
+    }
+
+    protected static function sanitizeActivityPayload($payload)
+    {
+        if (!is_array($payload)) {
+            return $payload;
+        }
+
+        foreach ($payload as $key => $value) {
+            if (in_array((string) $key, self::$sensitiveActivityFields, true)) {
+                $payload[$key] = '[hidden]';
+                continue;
+            }
+
+            if (is_array($value)) {
+                $payload[$key] = self::sanitizeActivityPayload($value);
+            }
+        }
+
+        return $payload;
     }
 }

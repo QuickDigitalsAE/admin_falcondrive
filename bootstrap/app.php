@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'check.authorization' => \App\Http\Middleware\CheckAuthorization::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
-            'check.domain' => \App\Http\Middleware\CheckDomain::class,
+            'active.user' => \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
 
         // Register middleware groups:

@@ -266,7 +266,29 @@ class PermissionController extends Controller
         // Get the key name for the table column (e.g., "Tables_in_yourdbname")
         $tableKey = 'Tables_in_' . DB::getDatabaseName();
 
-        $tableNames = collect($tables)->pluck($tableKey);
+        // Define a list of tables to exclude from the result
+        $excludedTables = [
+            'migrations',
+            'password_resets',
+            'password_reset_tokens',
+            'failed_jobs',
+            'personal_access_tokens',
+            'sessions',
+            'cache',
+            'cache_locks',
+            'jobs',
+            'user_activity_logs',
+            // Spatie tables are managed via roles, not direct table permissions usually
+            'model_has_permissions',
+            'model_has_roles',
+            'role_has_permissions',
+            'user_socket_connections',
+        ];
+
+        $tableNames = collect($tables)
+            ->pluck($tableKey)
+            ->filter(fn ($table) => !in_array($table, $excludedTables, true))
+            ->values();
 
         return response()->json([
             'status' => true,
