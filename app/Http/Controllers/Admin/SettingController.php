@@ -26,6 +26,11 @@ class SettingController extends Controller
         'file',
     ];
 
+    private const DEFAULT_GROUPS = [
+        'site',
+        'admin',
+    ];
+
     public function __construct()
     {
         $this->middleware('permission:Setting_ViewAll|Setting_ViewMine', ['only' => ['index']]);
@@ -347,14 +352,7 @@ class SettingController extends Controller
 
     private function availableGroups(): array
     {
-        return Setting::query()
-            ->whereNotNull('group')
-            ->where('group', '!=', '')
-            ->orderBy('group')
-            ->pluck('group')
-            ->unique()
-            ->values()
-            ->all();
+        return self::DEFAULT_GROUPS;
     }
 
     private function exportSettings($query, bool $isDeleted)

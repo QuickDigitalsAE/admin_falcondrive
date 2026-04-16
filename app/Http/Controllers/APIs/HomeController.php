@@ -30,12 +30,8 @@ class HomeController
     {
         $featuredCars = Car::with(['brand', 'categories'])
             ->where('featured', 1)
-            ->orderByRaw('CAST(COALESCE(sorting, 999999) AS UNSIGNED) ASC')
-            ->limit(12)
-            ->get();
-
-        $latestCars = Car::with(['brand', 'categories'])
-            ->latest('id')
+            ->orderBy('featured_sorting', 'asc')
+            ->orderBy('id', 'desc')
             ->limit(12)
             ->get();
 
@@ -45,14 +41,15 @@ class HomeController
         return $this->successResponse('Home page data fetched successfully', [
             'highlights' => HighlightResource::collection(Highlight::latest('id')->get())->resolve(),
             'featured_cars' => CarResource::collection($featuredCars)->resolve(),
-            'latest_cars' => CarResource::collection($latestCars)->resolve(),
             'categories' => CategoryResource::collection(Category::orderBy('name_en')->get())->resolve(),
             'top_promotions' => PromotionResource::collection($topOffers)->resolve(),
             'about_us' => AboutUsResource::collection(AboutUs::latest('id')->limit(1)->get())->resolve(),
             'testimonials' => TestimonialResource::collection(Testimonial::latest('id')->limit(10)->get())->resolve(),
             'faqs' => FaqResource::collection(Faq::latest('id')->limit(10)->get())->resolve(),
             'latest_blogs' => BlogResource::collection($latestBlogs)->resolve(),
-            'site_settings' => SettingResource::collection(Setting::orderBy('order')->get())->resolve(),
+            'site_settings' => SettingResource::collection(
+                Setting::where('group', 'site')->orderBy('order')->get()
+            )->resolve(),
         ]);
     }
 }

@@ -103,7 +103,17 @@
 <script src="https://cdn.ckeditor.com/4.22.1/full/ckeditor.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    
+        const brandSelect = document.getElementById('brand_id');
+        const brandPickerWrap = document.getElementById('brand_picker_wrap');
+        const brandPickerButton = document.getElementById('brand_picker_button');
+        const brandPickerPanel = document.getElementById('brand_picker_panel');
+        const brandPickerSearch = document.getElementById('brand_picker_search');
+        const brandPickerList = document.getElementById('brand_picker_list');
+        const brandPickerLabel = document.getElementById('brand_picker_label');
+        const sortingSelect = document.getElementById('sorting');
+        const featuredSelect = document.getElementById('featured');
+        const featuredSortingWrap = document.getElementById('featuredSortingWrap');
+        const featuredSortingSelect = document.getElementById('featured_sorting');
         const categorySelect = document.getElementById('category_ids');
         const categoryPickerWrap = document.getElementById('category_picker_wrap');
         const categoryPickerButton = document.getElementById('category_picker_button');
@@ -121,6 +131,123 @@
         const galleryFileName = document.getElementById('galleryFileName');
         const defaultMainImage = @json($car->main_image_url ?: 'https://placehold.co/200x200/f8e8b2/5e450a?text=Main');
         const defaultGalleryImages = @json($car->gallery_image_urls);
+        const initialSortingValue = sortingSelect?.dataset.currentSorting || '';
+        const sortOrdersBaseUrl = @json(url('/admin/cars/sort-orders'));
+        const currentCarId = @json($car->id);
+        const featuredSortOrdersUrl = @json(url('/admin/cars/featured-sort-orders'));
+        const initialFeaturedSortingValue = featuredSortingSelect?.dataset.currentFeaturedSorting || '';
+
+        function getAvailableBrandOptions() {
+            if (!brandSelect) return [];
+            const query = (brandPickerSearch?.value || '').trim().toLowerCase();
+            return Array.from(brandSelect.options).filter(option => {
+                if (!option.value) return false;
+                return query === '' || option.textContent.toLowerCase().includes(query);
+            });
+        }
+
+        function closeBrandPicker() {
+            brandPickerPanel?.classList.add('hidden');
+        }
+
+        function renderBrandPickerList() {
+            if (!brandPickerList) return;
+            const options = getAvailableBrandOptions();
+            brandPickerList.innerHTML = options.length
+                ? options.map(option => `<button type="button" class="brand-picker-option flex w-full items-center rounded-[14px] px-3 py-3 text-left text-sm text-slate-700 transition hover:bg-[#fff8e8] hover:text-[#7d6220]" data-brand-id="${option.value}">${option.textContent}</button>`).join('')
+                : '<div class="px-3 py-3 text-sm text-slate-400">No brands found.</div>';
+        }
+
+        function syncBrandPickerLabel() {
+            if (!brandSelect || !brandPickerLabel) return;
+            brandPickerLabel.textContent = brandSelect.selectedOptions[0]?.textContent || 'Select Brand';
+        }
+
+        function renderSortingOptions(orders = [], selectedValue = '') {
+            if (!sortingSelect || !brandSelect) return;
+
+            if (!brandSelect.value) {
+                sortingSelect.innerHTML = '<option value="">Select brand first</option>';
+                sortingSelect.value = '';
+                return;
+            }
+
+            const normalizedOrders = orders.map(Number).filter(order => !Number.isNaN(order));
+            const maxSortOrder = normalizedOrders.length ? Math.max(...normalizedOrders) : -1;
+            const nextPosition = maxSortOrder + 1;
+            const targetValue = selectedValue !== '' ? Number(selectedValue) : nextPosition;
+            const optionValues = Array.from(new Set([...normalizedOrders, nextPosition, targetValue])).sort((a, b) => a - b);
+
+            sortingSelect.innerHTML = optionValues.map((value) => {
+                const suffix = value === nextPosition ? ' (New slot)' : '';
+                return `<option value="${value}">${value}${suffix}</option>`;
+            }).join('');
+
+            sortingSelect.value = String(targetValue);
+        }
+
+        function fetchSortOrders(selectedValue = '') {
+            if (!brandSelect?.value) {
+                renderSortingOptions([], selectedValue);
+                return;
+            }
+
+            fetch(`${sortOrdersBaseUrl}/${brandSelect.value}?ignore_car_id=${currentCarId}`)
+                .then((response) => response.json())
+                .then((orders) => {
+                    renderSortingOptions(Array.isArray(orders) ? orders : [], selectedValue);
+                })
+                .catch(() => {
+                    renderSortingOptions([], selectedValue);
+                });
+        }
+
+        function renderFeaturedSortingOptions(orders = [], selectedValue = '') {
+            if (!featuredSortingSelect) return;
+
+            const normalizedOrders = orders.map(Number).filter(order => !Number.isNaN(order));
+            const maxSortOrder = normalizedOrders.length ? Math.max(...normalizedOrders) : -1;
+            const nextPosition = maxSortOrder + 1;
+            const targetValue = selectedValue !== '' ? Number(selectedValue) : nextPosition;
+            const optionValues = Array.from(new Set([...normalizedOrders, nextPosition, targetValue])).sort((a, b) => a - b);
+
+            featuredSortingSelect.innerHTML = optionValues.map((value) => {
+                const suffix = value === nextPosition ? ' (New slot)' : '';
+                return `<option value="${value}">${value}${suffix}</option>`;
+            }).join('');
+
+            featuredSortingSelect.value = String(targetValue);
+        }
+
+        function toggleFeaturedSorting() {
+            const isFeatured = featuredSelect?.value === '1';
+            featuredSortingWrap?.classList.toggle('hidden', !isFeatured);
+
+            if (!isFeatured && featuredSortingSelect) {
+                featuredSortingSelect.innerHTML = '<option value="">Select Featured = Yes first</option>';
+                featuredSortingSelect.value = '';
+            }
+        }
+
+        function fetchFeaturedSortOrders(selectedValue = '') {
+            const isFeatured = featuredSelect?.value === '1';
+
+            if (!isFeatured) {
+                toggleFeaturedSorting();
+                return;
+            }
+
+            toggleFeaturedSorting();
+
+            fetch(`${featuredSortOrdersUrl}?ignore_car_id=${currentCarId}`)
+                .then((response) => response.json())
+                .then((orders) => {
+                    renderFeaturedSortingOptions(Array.isArray(orders) ? orders : [], selectedValue);
+                })
+                .catch(() => {
+                    renderFeaturedSortingOptions([], selectedValue);
+                });
+        }
 
         function getAvailableCategoryOptions() {
             if (!categorySelect) return [];
@@ -164,6 +291,31 @@
             galleryPreviewGrid.innerHTML = urls.length ? urls.map(url => `<div class="overflow-hidden rounded-2xl border border-[#eadfbe] bg-white shadow-sm"><img src="${url}" alt="Gallery Preview" class="h-24 w-full object-cover"></div>`).join('') : '<div class="col-span-full text-xs text-slate-400">No gallery images selected.</div>';
         }
 
+        brandPickerButton?.addEventListener('click', function () {
+            brandPickerPanel?.classList.toggle('hidden');
+            renderBrandPickerList();
+            if (!brandPickerPanel?.classList.contains('hidden')) {
+                brandPickerSearch?.focus();
+            }
+        });
+
+        brandPickerSearch?.addEventListener('input', renderBrandPickerList);
+
+        brandPickerList?.addEventListener('click', function (event) {
+            const button = event.target.closest('.brand-picker-option');
+            if (!button || !brandSelect) return;
+            const option = Array.from(brandSelect.options).find(item => item.value === button.dataset.brandId);
+            if (option) {
+                brandSelect.value = option.value;
+                syncBrandPickerLabel();
+                fetchSortOrders('');
+            }
+            if (brandPickerSearch) {
+                brandPickerSearch.value = '';
+            }
+            closeBrandPicker();
+        });
+
         categoryPickerButton?.addEventListener('click', function () {
             categoryPickerPanel?.classList.toggle('hidden');
             renderCategoryPickerList();
@@ -199,12 +351,22 @@
         });
 
         document.addEventListener('click', function (event) {
+            if (!brandPickerWrap?.contains(event.target)) {
+                closeBrandPicker();
+            }
             if (!categoryPickerWrap?.contains(event.target)) {
                 closeCategoryPicker();
             }
         });
 
         stockToggle?.addEventListener('change', setStockLabel);
+        featuredSelect?.addEventListener('change', function () {
+            fetchFeaturedSortOrders('');
+        });
+        syncBrandPickerLabel();
+        renderBrandPickerList();
+        fetchSortOrders(initialSortingValue);
+        fetchFeaturedSortOrders(initialFeaturedSortingValue);
         renderCategoryTags();
         setStockLabel();
         renderGalleryPreviews(defaultGalleryImages);

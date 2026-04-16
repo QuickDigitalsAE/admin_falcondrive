@@ -28,26 +28,55 @@
 <div class="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
     <div class="space-y-6">
         <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
-            @foreach ([
-                ['id' => 'display_name', 'label' => 'Display Name', 'value' => old('display_name', $setting->display_name ?? '')],
-                ['id' => 'key', 'label' => 'Key', 'value' => old('key', $setting->key ?? '')],
-                ['id' => 'group', 'label' => 'Group', 'value' => old('group', $setting->group ?? '')],
-                ['id' => 'order', 'label' => 'Order', 'value' => old('order', $setting->order ?? 1)],
-            ] as $field)
-                <div class="min-w-0">
-                    <div class="space-y-2">
-                        <div class="relative">
-                            <input id="{{ $field['id'] }}" type="text" name="{{ $field['id'] }}" value="{{ $field['value'] }}" placeholder="{{ $field['label'] }}" {{ $field['id'] === 'group' ? 'list=settingGroupList' : '' }}
-                                class="peer w-full rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
-                            <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has($field['id']) ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">{{ $field['label'] }}</label>
-                        </div>
-                        @if ($field['id'] === 'key')
-                            <p class="px-1 text-xs text-slate-500">Use a stable machine key like `contact.phone`, `seo.meta_title`, or `homepage_banner_text`.</p>
-                        @endif
-                        @error($field['id'])<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+            <div class="min-w-0">
+                <div class="space-y-2">
+                    <div class="relative">
+                        <input id="display_name" type="text" name="display_name" value="{{ old('display_name', $setting->display_name ?? '') }}" placeholder="Display Name"
+                            class="peer w-full rounded-[18px] border {{ $errors->has('display_name') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                        <label for="display_name" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('display_name') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">Display Name</label>
                     </div>
+                    @error('display_name')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
                 </div>
-            @endforeach
+            </div>
+
+            <div class="min-w-0">
+                <div class="space-y-2">
+                    <div class="relative">
+                        <input id="key" type="text" name="key" value="{{ old('key', $setting->key ?? '') }}" placeholder="Key"
+                            class="peer w-full rounded-[18px] border {{ $errors->has('key') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                        <label for="key" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('key') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">Key</label>
+                    </div>
+                    <p class="px-1 text-xs text-slate-500">Use a stable machine key like `contact.phone`, `seo.meta_title`, or `homepage_banner_text`.</p>
+                    @error('key')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
+            <div class="min-w-0">
+                <div class="space-y-2">
+                    <div class="relative">
+                        <select id="group" name="group"
+                            class="peer w-full appearance-none rounded-[18px] border {{ $errors->has('group') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 pr-11 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                            @foreach ($groups as $group)
+                                <option value="{{ $group }}" {{ old('group', $setting->group ?? 'site') === $group ? 'selected' : '' }}>{{ ucfirst($group) }}</option>
+                            @endforeach
+                        </select>
+                        <label for="group" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">Group</label>
+                        <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                    </div>
+                    @error('group')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
+            <div class="min-w-0">
+                <div class="space-y-2">
+                    <div class="relative">
+                        <input id="order" type="text" name="order" value="{{ old('order', $setting->order ?? 1) }}" placeholder="Order"
+                            class="peer w-full rounded-[18px] border {{ $errors->has('order') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                        <label for="order" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('order') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">Order</label>
+                    </div>
+                    @error('order')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                </div>
+            </div>
 
             <div class="min-w-0 xl:col-span-2">
                 <div class="space-y-2">
@@ -185,25 +214,8 @@
                 <p>Store arrays or complex UI config in `details` as JSON, not in the display name.</p>
             </div>
         </div>
-
-        @if (!empty($groups))
-            <div class="rounded-[24px] border border-[#eadfbe] bg-white p-5 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[#b4861f]">Existing Groups</p>
-                <div class="mt-4 flex flex-wrap gap-2">
-                    @foreach ($groups as $group)
-                        <button type="button" class="group-pill inline-flex rounded-full border border-[#ead39a] bg-[#fff4d6] px-3 py-1 text-xs font-semibold text-[#7d6220]" data-group-value="{{ $group }}">{{ $group }}</button>
-                    @endforeach
-                </div>
-            </div>
-        @endif
     </div>
 </div>
-
-<datalist id="settingGroupList">
-    @foreach ($groups as $group)
-        <option value="{{ $group }}"></option>
-    @endforeach
-</datalist>
 
 <div class="mt-6 flex flex-col gap-3 border-t border-[#f0e6ca] pt-6 sm:flex-row sm:flex-wrap">
     <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-floppy-disk mr-2 text-[13px]"></i>{{ $submitLabel }}</button>
@@ -386,12 +398,6 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function () {
             typeSelect.value = button.dataset.typeTarget;
             syncValueUi();
-        });
-    });
-
-    document.querySelectorAll('.group-pill').forEach(function (button) {
-        button.addEventListener('click', function () {
-            groupInput.value = button.dataset.groupValue || '';
         });
     });
 

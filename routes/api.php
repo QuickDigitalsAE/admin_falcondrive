@@ -18,7 +18,7 @@ use App\Http\Controllers\APIs\PromotionController;
 use App\Http\Controllers\APIs\SettingController;
 use App\Http\Controllers\APIs\TestimonialController;
 
-Route::prefix('v1')->group(function () {
+Route::prefix('website')->group(function () {
     // Public APIs
     Route::get('/home', HomeController::class);
 
@@ -44,5 +44,5 @@ Route::prefix('v1')->group(function () {
     Route::get('/settings', [SettingController::class, 'publicIndex']);
     Route::get('/testimonials', [TestimonialController::class, 'publicIndex']);
     Route::post('/inquiries', [InquiryController::class, 'storePublic']);
-    
+
 });

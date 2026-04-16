@@ -143,6 +143,8 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
     Route::prefix('cars')->name('cars')->group(function () {
         Route::get('/', [CarController::class, 'index'])->name('');
         Route::get('/create', [CarController::class, 'createCar'])->name('.create');
+        Route::get('/sort-orders/{brandId}', [CarController::class, 'getSortOrders'])->name('.sort-orders');
+        Route::get('/featured-sort-orders', [CarController::class, 'getFeaturedSortOrders'])->name('.featured-sort-orders');
         Route::post('/store', [CarController::class, 'postCar'])->name('.store');
         Route::get('/show/{id}', [CarController::class, 'showCar'])->name('.show');
         Route::get('/edit/{id}', [CarController::class, 'editCar'])->name('.edit');

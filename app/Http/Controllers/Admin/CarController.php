@@ -8,6 +8,7 @@ use App\Models\Car;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -59,14 +60,18 @@ class CarController extends Controller
 
     public function postCar(Request $request)
     {
-        $validated = $request->validate($this->validationRules());
+        $validated = $request->validate($this->validationRules($request));
+        $car = null;
 
-        $car = Car::create($this->buildPayload($validated, $request) + [
-            'slug' => $this->generateUniqueSlug($validated['slug'] ?? $validated['name_en']),
-            'created_by' => Auth::id(),
-        ]);
+        DB::transaction(function () use ($validated, $request, &$car) {
+            $car = Car::create($this->buildPayload($validated, $request) + [
+                'slug' => $this->generateUniqueSlug($validated['slug'] ?? $validated['name_en']),
+                'created_by' => Auth::id(),
+            ]);
 
-        $car->categories()->sync($validated['category_ids'] ?? []);
+            $this->placeCarInBrandSorting($car, (int) $validated['brand_id'], $this->resolveSortingValue($validated));
+            $car->categories()->sync($validated['category_ids'] ?? []);
+        });
 
         return redirect()->route('admin.cars')->with('success', 'Car added successfully.');
     }
@@ -99,6 +104,40 @@ class CarController extends Controller
         ]);
     }
 
+    public function getSortOrders(int $brandId, Request $request)
+    {
+        $ignoreCarId = $request->integer('ignore_car_id');
+
+        $orders = Car::query()
+            ->where('brand_id', $brandId)
+            ->when($ignoreCarId, fn ($query) => $query->where('id', '!=', $ignoreCarId))
+            ->whereNotNull('sorting')
+            ->orderBy('sorting')
+            ->pluck('sorting')
+            ->map(fn ($sorting) => (int) $sorting)
+            ->values()
+            ->all();
+
+        return response()->json($orders);
+    }
+
+    public function getFeaturedSortOrders(Request $request)
+    {
+        $ignoreCarId = $request->integer('ignore_car_id');
+
+        $orders = Car::query()
+            ->where('featured', 1)
+            ->when($ignoreCarId, fn ($query) => $query->where('id', '!=', $ignoreCarId))
+            ->whereNotNull('featured_sorting')
+            ->orderBy('featured_sorting')
+            ->pluck('featured_sorting')
+            ->map(fn ($sorting) => (int) $sorting)
+            ->values()
+            ->all();
+
+        return response()->json($orders);
+    }
+
     public function updateCar(Request $request, $id)
     {
         $car = Car::with('categories')->find($id);
@@ -107,21 +146,46 @@ class CarController extends Controller
             return redirect()->route('admin.cars')->with('error', 'Car not found.');
         }
 
-        $validated = $request->validate($this->validationRules($car->id));
+        $validated = $request->validate($this->validationRules($request, $car->id));
 
-        if ($request->hasFile('main_image')) {
-            $this->deleteImage($car->main_image);
-        }
+        DB::transaction(function () use ($request, $validated, $car) {
+            $originalBrandId = (int) $car->brand_id;
+            $originalSorting = $car->sorting !== null ? (int) $car->sorting : null;
 
-        if ($request->hasFile('images')) {
-            $this->deleteImages($car->images ?? []);
-        }
+            if ($request->hasFile('main_image')) {
+                $this->deleteImage($car->main_image);
+            }
 
-        $car->fill($this->buildPayload($validated, $request, $car));
-        $car->slug = $this->generateUniqueSlug($validated['slug'] ?? $validated['name_en'], $car->id);
-        $car->updated_by = Auth::id();
-        $car->save();
-        $car->categories()->sync($validated['category_ids'] ?? []);
+            if ($request->hasFile('images')) {
+                $this->deleteImages($car->images ?? []);
+            }
+
+            $originalFeatured = (bool) $car->featured;
+            $originalFeaturedSorting = $car->featured_sorting !== null ? (int) $car->featured_sorting : null;
+
+            $car->fill($this->buildPayload($validated, $request, $car));
+            $car->slug = $this->generateUniqueSlug($validated['slug'] ?? $validated['name_en'], $car->id);
+            $car->updated_by = Auth::id();
+            $car->save();
+
+            $this->placeCarInBrandSorting(
+                $car,
+                (int) $validated['brand_id'],
+                $this->resolveSortingValue($validated, $car),
+                $originalBrandId,
+                $originalSorting,
+            );
+
+            $this->placeCarInFeaturedSorting(
+                $car,
+                (bool) ($validated['featured'] ?? 0),
+                $this->resolveFeaturedSortingValue($validated, $car),
+                $originalFeatured,
+                $originalFeaturedSorting,
+            );
+
+            $car->categories()->sync($validated['category_ids'] ?? []);
+        });
 
         return redirect()->route('admin.cars')->with('success', 'Car updated successfully.');
     }
@@ -134,9 +198,22 @@ class CarController extends Controller
             return back()->with('error', 'Car not found.');
         }
 
-        $car->deleted_by = Auth::id();
-        $car->save();
-        $car->delete();
+        DB::transaction(function () use ($car) {
+            $brandId = $car->brand_id ? (int) $car->brand_id : null;
+            $sorting = $car->sorting !== null ? (int) $car->sorting : null;
+
+            $car->deleted_by = Auth::id();
+            $car->save();
+            $car->delete();
+
+            if ($brandId !== null && $sorting !== null) {
+                $this->closeBrandSortingGap($brandId, $sorting, $car->id);
+            }
+
+            if ($car->featured && $car->featured_sorting !== null) {
+                $this->closeFeaturedSortingGap((int) $car->featured_sorting, $car->id);
+            }
+        });
 
         return redirect()->route('admin.cars')->with('success', 'Car deleted successfully.');
     }
@@ -153,9 +230,27 @@ class CarController extends Controller
             return back()->with('error', 'Car is not deleted.');
         }
 
-        $car->restore();
-        $car->deleted_by = null;
-        $car->save();
+        DB::transaction(function () use ($car) {
+            $car->restore();
+            $car->deleted_by = null;
+            $car->save();
+
+            if ($car->brand_id !== null) {
+                $this->placeCarInBrandSorting(
+                    $car,
+                    (int) $car->brand_id,
+                    Car::nextSortingForBrand((int) $car->brand_id, $car->id),
+                );
+            }
+
+            if ($car->featured) {
+                $this->placeCarInFeaturedSorting(
+                    $car,
+                    true,
+                    Car::nextFeaturedSorting($car->id),
+                );
+            }
+        });
 
         return redirect()->route('admin.cars')->with('success', 'Car restored successfully.');
     }
@@ -187,7 +282,7 @@ class CarController extends Controller
             });
         }
 
-        $query->latest('id');
+        $query->orderedForListing();
 
         if ($isExport) {
             return $this->exportCars($query, $isDeleted);
@@ -252,7 +347,7 @@ class CarController extends Controller
         return view('admin.cars.index');
     }
 
-    private function validationRules(?int $carId = null): array
+    private function validationRules(Request $request, ?int $carId = null): array
     {
         return [
             'name_en' => ['required', 'string', 'max:255'],
@@ -267,6 +362,7 @@ class CarController extends Controller
             'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'model' => ['required', 'string', 'max:255'],
             'featured' => ['nullable', 'boolean'],
+            'featured_sorting' => ['nullable', 'integer', 'min:0'],
             'engine' => ['nullable', 'string', 'max:255'],
             'seats' => ['nullable', 'string', 'max:255'],
             'doors' => ['nullable', 'string', 'max:255'],
@@ -291,7 +387,7 @@ class CarController extends Controller
             'cdw_daily' => ['nullable', 'string', 'max:255'],
             'cdw_weekly' => ['nullable', 'string', 'max:255'],
             'cdw_monthly' => ['nullable', 'string', 'max:255'],
-            'sorting' => ['nullable', 'string', 'max:255'],
+            'sorting' => ['nullable', 'integer', 'min:0'],
         ];
     }
 
@@ -309,6 +405,7 @@ class CarController extends Controller
             'images' => $request->hasFile('images') ? $this->storeMultipleImages($request->file('images'), 'gallery') : ($car->images ?? []),
             'model' => $validated['model'],
             'featured' => (int) ($validated['featured'] ?? 0),
+            'featured_sorting' => $validated['featured'] ?? 0 ? $this->resolveFeaturedSortingValue($validated, $car) : null,
             'engine' => $validated['engine'] ?? null,
             'seats' => $validated['seats'] ?? null,
             'doors' => $validated['doors'] ?? null,
@@ -330,8 +427,165 @@ class CarController extends Controller
             'cdw_daily' => $validated['cdw_daily'] ?? null,
             'cdw_weekly' => $validated['cdw_weekly'] ?? null,
             'cdw_monthly' => $validated['cdw_monthly'] ?? null,
-            'sorting' => $validated['sorting'] ?? null,
         ];
+    }
+
+    private function resolveSortingValue(array $validated, ?Car $car = null): int
+    {
+        if (!blank($validated['sorting'] ?? null)) {
+            return (int) $validated['sorting'];
+        }
+
+        return Car::nextSortingForBrand((int) $validated['brand_id'], $car?->id);
+    }
+
+    private function resolveFeaturedSortingValue(array $validated, ?Car $car = null): ?int
+    {
+        if (!($validated['featured'] ?? 0)) {
+            return null;
+        }
+
+        if (!blank($validated['featured_sorting'] ?? null)) {
+            return (int) $validated['featured_sorting'];
+        }
+
+        return Car::nextFeaturedSorting($car?->id);
+    }
+
+    private function placeCarInBrandSorting(
+        Car $car,
+        int $targetBrandId,
+        int $targetSorting,
+        ?int $originalBrandId = null,
+        ?int $originalSorting = null
+    ): void {
+        if ($originalBrandId !== null && $originalSorting !== null) {
+            if ($originalBrandId === $targetBrandId) {
+                $this->moveWithinBrandSorting($car, $targetBrandId, $originalSorting, $targetSorting);
+                return;
+            }
+
+            $this->closeBrandSortingGap($originalBrandId, $originalSorting, $car->id);
+        }
+
+        $this->insertIntoBrandSorting($car, $targetBrandId, $targetSorting);
+    }
+
+    private function moveWithinBrandSorting(Car $car, int $brandId, int $fromSorting, int $toSorting): void
+    {
+        if ($fromSorting === $toSorting) {
+            $car->forceFill(['sorting' => $toSorting])->saveQuietly();
+            return;
+        }
+
+        if ($toSorting < $fromSorting) {
+            Car::query()
+                ->where('brand_id', $brandId)
+                ->where('id', '!=', $car->id)
+                ->whereBetween('sorting', [$toSorting, $fromSorting - 1])
+                ->increment('sorting');
+        } else {
+            Car::query()
+                ->where('brand_id', $brandId)
+                ->where('id', '!=', $car->id)
+                ->whereBetween('sorting', [$fromSorting + 1, $toSorting])
+                ->decrement('sorting');
+        }
+
+        $car->forceFill(['sorting' => $toSorting])->saveQuietly();
+    }
+
+    private function insertIntoBrandSorting(Car $car, int $brandId, int $targetSorting): void
+    {
+        Car::query()
+            ->where('brand_id', $brandId)
+            ->where('id', '!=', $car->id)
+            ->where('sorting', '>=', $targetSorting)
+            ->increment('sorting');
+
+        $car->forceFill([
+            'brand_id' => $brandId,
+            'sorting' => $targetSorting,
+        ])->saveQuietly();
+    }
+
+    private function closeBrandSortingGap(int $brandId, int $fromSorting, int $ignoreCarId): void
+    {
+        Car::query()
+            ->where('brand_id', $brandId)
+            ->where('id', '!=', $ignoreCarId)
+            ->where('sorting', '>', $fromSorting)
+            ->decrement('sorting');
+    }
+
+    private function placeCarInFeaturedSorting(
+        Car $car,
+        bool $shouldBeFeatured,
+        ?int $targetSorting,
+        ?bool $wasFeatured = null,
+        ?int $originalFeaturedSorting = null
+    ): void {
+        if (!$shouldBeFeatured) {
+            if ($wasFeatured && $originalFeaturedSorting !== null) {
+                $this->closeFeaturedSortingGap($originalFeaturedSorting, $car->id);
+            }
+
+            $car->forceFill(['featured_sorting' => null])->saveQuietly();
+            return;
+        }
+
+        if ($wasFeatured && $originalFeaturedSorting !== null && $targetSorting !== null) {
+            $this->moveWithinFeaturedSorting($car, $originalFeaturedSorting, $targetSorting);
+            return;
+        }
+
+        if ($targetSorting !== null) {
+            $this->insertIntoFeaturedSorting($car, $targetSorting);
+        }
+    }
+
+    private function moveWithinFeaturedSorting(Car $car, int $fromSorting, int $toSorting): void
+    {
+        if ($fromSorting === $toSorting) {
+            $car->forceFill(['featured_sorting' => $toSorting])->saveQuietly();
+            return;
+        }
+
+        if ($toSorting < $fromSorting) {
+            Car::query()
+                ->where('featured', 1)
+                ->where('id', '!=', $car->id)
+                ->whereBetween('featured_sorting', [$toSorting, $fromSorting - 1])
+                ->increment('featured_sorting');
+        } else {
+            Car::query()
+                ->where('featured', 1)
+                ->where('id', '!=', $car->id)
+                ->whereBetween('featured_sorting', [$fromSorting + 1, $toSorting])
+                ->decrement('featured_sorting');
+        }
+
+        $car->forceFill(['featured_sorting' => $toSorting])->saveQuietly();
+    }
+
+    private function insertIntoFeaturedSorting(Car $car, int $targetSorting): void
+    {
+        Car::query()
+            ->where('featured', 1)
+            ->where('id', '!=', $car->id)
+            ->where('featured_sorting', '>=', $targetSorting)
+            ->increment('featured_sorting');
+
+        $car->forceFill(['featured_sorting' => $targetSorting])->saveQuietly();
+    }
+
+    private function closeFeaturedSortingGap(int $fromSorting, int $ignoreCarId): void
+    {
+        Car::query()
+            ->where('featured', 1)
+            ->where('id', '!=', $ignoreCarId)
+            ->where('featured_sorting', '>', $fromSorting)
+            ->decrement('featured_sorting');
     }
 
     private function generateUniqueSlug(string $source, ?int $ignoreId = null): string

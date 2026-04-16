@@ -58,7 +58,13 @@ class CarWithDriver extends Model
     {
         return $this->belongsToMany(Car::class, 'car_car_with_driver')
             ->withTimestamps()
-            ->wherePivotNull('deleted_at');
+            ->wherePivotNull('deleted_at')
+            ->orderedForListing();
+    }
+
+    public function cars()
+    {
+        return $this->carsRelation();
     }
 
     public function createdByUser()

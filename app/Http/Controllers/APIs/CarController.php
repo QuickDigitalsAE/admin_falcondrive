@@ -22,7 +22,18 @@ class CarController extends BaseApiController
     protected string $updateMessage = 'Car updated successfully';
     protected string $deleteMessage = 'Car deleted successfully';
 
-    protected array $sortable = ['id', 'name_en', 'price_daily', 'price_weekly', 'price_monthly', 'sorting', 'stock'];
+    protected array $sortable = ['id', 'name_en', 'price_daily', 'price_weekly', 'price_monthly', 'sorting', 'featured_sorting', 'stock'];
+
+    protected function query(Request $request): Builder
+    {
+        $query = parent::query($request);
+
+        if (! $request->filled('sort_by')) {
+            $query->reorder()->orderedForListing();
+        }
+
+        return $query;
+    }
 
     protected function applyFilters(Builder $query, Request $request): Builder
     {

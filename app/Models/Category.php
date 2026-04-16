@@ -45,6 +45,7 @@ class Category extends Model
     {
         return $this->belongsToMany(Car::class, 'car_category')
             ->withTimestamps()
-            ->wherePivotNull('deleted_at');
+            ->wherePivotNull('deleted_at')
+            ->orderedForListing();
     }
 }

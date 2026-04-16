@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
@@ -24,6 +25,7 @@ class Car extends Model
         'images',
         'model',
         'featured',
+        'featured_sorting',
         'engine',
         'seats',
         'doors',
@@ -54,7 +56,9 @@ class Car extends Model
 
     protected $casts = [
         'images' => 'array',
+        'brand_id' => 'integer',
         'featured' => 'boolean',
+        'featured_sorting' => 'integer',
         'cruise_control' => 'boolean',
         'bluetooth' => 'boolean',
         'automatic' => 'boolean',
@@ -63,6 +67,7 @@ class Car extends Model
         'carplay' => 'boolean',
         'camera' => 'boolean',
         'stock' => 'boolean',
+        'sorting' => 'integer',
     ];
 
     protected $appends = [
@@ -89,6 +94,48 @@ class Car extends Model
         return $this->belongsTo(Brand::class, 'brand_id');
     }
 
+    public function scopeOrderedForListing(Builder $query): Builder
+    {
+        return $query
+            ->orderByRaw('CASE WHEN cars.brand_id IS NULL THEN 1 ELSE 0 END ASC')
+            ->orderBy('cars.brand_id')
+            ->orderByRaw("CASE WHEN cars.sorting IS NULL OR cars.sorting = '' THEN 1 ELSE 0 END ASC")
+            ->orderByRaw("CAST(COALESCE(NULLIF(cars.sorting, ''), '999999') AS UNSIGNED) ASC")
+            ->orderByRaw('LOWER(COALESCE(cars.name_en, "")) ASC')
+            ->orderByDesc('cars.id');
+    }
+
+    public static function nextSortingForBrand(int $brandId, ?int $ignoreId = null): int
+    {
+        $maxSorting = static::query()
+            ->where('brand_id', $brandId)
+            ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId))
+            ->selectRaw("MAX(CAST(COALESCE(NULLIF(sorting, ''), '0') AS UNSIGNED)) as max_sorting")
+            ->value('max_sorting');
+
+        return $maxSorting === null ? 0 : ((int) $maxSorting + 1);
+    }
+
+    public function scopeOrderedForFeaturedListing(Builder $query): Builder
+    {
+        return $query
+            ->orderByRaw("CASE WHEN cars.featured_sorting IS NULL THEN 1 ELSE 0 END ASC")
+            ->orderByRaw("CAST(COALESCE(NULLIF(cars.featured_sorting, ''), '999999') AS UNSIGNED) ASC")
+            ->orderByRaw('LOWER(COALESCE(cars.name_en, "")) ASC')
+            ->orderByDesc('cars.id');
+    }
+
+    public static function nextFeaturedSorting(?int $ignoreId = null): int
+    {
+        $maxSorting = static::query()
+            ->where('featured', 1)
+            ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId))
+            ->selectRaw("MAX(CAST(COALESCE(NULLIF(featured_sorting, ''), '0') AS UNSIGNED)) as max_sorting")
+            ->value('max_sorting');
+
+        return $maxSorting === null ? 0 : ((int) $maxSorting + 1);
+    }
+
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'car_category')
@@ -101,6 +148,11 @@ class Car extends Model
         return $this->belongsToMany(CarWithDriver::class, 'car_car_with_driver')
             ->withTimestamps()
             ->wherePivotNull('deleted_at');
+    }
+
+    public function driverPages()
+    {
+        return $this->carWithDrivers();
     }
 
     public function locations()

@@ -30,7 +30,8 @@ class Location extends Model
     {
         return $this->belongsToMany(Car::class, 'location_cars', 'locations_id', 'car_id')
             ->withTimestamps()
-            ->wherePivotNull('deleted_at');
+            ->wherePivotNull('deleted_at')
+            ->orderedForListing();
     }
 
     public function createdByUser()

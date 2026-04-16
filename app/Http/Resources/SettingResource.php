@@ -1,6 +1,8 @@
 <?php
 namespace App\Http\Resources;
+
 use Illuminate\Http\Request;
+
 class SettingResource extends BaseResource
 {
     public function toArray(Request $request): array
@@ -9,7 +11,9 @@ class SettingResource extends BaseResource
             'id' => $this->id,
             'key' => $this->key,
             'display_name' => $this->display_name,
-            'value' => $this->value,
+            'value' => in_array($this->type, ['image', 'file'], true)
+                ? ($this->value_url ?? $this->value)
+                : $this->value,
             'details' => $this->details,
             'type' => $this->type,
             'order' => $this->order,

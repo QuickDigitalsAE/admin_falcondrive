@@ -23,6 +23,7 @@ class CarResource extends BaseResource
             'images_urls' => array_map(fn ($img) => $this->imageUrl($img), $this->decodeImages($this->images)),
             'model' => $this->model,
             'featured' => (bool) $this->featured,
+            'featured_sorting' => $this->featured_sorting,
             'engine' => $this->engine,
             'seats' => $this->seats,
             'doors' => $this->doors,
