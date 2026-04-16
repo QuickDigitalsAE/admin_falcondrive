@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - dev
+  workflow_dispatch:
+
+concurrency:
+  group: falcondrive-admin-deploy
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -19,12 +24,19 @@ jobs:
 
       - name: Deploy project
         run: |
-          ssh -p ${{ secrets.CPANEL_PORT }} ${{ secrets.CPANEL_USERNAME }}@${{ secrets.CPANEL_HOST }} << EOF
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.CPANEL_PORT }} ${{ secrets.CPANEL_USERNAME }}@${{ secrets.CPANEL_HOST }} << 'EOF'
             set -e
-            cd /home/${{ secrets.CPANEL_USERNAME }}/public_html/admin.falcondrive.ae
+
+            cd /home/falcondrive/public_html/admin.falcondrive.ae
+
+            if [ ! -f artisan ]; then
+              echo "ERROR: artisan file not found in /home/falcondrive/public_html/admin.falcondrive.ae"
+              exit 1
+            fi
 
             php artisan down || true
-            git pull origin main
+            git pull origin dev
+            composer install --no-dev --optimize-autoloader || true
             php artisan config:clear
             php artisan cache:clear
             php artisan route:clear
