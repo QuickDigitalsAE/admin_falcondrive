@@ -6,7 +6,8 @@
 /storage/*.key
 /storage/pail
 /vendor
-.htaccess
+/.htaccess
+/public/.htaccess
 .env
 .env.backup
 .env.production
