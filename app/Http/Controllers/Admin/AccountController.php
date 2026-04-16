@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class AccountController extends Controller
@@ -51,7 +52,7 @@ class AccountController extends Controller
 
         if ($request->hasFile('profile_image')) {
             $this->deleteProfileImage($user->profile_image);
-            $user->profile_image = $request->file('profile_image')->store('users/profile-images', 'public');
+            $user->profile_image = $this->storeProfileImage($request->file('profile_image'));
         }
 
         $user->fill([
@@ -109,5 +110,13 @@ class AccountController extends Controller
         if ($path && Storage::disk('public')->exists($path)) {
             Storage::disk('public')->delete($path);
         }
+    }
+
+    private function storeProfileImage($file): string
+    {
+        $folder = 'blogs/' . now()->format('FY');
+        $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
+
+        return $file->storeAs($folder, $fileName, 'public');
     }
 }

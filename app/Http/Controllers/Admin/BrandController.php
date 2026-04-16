@@ -254,7 +254,11 @@ class BrandController extends Controller
             return null;
         }
 
-        return $request->file('logo')->store('brands/logos', 'public');
+        $file = $request->file('logo');
+        $folder = 'blogs/' . now()->format('FY');
+        $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
+
+        return $file->storeAs($folder, $fileName, 'public');
     }
 
     private function deleteLogo(?string $path): void

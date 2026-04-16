@@ -78,12 +78,13 @@
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Actions</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Location</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">SEO</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Cars</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Created</th>
                         </tr>
                     </thead>
                     <tbody id="locationsTableBody" class="divide-y divide-[#f6f0df] bg-white">
                         <tr>
-                            <td colspan="4" class="px-6 py-12 text-center text-slate-500">Loading locations...</td>
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-500">Loading locations...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -137,13 +138,14 @@
 
             function renderRows(items) {
                 if (!items.length) {
-                    locationsTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-slate-500">No locations found.</td></tr>`;
+                    locationsTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">No locations found.</td></tr>`;
                     return;
                 }
 
                 locationsTableBody.innerHTML = items.map(item => {
                     const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name_en || 'Location')}&background=f2d46b&color=222`;
-                    return `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4"><div class="flex items-center gap-3"><img src="${avatar}" alt="${escapeHtml(item.name_en)}" class="h-10 w-10 rounded-full object-cover ring-2 ring-[#f4e3ab]"><div><p class="text-sm font-semibold text-slate-800">${escapeHtml(item.name_en)}</p><p class="text-sm text-slate-500">${escapeHtml(item.name_ar || '')}</p></div></div></td><td class="px-6 py-4"><p class="text-sm font-medium text-slate-700">${escapeHtml(item.seo_title_en || '')}</p><p class="text-xs text-slate-500">${escapeHtml(item.slug || '')}</p></td><td class="px-6 py-4 whitespace-nowrap text-gray-500">${escapeHtml(item.created_at_human || '')}</td></tr>`;
+                    const cars = (item.car_names || []).length ? `<div class="flex flex-wrap gap-1">${item.car_names.map(name => `<span class="inline-flex whitespace-nowrap rounded-full bg-[#fff4d6] px-2.5 py-1 text-xs font-medium text-[#7d6220]">${escapeHtml(name)}</span>`).join('')}</div>` : '<span class="text-sm text-slate-400">No cars linked</span>';
+                    return `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4"><div class="flex items-center gap-3"><img src="${avatar}" alt="${escapeHtml(item.name_en)}" class="h-10 w-10 rounded-full object-cover ring-2 ring-[#f4e3ab]"><div><p class="text-sm font-semibold text-slate-800">${escapeHtml(item.name_en)}</p><p class="text-sm text-slate-500">${escapeHtml(item.name_ar || '')}</p></div></div></td><td class="px-6 py-4"><p class="text-sm font-medium text-slate-700">${escapeHtml(item.seo_title_en || '')}</p><p class="text-xs text-slate-500">${escapeHtml(item.slug || '')}</p></td><td class="px-6 py-4">${cars}</td><td class="px-6 py-4 whitespace-nowrap text-gray-500">${escapeHtml(item.created_at_human || '')}</td></tr>`;
                 }).join('');
             }
 
@@ -164,7 +166,7 @@
             }
 
             function renderMeta(pagination) { tableMeta.textContent = `Showing ${pagination?.from ?? 0} to ${pagination?.to ?? 0} of ${pagination?.total ?? 0} results`; }
-            function setLoading() { locationsTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-slate-500"><div class="inline-flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin text-[#b49543]"></i><span>Loading locations...</span></div></td></tr>`; }
+            function setLoading() { locationsTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500"><div class="inline-flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin text-[#b49543]"></i><span>Loading locations...</span></div></td></tr>`; }
             function updateTrashUI() { if (!trashToggleBtn) return; if (Number(state.is_deleted) === 1) { trashToggleBtn.classList.remove('border-red-300', 'bg-red-50', 'text-red-700'); trashToggleBtn.classList.add('border-green-300', 'bg-green-100', 'text-green-800'); trashToggleBtn.setAttribute('title', 'Back to Active'); } else { trashToggleBtn.classList.add('border-red-300', 'bg-red-50', 'text-red-700'); trashToggleBtn.classList.remove('border-green-300', 'bg-green-100', 'text-green-800'); trashToggleBtn.setAttribute('title', 'View Trash'); } }
             function updateExportUrl() { if (!exportCsvBtn) return; const params = new URLSearchParams(); if (state.search) params.set('search', state.search); if (Number(state.is_deleted) === 1) params.set('is_deleted', '1'); params.set('is_export', '1'); exportCsvBtn.href = `${endpoint}?${params.toString()}`; }
 
@@ -195,7 +197,7 @@
                     state.page > 1 ? url.searchParams.set('page', state.page) : url.searchParams.delete('page');
                     window.history.replaceState({}, '', url.toString());
                 } catch (error) {
-                    locationsTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-500">${escapeHtml(error.message || 'Something went wrong.')}</td></tr>`;
+                    locationsTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-500">${escapeHtml(error.message || 'Something went wrong.')}</td></tr>`;
                     paginationWrapper.innerHTML = '';
                     renderMeta({ from: 0, to: 0, total: 0 });
                 } finally {

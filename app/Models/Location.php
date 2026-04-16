@@ -26,6 +26,13 @@ class Location extends Model
         'deleted_by',
     ];
 
+    public function cars()
+    {
+        return $this->belongsToMany(Car::class, 'location_cars', 'locations_id', 'car_id')
+            ->withTimestamps()
+            ->wherePivotNull('deleted_at');
+    }
+
     public function createdByUser()
     {
         return $this->belongsTo(User::class, 'created_by');

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -465,7 +466,11 @@ class UserController extends Controller
             return null;
         }
 
-        return $request->file('profile_image')->store('users/profile-images', 'public');
+        $file = $request->file('profile_image');
+        $folder = 'blogs/' . now()->format('FY');
+        $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
+
+        return $file->storeAs($folder, $fileName, 'public');
     }
 
     private function deleteProfileImage(?string $path): void

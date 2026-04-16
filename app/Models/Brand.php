@@ -58,4 +58,9 @@ class Brand extends Model
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
+
+    public function cars()
+    {
+        return $this->hasMany(Car::class, 'brand_id');
+    }
 }

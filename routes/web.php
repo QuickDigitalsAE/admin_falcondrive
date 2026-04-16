@@ -5,7 +5,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AboutUsController;
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\CarController;
+use App\Http\Controllers\Admin\CarWithDriverController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\AuthController;
@@ -13,11 +16,15 @@ use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\LeaseController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
+use App\Http\Controllers\Admin\HighlightController;
+use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\ResetPasswordController;
+use App\Http\Controllers\Admin\PromotionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -86,6 +93,75 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
         Route::put('/{id}/restore', [AboutUsController::class, 'restore'])->name('.restore');
     });
 
+    Route::prefix('users')->group(function () {
+
+        Route::get('/', [UserController::class, 'getUsers'])->name('users');
+        Route::get('/create', [UserController::class, 'createUser'])->name('users.create');
+        Route::post('/store', [UserController::class, 'postUser'])->name('users.store');
+        Route::get('/{id}', [UserController::class, 'showUser'])->name('users.show');
+        Route::get('/{id}/edit', [UserController::class, 'editUser'])->name('users.edit');
+        Route::put('/{id}/update', [UserController::class, 'updateUser'])->name('users.update');        
+        Route::delete('/{id}/delete', [UserController::class, 'deleteUser'])->name('users.delete');
+        Route::put('/{id}/restore', [UserController::class, 'revokeUser'])->name('users.revoke');
+        
+        Route::put('/{id}/change-password', [UserController::class, 'changePassword'])->name('users.change-password');
+    });
+
+    Route::prefix('blogs')->name('blogs')->group(function () {
+        Route::get('/', [BlogController::class, 'index'])->name('');
+        Route::get('/create', [BlogController::class, 'createBlog'])->name('.create');
+        Route::post('/store', [BlogController::class, 'postBlog'])->name('.store');
+        Route::get('/show/{id}', [BlogController::class, 'showBlog'])->name('.show');
+        Route::get('/edit/{id}', [BlogController::class, 'editBlog'])->name('.edit');
+        Route::put('/update/{id}', [BlogController::class, 'updateBlog'])->name('.update');
+        Route::delete('/delete/{id}', [BlogController::class, 'deleteBlog'])->name('.delete');
+        Route::put('/restore/{id}', [BlogController::class, 'revokeBlog'])->name('.revoke');
+    });
+
+    Route::prefix('highlights')->name('highlights')->group(function () {
+        Route::get('/', [HighlightController::class, 'index'])->name('');
+        Route::get('/create', [HighlightController::class, 'create'])->name('.create');
+        Route::post('/store', [HighlightController::class, 'store'])->name('.store');
+        Route::get('/show/{id}', [HighlightController::class, 'show'])->name('.show');
+        Route::get('/edit/{id}', [HighlightController::class, 'edit'])->name('.edit');
+        Route::put('/update/{id}', [HighlightController::class, 'update'])->name('.update');
+        Route::delete('/delete/{id}', [HighlightController::class, 'destroy'])->name('.delete');
+        Route::put('/restore/{id}', [HighlightController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('inquiries')->name('inquiries')->group(function () {
+        Route::get('/', [InquiryController::class, 'index'])->name('');
+        Route::get('/create', [InquiryController::class, 'create'])->name('.create');
+        Route::post('/store', [InquiryController::class, 'store'])->name('.store');
+        Route::get('/show/{id}', [InquiryController::class, 'show'])->name('.show');
+        Route::get('/edit/{id}', [InquiryController::class, 'edit'])->name('.edit');
+        Route::put('/update/{id}', [InquiryController::class, 'update'])->name('.update');
+        Route::delete('/delete/{id}', [InquiryController::class, 'destroy'])->name('.delete');
+        Route::put('/restore/{id}', [InquiryController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('cars')->name('cars')->group(function () {
+        Route::get('/', [CarController::class, 'index'])->name('');
+        Route::get('/create', [CarController::class, 'createCar'])->name('.create');
+        Route::post('/store', [CarController::class, 'postCar'])->name('.store');
+        Route::get('/show/{id}', [CarController::class, 'showCar'])->name('.show');
+        Route::get('/edit/{id}', [CarController::class, 'editCar'])->name('.edit');
+        Route::put('/update/{id}', [CarController::class, 'updateCar'])->name('.update');
+        Route::delete('/delete/{id}', [CarController::class, 'deleteCar'])->name('.delete');
+        Route::put('/restore/{id}', [CarController::class, 'revokeCar'])->name('.revoke');
+    });
+
+    Route::prefix('car-with-drivers')->name('car-with-drivers')->group(function () {
+        Route::get('/', [CarWithDriverController::class, 'index'])->name('');
+        Route::get('/create', [CarWithDriverController::class, 'create'])->name('.create');
+        Route::post('/store', [CarWithDriverController::class, 'store'])->name('.store');
+        Route::get('/show/{id}', [CarWithDriverController::class, 'show'])->name('.show');
+        Route::get('/edit/{id}', [CarWithDriverController::class, 'edit'])->name('.edit');
+        Route::put('/update/{id}', [CarWithDriverController::class, 'update'])->name('.update');
+        Route::delete('/delete/{id}', [CarWithDriverController::class, 'destroy'])->name('.delete');
+        Route::put('/restore/{id}', [CarWithDriverController::class, 'restore'])->name('.restore');
+    });
+
     Route::prefix('brands')->name('brands')->group(function () {
         Route::get('/', [BrandController::class, 'index'])->name('');
         Route::get('/create', [BrandController::class, 'create'])->name('.create');
@@ -141,6 +217,28 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
         Route::put('/{id}/restore', [LocationController::class, 'restore'])->name('.restore');
     });
 
+    Route::prefix('promotions')->name('promotions')->group(function () {
+        Route::get('/', [PromotionController::class, 'index'])->name('');
+        Route::get('/create', [PromotionController::class, 'create'])->name('.create');
+        Route::post('/store', [PromotionController::class, 'store'])->name('.store');
+        Route::get('/show/{id}', [PromotionController::class, 'show'])->name('.show');
+        Route::get('/edit/{id}', [PromotionController::class, 'edit'])->name('.edit');
+        Route::put('/update/{id}', [PromotionController::class, 'update'])->name('.update');
+        Route::delete('/delete/{id}', [PromotionController::class, 'destroy'])->name('.delete');
+        Route::put('/restore/{id}', [PromotionController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('settings')->name('settings')->group(function () {
+        Route::get('/', [SettingController::class, 'index'])->name('');
+        Route::get('/create', [SettingController::class, 'create'])->name('.create');
+        Route::post('/store', [SettingController::class, 'store'])->name('.store');
+        Route::get('/show/{id}', [SettingController::class, 'show'])->name('.show');
+        Route::get('/edit/{id}', [SettingController::class, 'edit'])->name('.edit');
+        Route::put('/update/{id}', [SettingController::class, 'update'])->name('.update');
+        Route::delete('/delete/{id}', [SettingController::class, 'destroy'])->name('.delete');
+        Route::put('/restore/{id}', [SettingController::class, 'restore'])->name('.restore');
+    });
+
     Route::prefix('testimonials')->name('testimonials')->group(function () {
         Route::get('/', [TestimonialController::class, 'index'])->name('');
         Route::get('/create', [TestimonialController::class, 'create'])->name('.create');
@@ -172,23 +270,6 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
         Route::put('/{id}/update', [PermissionController::class, 'update'])->name('.update');
         Route::delete('/{id}/delete', [PermissionController::class, 'destroy'])->name('.delete');
         Route::put('/{id}/restore', [PermissionController::class, 'restore'])->name('.restore');
-    });
-
-    Route::prefix('users')->group(function () {
-
-        Route::get('/', [UserController::class, 'getUsers'])->name('users');
-
-        Route::get('/create', [UserController::class, 'createUser'])->name('users.create');
-        Route::post('/store', [UserController::class, 'postUser'])->name('users.store');
-
-        Route::get('/{id}', [UserController::class, 'showUser'])->name('users.show');
-        Route::get('/{id}/edit', [UserController::class, 'editUser'])->name('users.edit');
-        Route::put('/{id}/update', [UserController::class, 'updateUser'])->name('users.update');
-
-        Route::put('/{id}/change-password', [UserController::class, 'changePassword'])->name('users.change-password');
-
-        Route::delete('/{id}/delete', [UserController::class, 'deleteUser'])->name('users.delete');
-        Route::put('/{id}/restore', [UserController::class, 'revokeUser'])->name('users.revoke');
     });
 
     Route::prefix('activity-logs')->name('activity-logs')->group(function () {

@@ -13,6 +13,16 @@
     </nav>
 @endsection
 
+@include('admin.layouts.partials.resource-ckeditor')
+
+@push('styles')
+<style>
+    .location-car-pill { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; background: #fff4d6; border: 1px solid #ead39a; color: #7d6220; font-size: 11px; font-weight: 600; padding: 6px 10px; }
+    .location-car-pill button { display: inline-flex; height: 18px; width: 18px; align-items: center; justify-content: center; border-radius: 999px; border: 0; background: rgba(125, 98, 32, 0.12); color: #7d6220; cursor: pointer; }
+    .location-car-pill button:hover { background: rgba(125, 98, 32, 0.2); }
+</style>
+@endpush
+
 @section('content')
     <section class="w-full pb-8">
         <div class="mx-auto w-full max-w-7xl">
@@ -31,3 +41,96 @@
         </div>
     </section>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const carSelect = document.getElementById('car_ids');
+        const carPickerWrap = document.getElementById('car_picker_wrap');
+        const carPickerButton = document.getElementById('car_picker_button');
+        const carPickerPanel = document.getElementById('car_picker_panel');
+        const carPickerSearch = document.getElementById('car_picker_search');
+        const carPickerList = document.getElementById('car_picker_list');
+        const selectedTags = document.getElementById('selectedCarTags');
+
+        function getAvailableCars() {
+            if (!carSelect) return [];
+            const selectedValues = new Set(Array.from(carSelect.selectedOptions).map(option => option.value));
+            const query = (carPickerSearch?.value || '').trim().toLowerCase();
+            return Array.from(carSelect.options).filter(option => {
+                const matchesQuery = query === '' || option.textContent.toLowerCase().includes(query);
+                return !selectedValues.has(option.value) && matchesQuery;
+            });
+        }
+
+        function closeCarPicker() {
+            carPickerPanel?.classList.add('hidden');
+        }
+
+        function renderPickerList() {
+            if (!carPickerList) return;
+            const options = getAvailableCars();
+            carPickerList.innerHTML = options.length
+                ? options.map(option => `<button type="button" class="admin-picker-option car-picker-option" data-car-id="${option.value}">
+                        <span class="admin-picker-option-icon"><i class="fa-solid fa-car-side text-sm"></i></span>
+                        <span class="min-w-0 flex-1">
+                            <span class="admin-picker-option-title block truncate">${option.textContent}</span>
+                            <span class="admin-picker-option-subtitle block">Tap to add</span>
+                        </span>
+                    </button>`).join('')
+                : '<div class="admin-picker-empty">No cars found.</div>';
+        }
+
+        function renderTags() {
+            if (!carSelect || !selectedTags) return;
+            const options = Array.from(carSelect.selectedOptions);
+            selectedTags.innerHTML = options.length
+                ? options.map(option => `<span class="location-car-pill">${option.textContent}<button type="button" class="remove-car-tag" data-car-id="${option.value}" aria-label="Remove ${option.textContent}">&times;</button></span>`).join('')
+                : '<span class="text-xs text-slate-400">No cars selected yet.</span>';
+            renderPickerList();
+        }
+
+        carPickerButton?.addEventListener('click', function () {
+            carPickerPanel?.classList.toggle('hidden');
+            renderPickerList();
+            if (!carPickerPanel?.classList.contains('hidden')) {
+                carPickerSearch?.focus();
+            }
+        });
+
+        carPickerSearch?.addEventListener('input', renderPickerList);
+
+        carPickerList?.addEventListener('click', function (event) {
+            const button = event.target.closest('.car-picker-option');
+            if (!button || !carSelect) return;
+            const option = Array.from(carSelect.options).find(item => item.value === button.dataset.carId);
+            if (option) {
+                option.selected = true;
+                renderTags();
+            }
+            if (carPickerSearch) {
+                carPickerSearch.value = '';
+            }
+            closeCarPicker();
+        });
+
+        selectedTags?.addEventListener('click', function (event) {
+            const button = event.target.closest('.remove-car-tag');
+            if (!button || !carSelect) return;
+            const option = Array.from(carSelect.options).find(item => item.value === button.dataset.carId);
+            if (option) {
+                option.selected = false;
+                renderTags();
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!carPickerWrap?.contains(event.target)) {
+                closeCarPicker();
+            }
+        });
+
+        renderTags();
+    });
+</script>
+@endpush

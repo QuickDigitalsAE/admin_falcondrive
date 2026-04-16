@@ -48,23 +48,23 @@
 
     <div class="min-w-0 xl:col-span-3">
         <div class="space-y-2">
-            <div class="relative">
-                <textarea id="description_en" name="description_en" rows="5" placeholder="Description in English"
-                    class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('description_en') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4">{{ old('description_en', $brand->description_en ?? '') }}</textarea>
-                <label for="description_en" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">Description EN</label>
+            <label for="description_en" class="block px-1 text-xs font-medium {{ $errors->has('description_en') ? 'text-red-500' : 'text-slate-500' }}">Description EN</label>
+            <div class="resource-ckeditor-shell {{ $errors->has('description_en') ? 'is-invalid' : '' }}">
+                <textarea id="description_en" name="description_en" rows="5">{{ old('description_en', $brand->description_en ?? '') }}</textarea>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2 px-1"><p class="text-xs text-slate-500">Main brand introduction for English content</p><span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Optional</span></div>
+            @error('description_en')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
         </div>
     </div>
 
     <div class="min-w-0 xl:col-span-3">
         <div class="space-y-2">
-            <div class="relative">
-                <textarea id="description_ar" name="description_ar" rows="5" placeholder="Description in Arabic"
-                    class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('description_ar') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4">{{ old('description_ar', $brand->description_ar ?? '') }}</textarea>
-                <label for="description_ar" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">Description AR</label>
+            <label for="description_ar" class="block px-1 text-xs font-medium {{ $errors->has('description_ar') ? 'text-red-500' : 'text-slate-500' }}">Description AR</label>
+            <div class="resource-ckeditor-shell {{ $errors->has('description_ar') ? 'is-invalid' : '' }}">
+                <textarea id="description_ar" name="description_ar" rows="5">{{ old('description_ar', $brand->description_ar ?? '') }}</textarea>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2 px-1"><p class="text-xs text-slate-500">Localized brand introduction for Arabic content</p><span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Optional</span></div>
+            @error('description_ar')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
         </div>
     </div>
 

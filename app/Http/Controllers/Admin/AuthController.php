@@ -37,7 +37,7 @@ class AuthController extends Controller
             ActivityLogHelper::logAuth('login', Auth::user(), [
                 'user_name' => Auth::user()->name,
                 'email' => Auth::user()->email,
-                'ip_address' => $request->ip(),
+                'ip_address' => ActivityLogHelper::resolveIpAddress($request),
                 'user_agent' => (string) $request->userAgent(),
             ]);
 
@@ -50,7 +50,7 @@ class AuthController extends Controller
         ActivityLogHelper::logAuth('failed_login', $user, [
             'user_name' => $user?->name,
             'email' => (string) $request->input('email'),
-            'ip_address' => $request->ip(),
+            'ip_address' => ActivityLogHelper::resolveIpAddress($request),
             'user_agent' => (string) $request->userAgent(),
         ]);
 
@@ -72,7 +72,7 @@ class AuthController extends Controller
             ActivityLogHelper::logAuth('logout', Auth::user(), [
                 'user_name' => Auth::user()->name,
                 'email' => Auth::user()->email,
-                'ip_address' => $request->ip(),
+                'ip_address' => ActivityLogHelper::resolveIpAddress($request),
                 'user_agent' => (string) $request->userAgent(),
             ]);
         }

@@ -22,10 +22,9 @@
     ] as $field)
         <div class="min-w-0 xl:col-span-2">
             <div class="space-y-2">
-                <div class="relative">
-                    <textarea id="{{ $field['id'] }}" name="{{ $field['id'] }}" rows="5" placeholder="{{ $field['label'] }}"
-                        class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4">{{ old($field['id'], $testimonial->{$field['id']} ?? '') }}</textarea>
-                    <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">{{ $field['label'] }}</label>
+                <label for="{{ $field['id'] }}" class="block px-1 text-xs font-medium {{ $errors->has($field['id']) ? 'text-red-500' : 'text-slate-500' }}">{{ $field['label'] }}</label>
+                <div class="resource-ckeditor-shell {{ $errors->has($field['id']) ? 'is-invalid' : '' }}">
+                    <textarea id="{{ $field['id'] }}" name="{{ $field['id'] }}" rows="5">{{ old($field['id'], $testimonial->{$field['id']} ?? '') }}</textarea>
                 </div>
                 @error($field['id'])<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
             </div>

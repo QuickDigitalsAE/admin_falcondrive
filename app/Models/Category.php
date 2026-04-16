@@ -40,4 +40,11 @@ class Category extends Model
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
+
+    public function cars()
+    {
+        return $this->belongsToMany(Car::class, 'car_category')
+            ->withTimestamps()
+            ->wherePivotNull('deleted_at');
+    }
 }

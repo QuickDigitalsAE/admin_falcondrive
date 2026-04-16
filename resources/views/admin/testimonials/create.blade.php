@@ -12,6 +12,8 @@
     </nav>
 @endsection
 
+@include('admin.layouts.partials.resource-ckeditor')
+
 @section('content')
     <section class="w-full pb-8">
         <div class="mx-auto w-full max-w-7xl">

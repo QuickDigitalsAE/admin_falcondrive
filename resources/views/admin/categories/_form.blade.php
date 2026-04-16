@@ -19,22 +19,42 @@
         </div>
     @endforeach
 
-    @foreach ([
-        ['id' => 'description_en', 'label' => 'Description EN', 'rows' => 5],
-        ['id' => 'description_ar', 'label' => 'Description AR', 'rows' => 5],
-        ['id' => 'seo_brief_en', 'label' => 'SEO Brief EN', 'rows' => 4],
-        ['id' => 'seo_brief_ar', 'label' => 'SEO Brief AR', 'rows' => 4],
-    ] as $field)
-        <div class="min-w-0 {{ str_contains($field['id'], 'description') ? 'xl:col-span-3' : 'xl:col-span-1' }}">
-            <div class="space-y-2">
-                <div class="relative">
-                    <textarea id="{{ $field['id'] }}" name="{{ $field['id'] }}" rows="{{ $field['rows'] }}" placeholder="{{ $field['label'] }}"
-                        class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4">{{ old($field['id'], $category->{$field['id']} ?? '') }}</textarea>
-                    <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">{{ $field['label'] }}</label>
+    <div class="min-w-0 xl:col-span-3 grid grid-cols-1 gap-5 xl:grid-cols-2">
+        @foreach ([
+            ['id' => 'seo_brief_en', 'label' => 'SEO Brief EN', 'rows' => 4],
+            ['id' => 'seo_brief_ar', 'label' => 'SEO Brief AR', 'rows' => 4],
+        ] as $field)
+            <div class="min-w-0">
+                <div class="space-y-2">
+                    <div class="relative">
+                        <textarea id="{{ $field['id'] }}" name="{{ $field['id'] }}" rows="{{ $field['rows'] }}" placeholder="{{ $field['label'] }}"
+                            class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4">{{ old($field['id'], $category->{$field['id']} ?? '') }}</textarea>
+                        <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">{{ $field['label'] }}</label>
+                    </div>
                 </div>
             </div>
+        @endforeach
+    </div>
+
+    <div class="min-w-0 xl:col-span-3">
+        <div class="space-y-2">
+            <label for="description_en" class="block px-1 text-xs font-medium {{ $errors->has('description_en') ? 'text-red-500' : 'text-slate-500' }}">Description EN</label>
+            <div class="resource-ckeditor-shell {{ $errors->has('description_en') ? 'is-invalid' : '' }}">
+                <textarea id="description_en" name="description_en" rows="5">{{ old('description_en', $category->description_en ?? '') }}</textarea>
+            </div>
+            @error('description_en')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
         </div>
-    @endforeach
+    </div>
+
+    <div class="min-w-0 xl:col-span-3">
+        <div class="space-y-2">
+            <label for="description_ar" class="block px-1 text-xs font-medium {{ $errors->has('description_ar') ? 'text-red-500' : 'text-slate-500' }}">Description AR</label>
+            <div class="resource-ckeditor-shell {{ $errors->has('description_ar') ? 'is-invalid' : '' }}">
+                <textarea id="description_ar" name="description_ar" rows="5">{{ old('description_ar', $category->description_ar ?? '') }}</textarea>
+            </div>
+            @error('description_ar')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+        </div>
+    </div>
 
     @foreach ([
         ['id' => 'seo_title_en', 'label' => 'SEO Title EN'],

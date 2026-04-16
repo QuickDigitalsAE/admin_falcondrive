@@ -7,6 +7,7 @@ use App\Models\Testimonial;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TestimonialController extends Controller
 {
@@ -233,7 +234,11 @@ class TestimonialController extends Controller
             return null;
         }
 
-        return $request->file('image')->store('testimonials/images', 'public');
+        $file = $request->file('image');
+        $folder = 'blogs/' . now()->format('FY');
+        $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
+
+        return $file->storeAs($folder, $fileName, 'public');
     }
 
     private function deleteImage(?string $path): void

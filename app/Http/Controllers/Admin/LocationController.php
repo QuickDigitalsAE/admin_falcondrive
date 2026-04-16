@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Car;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -48,22 +49,26 @@ class LocationController extends Controller
 
     public function create()
     {
-        return view('admin.locations.create');
+        return view('admin.locations.create', [
+            'cars' => Car::orderBy('name_en')->get(),
+        ]);
     }
 
     public function store(Request $request)
     {
         $validated = $this->validateLocation($request);
+        $carIds = $this->normalizeCarIds($validated['car_ids'] ?? []);
         $validated['slug'] = Str::slug($validated['slug']);
         $validated['created_by'] = Auth::id();
-        Location::create($validated);
+        $location = Location::create($validated);
+        $location->cars()->sync($this->buildCarPivotPayload($carIds));
 
         return redirect()->route('admin.locations')->with('success', 'Location created successfully.');
     }
 
     public function show(int $id)
     {
-        $location = Location::withTrashed()->find($id);
+        $location = Location::withTrashed()->with('cars')->find($id);
         if (!$location) {
             return redirect()->route('admin.locations')->with('error', 'Location not found.');
         }
@@ -73,12 +78,15 @@ class LocationController extends Controller
 
     public function edit(int $id)
     {
-        $location = Location::find($id);
+        $location = Location::with('cars')->find($id);
         if (!$location) {
             return redirect()->route('admin.locations')->with('error', 'Location not found.');
         }
 
-        return view('admin.locations.edit', compact('location'));
+        return view('admin.locations.edit', [
+            'location' => $location,
+            'cars' => Car::orderBy('name_en')->get(),
+        ]);
     }
 
     public function update(Request $request, int $id)
@@ -89,9 +97,11 @@ class LocationController extends Controller
         }
 
         $validated = $this->validateLocation($request, $location->id);
+        $carIds = $this->normalizeCarIds($validated['car_ids'] ?? []);
         $validated['slug'] = Str::slug($validated['slug']);
         $validated['updated_by'] = Auth::id();
         $location->update($validated);
+        $location->cars()->sync($this->buildCarPivotPayload($carIds));
 
         return redirect()->route('admin.locations')->with('success', 'Location updated successfully.');
     }
@@ -132,8 +142,8 @@ class LocationController extends Controller
         $isExport = $request->query('is_export');
 
         $query = $isDeleted
-            ? Location::onlyTrashed()->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
-            : Location::with(['createdByUser', 'updatedByUser']);
+            ? Location::onlyTrashed()->with(['cars', 'createdByUser', 'updatedByUser', 'deletedByUser'])
+            : Location::with(['cars', 'createdByUser', 'updatedByUser']);
 
         if ($onlyMine) {
             $query->where('created_by', Auth::id());
@@ -144,7 +154,8 @@ class LocationController extends Controller
                 $q->where('name_en', 'LIKE', "%{$search}%")
                     ->orWhere('name_ar', 'LIKE', "%{$search}%")
                     ->orWhere('slug', 'LIKE', "%{$search}%")
-                    ->orWhere('seo_title_en', 'LIKE', "%{$search}%");
+                    ->orWhere('seo_title_en', 'LIKE', "%{$search}%")
+                    ->orWhereHas('cars', fn ($carQuery) => $carQuery->where('name_en', 'LIKE', "%{$search}%")->orWhere('name_ar', 'LIKE', "%{$search}%")->orWhere('model', 'LIKE', "%{$search}%"));
             });
         }
 
@@ -166,6 +177,7 @@ class LocationController extends Controller
                     'name_ar' => $location->name_ar,
                     'slug' => $location->slug,
                     'seo_title_en' => $location->seo_title_en,
+                    'car_names' => $location->cars->pluck('name_en')->values()->all(),
                     'deleted_at' => optional($location->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($location->created_at)->format('d M Y, h:i A'),
                     'show_url' => route('admin.locations.show', $location->id),
@@ -218,7 +230,26 @@ class LocationController extends Controller
             'seo_brief_en' => ['required', 'string'],
             'seo_brief_ar' => ['required', 'string'],
             'slug' => ['required', 'string', 'max:255', Rule::unique('locations', 'slug')->ignore($id)],
+            'car_ids' => ['nullable', 'array'],
+            'car_ids.*' => ['integer', Rule::exists('cars', 'id')],
         ]);
+    }
+
+    private function normalizeCarIds(array $carIds): array
+    {
+        return collect($carIds)
+            ->filter(fn ($id) => $id !== null && $id !== '')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function buildCarPivotPayload(array $carIds): array
+    {
+        return collect($carIds)
+            ->mapWithKeys(fn ($carId) => [$carId => ['created_by' => Auth::id(), 'updated_by' => Auth::id()]])
+            ->all();
     }
 
     private function export($query, bool $isDeleted)

@@ -4,11 +4,36 @@ namespace App\Support;
 
 use App\Models\User;
 use App\Models\UserActivityLog;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class ActivityLogHelper
 {
+    public static function resolveIpAddress(?Request $request = null): ?string
+    {
+        $requestIp = trim((string) ($request?->ip() ?? ''));
+
+        if ($requestIp !== '' && !self::isLoopbackIp($requestIp)) {
+            return $requestIp;
+        }
+
+        $serverIp = trim((string) gethostbyname(gethostname()));
+        if ($serverIp !== '' && !self::isLoopbackIp($serverIp)) {
+            return $serverIp;
+        }
+
+        $hostIps = gethostbynamel(gethostname()) ?: [];
+        foreach ($hostIps as $ip) {
+            $ip = trim((string) $ip);
+            if ($ip !== '' && !self::isLoopbackIp($ip)) {
+                return $ip;
+            }
+        }
+
+        return $requestIp !== '' ? $requestIp : null;
+    }
+
     public static function logAuth(string $action, ?User $user = null, array $changes = []): void
     {
         UserActivityLog::create([
@@ -189,5 +214,11 @@ class ActivityLogHelper
         }
 
         return null;
+    }
+
+    protected static function isLoopbackIp(string $ip): bool
+    {
+        return in_array($ip, ['::1', '127.0.0.1', 'localhost'], true)
+            || str_starts_with($ip, '127.');
     }
 }
