@@ -3,7 +3,7 @@ name: Deploy Laravel 12 Directly to Subdomain Root
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   deploy:
