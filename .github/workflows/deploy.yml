@@ -1,4 +1,4 @@
-name: Deploy Laravel 12 Directly to Subdomain Root
+name: Deploy Laravel 12 to Subdomain Root
 
 on:
   push:
