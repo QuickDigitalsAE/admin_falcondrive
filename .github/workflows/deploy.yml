@@ -22,9 +22,13 @@ jobs:
           ssh -p ${{ secrets.CPANEL_PORT }} ${{ secrets.CPANEL_USERNAME }}@${{ secrets.CPANEL_HOST }} << EOF
             set -e
             cd /home/${{ secrets.CPANEL_USERNAME }}/public_html/admin.falcondrive.ae
-            
+
             php artisan down || true
             git pull origin main
+            php artisan config:clear
+            php artisan cache:clear
+            php artisan route:clear
+            php artisan view:clear
             chmod -R 775 storage bootstrap/cache
             php artisan up || true
           EOF
