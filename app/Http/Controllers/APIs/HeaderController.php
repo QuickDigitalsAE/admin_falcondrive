@@ -45,6 +45,9 @@ class HeaderController
                     'slug' => $category->slug,
                     'name_en' => $category->name_en,
                     'name_ar' => $category->name_ar
+                    ,
+                    'image' => $category->image,
+                    'image_url' => $category->image_url,
                 ];
             })
             ->values()

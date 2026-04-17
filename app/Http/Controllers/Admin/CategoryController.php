@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -55,6 +56,7 @@ class CategoryController extends Controller
     {
         $validated = $this->validateCategory($request);
         $validated['slug'] = Str::slug($validated['slug']);
+        $validated['image'] = $this->storeImage($request);
         $validated['created_by'] = Auth::id();
 
         Category::create($validated);
@@ -94,6 +96,12 @@ class CategoryController extends Controller
 
         $validated = $this->validateCategory($request, $category->id);
         $validated['slug'] = Str::slug($validated['slug']);
+
+        if ($request->hasFile('image')) {
+            $this->deleteImage($category->image);
+            $validated['image'] = $this->storeImage($request);
+        }
+
         $validated['updated_by'] = Auth::id();
 
         $category->update($validated);
@@ -178,6 +186,8 @@ class CategoryController extends Controller
                     'name_ar' => $category->name_ar,
                     'slug' => $category->slug,
                     'seo_title_en' => $category->seo_title_en,
+                    'image' => $category->image,
+                    'image_url' => $category->image_url,
                     'deleted_at' => optional($category->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($category->created_at)->format('d M Y, h:i A'),
                     'show_url' => route('admin.categories.show', $category->id),
@@ -230,7 +240,28 @@ class CategoryController extends Controller
             'seo_brief_en' => ['nullable', 'string'],
             'seo_brief_ar' => ['nullable', 'string'],
             'slug' => ['required', 'string', 'max:255', Rule::unique('categories', 'slug')->ignore($id)],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
+    }
+
+    private function storeImage(Request $request): ?string
+    {
+        if (!$request->hasFile('image')) {
+            return null;
+        }
+
+        $file = $request->file('image');
+        $folder = 'categories/' . now()->format('FY');
+        $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
+
+        return $file->storeAs($folder, $fileName, 'public');
+    }
+
+    private function deleteImage(?string $path): void
+    {
+        if ($path && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
     }
 
     private function export($query, bool $isDeleted)

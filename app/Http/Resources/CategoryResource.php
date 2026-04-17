@@ -16,6 +16,8 @@ class CategoryResource extends BaseResource
             'seo_brief_en' => $this->seo_brief_en,
             'seo_brief_ar' => $this->seo_brief_ar,
             'slug' => $this->slug,
+            'image' => $this->image,
+            'image_url' => $this->imageUrl($this->image),
             'cars' => CarResource::collection($this->whenLoaded('cars')),
             'created_at' => optional($this->created_at)->toISOString(),
             'updated_at' => optional($this->updated_at)->toISOString(),

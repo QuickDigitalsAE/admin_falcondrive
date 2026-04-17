@@ -29,7 +29,7 @@
                         <a href="{{ route('admin.categories') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-5 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-arrow-left mr-2 text-[13px]"></i>Back to List</a>
                     </div>
                 </div>
-                <form action="{{ route('admin.categories.store') }}" method="POST" class="space-y-6 p-4 sm:p-6">
+                <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6 p-4 sm:p-6">
                     @include('admin.categories._form', ['category' => null, 'submitLabel' => 'Save Category'])
                 </form>
             </div>

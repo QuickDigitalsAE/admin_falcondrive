@@ -50,7 +50,7 @@
                 }
 
                 categoriesTableBody.innerHTML = items.map((item) => {
-                    const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name_en || 'Category')}&background=f2d46b&color=222`;
+                    const avatar = item.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name_en || 'Category')}&background=f2d46b&color=222`;
                     return `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4"><div class="flex items-center gap-3"><img src="${avatar}" alt="${escapeHtml(item.name_en)}" class="h-10 w-10 rounded-full object-cover ring-2 ring-[#f4e3ab]"><div class="min-w-0"><p class="truncate text-sm font-semibold text-slate-800">${escapeHtml(item.name_en)}</p><p class="truncate text-sm text-slate-500">${escapeHtml(item.name_ar || '')}</p></div></div></td><td class="px-6 py-4"><p class="text-sm font-medium text-slate-700">${escapeHtml(item.seo_title_en || 'No SEO title')}</p><p class="text-xs text-slate-500">${escapeHtml(item.slug || '')}</p></td><td class="px-6 py-4 whitespace-nowrap text-gray-500">${escapeHtml(item.created_at_human || '')}</td></tr>`;
                 }).join('');
             }

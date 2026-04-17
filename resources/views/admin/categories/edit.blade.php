@@ -32,7 +32,7 @@
                         </div>
                     </div>
                 </div>
-                <form action="{{ route('admin.categories.update', $category->id) }}" method="POST" class="space-y-6 p-4 sm:p-6">
+                <form action="{{ route('admin.categories.update', $category->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6 p-4 sm:p-6">
                     @method('PUT')
                     @include('admin.categories._form', ['submitLabel' => 'Update Category'])
                 </form>
