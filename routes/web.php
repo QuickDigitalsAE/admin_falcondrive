@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
 use App\Http\Controllers\Admin\HighlightController;
 use App\Http\Controllers\Admin\InquiryController;
+use App\Http\Controllers\Admin\GlobalSearchController;
 use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Admin\PromotionController;
 
@@ -71,6 +72,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/global-search', [GlobalSearchController::class, 'index'])->name('global-search');
+    Route::get('/global-search/suggest', [GlobalSearchController::class, 'suggest'])->name('global-search.suggest');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 

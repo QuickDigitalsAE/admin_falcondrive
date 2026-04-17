@@ -37,7 +37,7 @@
                             <a href="{{ route('admin.account.settings') }}"
                                 class="inline-flex items-center rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/15">
                                 <i class="fas fa-gear mr-2 text-[13px]"></i>
-                                Open Settings
+                                Change Your Password
                             </a>
                         </div>
                     </div>

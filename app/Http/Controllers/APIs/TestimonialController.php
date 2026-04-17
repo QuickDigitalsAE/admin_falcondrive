@@ -20,6 +20,12 @@ class TestimonialController extends BaseApiController
     protected string $storeMessage = 'Testimonial created successfully';
     protected string $updateMessage = 'Testimonial updated successfully';
     protected string $deleteMessage = 'Testimonial deleted successfully';
+    protected array $metaDataKeys = [
+        'title_en' => ['testimonials_meta_title_en', 'messages_testimonial1_en'],
+        'title_ar' => ['testimonials_meta_title_ar', 'messages_testimonial1_ar'],
+        'description_en' => ['testimonials_meta_description_en', 'messages_testimonial2_en'],
+        'description_ar' => ['testimonials_meta_description_ar', 'messages_testimonial2_ar'],
+    ];
 
     public function publicIndex(Request $request)
     {

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\APIs;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -28,6 +30,7 @@ abstract class BaseApiController extends Controller
     protected string $storeMessage = 'Record created successfully';
     protected string $updateMessage = 'Record updated successfully';
     protected string $deleteMessage = 'Record deleted successfully';
+    protected array $metaDataKeys = [];
 
     protected function model(): Model
     {
@@ -83,10 +86,16 @@ abstract class BaseApiController extends Controller
             $perPage = max(1, min((int) $request->get('per_page', 15), 100));
             $records = $this->query($request)->paginate($perPage)->appends($request->query());
             $resource = $this->resourceClass;
+            $data = $this->paginatedData($records, $resource::collection($records)->resolve());
+            $metaData = $this->buildMetaData($request);
+
+            if (!empty(array_filter($metaData, fn ($value) => $value !== null && $value !== ''))) {
+                $data['meta_data'] = $metaData;
+            }
 
             return $this->successResponse(
                 $this->publicMessage,
-                $this->paginatedData($records, $resource::collection($records)->resolve())
+                $data
             );
         } catch (Throwable $e) {
             return $this->errorResponse($e->getMessage(), ['exception' => class_basename($e)], 500);
@@ -105,8 +114,9 @@ abstract class BaseApiController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate(app($this->storeRequestClass)->rules());
-            $data = app($this->storeRequestClass)->sanitize($request);
+            $formRequest = new $this->storeRequestClass();
+            $request->validate($formRequest->rules());
+            $data = $formRequest->sanitize($request);
             $record = $this->modelClass::create($data);
             $record->load($this->with);
 
@@ -122,8 +132,9 @@ abstract class BaseApiController extends Controller
     {
         try {
             $record = $this->resolveRecord($id);
-            $request->validate(app($this->updateRequestClass)->rules($record));
-            $data = app($this->updateRequestClass)->sanitize($request, $record);
+            $formRequest = new $this->updateRequestClass();
+            $request->validate($formRequest->rules($record));
+            $data = $formRequest->sanitize($request, $record);
             $record->update($data);
             $record->load($this->with);
 
@@ -145,5 +156,47 @@ abstract class BaseApiController extends Controller
         } catch (Throwable $e) {
             return $this->errorResponse($e->getMessage(), ['exception' => class_basename($e)], 500);
         }
+    }
+
+    protected function buildMetaData(Request $request): array
+    {
+        if (empty($this->metaDataKeys)) {
+            return $this->fallbackMetaData($request);
+        }
+
+        $settings = $this->siteSettings();
+        $fallback = $this->fallbackMetaData($request);
+        $metaData = [];
+
+        foreach ($this->metaDataKeys as $field => $keys) {
+            $metaData[$field] = $this->settingValue($settings, (array) $keys, $fallback[$field] ?? null);
+        }
+
+        return $metaData;
+    }
+
+    protected function fallbackMetaData(Request $request): array
+    {
+        return [];
+    }
+
+    protected function siteSettings(): Collection
+    {
+        return Setting::query()
+            ->where('group', 'site')
+            ->get(['key', 'value'])
+            ->keyBy('key');
+    }
+
+    protected function settingValue(Collection $settings, array $keys, ?string $default = null): ?string
+    {
+        foreach ($keys as $key) {
+            $value = $settings->get($key)?->value;
+            if ($value !== null && $value !== '') {
+                return (string) $value;
+            }
+        }
+
+        return $default;
     }
 }

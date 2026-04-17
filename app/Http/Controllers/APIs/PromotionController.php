@@ -20,6 +20,12 @@ class PromotionController extends BaseApiController
     protected string $storeMessage = 'Promotion created successfully';
     protected string $updateMessage = 'Promotion updated successfully';
     protected string $deleteMessage = 'Promotion deleted successfully';
+    protected array $metaDataKeys = [
+        'title_en' => ['messages_promotions_title_en'],
+        'title_ar' => ['messages_promotions_title_ar'],
+        'description_en' => ['messages_promotions_brief_en'],
+        'description_ar' => ['messages_promotions_brief_ar'],
+    ];
 
     public function publicIndex(Request $request)
     {

@@ -28,6 +28,8 @@ class HomeController
 
     public function __invoke()
     {
+        $settingsCollection = Setting::where('group', 'site')->orderBy('order')->get();
+        $settings = $settingsCollection->keyBy('key');
         $featuredCars = Car::with(['brand', 'categories'])
             ->where('featured', 1)
             ->orderBy('featured_sorting', 'asc')
@@ -39,6 +41,12 @@ class HomeController
         $latestBlogs = Blog::latest('blog_schedule')->limit(6)->get();
 
         return $this->successResponse('Home page data fetched successfully', [
+            'meta_data' => [
+                'title_en' => $this->settingValue($settings, ['site.title_en'], $this->settingValue($settings, ['messages_home_h1_1_en'])),
+                'title_ar' => $this->settingValue($settings, ['site.title_ar'], $this->settingValue($settings, ['messages_home_h1_1_ar'])),
+                'description_en' => $this->settingValue($settings, ['site.description_en'], $this->settingValue($settings, ['messages_home_p_en'])),
+                'description_ar' => $this->settingValue($settings, ['site.description_ar'], $this->settingValue($settings, ['messages_home_p_ar'])),
+            ],
             'highlights' => HighlightResource::collection(Highlight::latest('id')->get())->resolve(),
             'featured_cars' => CarResource::collection($featuredCars)->resolve(),
             'categories' => CategoryResource::collection(Category::orderBy('name_en')->get())->resolve(),
@@ -48,8 +56,20 @@ class HomeController
             'faqs' => FaqResource::collection(Faq::latest('id')->limit(10)->get())->resolve(),
             'latest_blogs' => BlogResource::collection($latestBlogs)->resolve(),
             'site_settings' => SettingResource::collection(
-                Setting::where('group', 'site')->orderBy('order')->get()
+                $settingsCollection
             )->resolve(),
         ]);
+    }
+
+    private function settingValue($settings, array $keys, ?string $default = null): ?string
+    {
+        foreach ($keys as $key) {
+            $value = $settings->get($key)?->value;
+            if ($value !== null && $value !== '') {
+                return (string) $value;
+            }
+        }
+
+        return $default;
     }
 }

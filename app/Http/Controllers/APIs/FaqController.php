@@ -20,6 +20,12 @@ class FaqController extends BaseApiController
     protected string $storeMessage = 'Faq created successfully';
     protected string $updateMessage = 'Faq updated successfully';
     protected string $deleteMessage = 'Faq deleted successfully';
+    protected array $metaDataKeys = [
+        'title_en' => ['messages_faq_title_en'],
+        'title_ar' => ['messages_faq_title_ar'],
+        'description_en' => ['messages_faq_brief_en'],
+        'description_ar' => ['messages_faq_brief_ar'],
+    ];
 
     public function publicIndex(Request $request)
     {

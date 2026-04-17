@@ -10,19 +10,7 @@ return [
         'admin' => [
             'label' => 'Admin',
             'description' => 'Operational control over dashboard, users, roles, and permissions.',
-            'patterns' => [
-                'Dashboard_View',
-                'AboutUs_*',
-                'Brand_*',
-                'Category_*',
-                'Faq_*',
-                'Lease_*',
-                'Location_*',
-                'Testimonial_*',
-                'User_*',
-                'Role_*',
-                'Permissions_*',
-            ],
+            'patterns' => ['*'],
         ],
         'manager' => [
             'label' => 'Manager',
@@ -73,7 +61,11 @@ return [
             'patterns' => [
                 'Dashboard_View',
                 'User_Menu',
+                'User_ViewAll',
                 'User_View',
+                'Inquiry_Menu',
+                'Inquiry_ViewAll',
+                'Inquiry_View'
             ],
         ],
     ],

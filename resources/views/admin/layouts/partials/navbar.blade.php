@@ -62,14 +62,21 @@
             </div>
 
             <div class="flex w-full flex-wrap items-center justify-end gap-2 sm:gap-2.5 md:w-auto md:shrink-0 md:flex-nowrap">
-                <div class="hidden xl:flex w-[280px] items-center 2xl:w-[300px]">
-                    <div class="relative w-full">
+                <div class="relative hidden xl:flex w-[280px] items-center 2xl:w-[300px]" id="globalSearchDesktopWrapper">
+                    <form action="{{ route('admin.global-search') }}" method="GET" class="relative w-full">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#b49543]">
                             <i class="fas fa-magnifying-glass text-[14px]"></i>
                         </span>
 
-                        <input type="text" placeholder="Search..."
+                        <input id="globalSearchInput" type="text" name="q" autocomplete="off" placeholder="Search users, cars, settings..."
+                            value="{{ request('q') }}"
+                            data-search-endpoint="{{ route('admin.global-search.suggest') }}"
+                            data-search-page="{{ route('admin.global-search') }}"
                             class="h-10 w-full rounded-full border border-[#eadfbe] bg-[#fffaf0] pl-10 pr-3 text-[13px] text-slate-700 placeholder:text-slate-400 shadow-sm transition focus:border-[#d8bf79] focus:bg-white focus:outline-none" />
+                    </form>
+
+                    <div id="globalSearchDropdown"
+                        class="absolute right-0 top-[calc(100%+10px)] z-40 hidden w-[420px] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-[24px] border border-[#eadfbe] bg-white shadow-[0_22px_52px_rgba(15,23,42,0.14)]">
                     </div>
                 </div>
 
@@ -185,7 +192,7 @@
                             <a href="{{ route('admin.account.settings') }}"
                                 class="flex items-center gap-3 px-5 py-3 text-slate-700 transition hover:bg-[#fffaf2] {{ request()->routeIs('admin.account.settings') ? 'bg-[#fff8e8] text-[#7d6220]' : '' }}">
                                 <i class="fas fa-gear text-[14px] text-[#b49543]"></i>
-                                <span class="text-[14px]">Settings</span>
+                                <span class="text-[14px]">Change Password</span>
                             </a>
 
                             <form action="{{ route('admin.logout') }}" method="POST">
@@ -203,12 +210,20 @@
         </div>
 
         <div id="mobileSearchPanel" class="mt-3 hidden xl:hidden">
-            <div class="relative">
+            <div class="relative" id="globalSearchMobileWrapper">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#b49543]">
                     <i class="fas fa-magnifying-glass text-[13px]"></i>
                 </span>
-                <input id="mobileSearchInput" type="text" placeholder="Search..."
+                <form action="{{ route('admin.global-search') }}" method="GET">
+                    <input id="mobileSearchInput" type="text" name="q" autocomplete="off" placeholder="Search users, cars, settings..."
+                    value="{{ request('q') }}"
+                    data-search-endpoint="{{ route('admin.global-search.suggest') }}"
+                    data-search-page="{{ route('admin.global-search') }}"
                     class="h-10 w-full rounded-xl border border-[#eadfbe] bg-[#fffaf0] pl-9 pr-3 text-[13px] shadow-sm focus:border-[#d8bf79] focus:bg-white focus:outline-none" />
+                </form>
+                <div id="globalSearchMobileDropdown"
+                    class="absolute left-0 right-0 top-[calc(100%+10px)] z-40 hidden overflow-hidden rounded-[24px] border border-[#eadfbe] bg-white shadow-[0_22px_52px_rgba(15,23,42,0.14)]">
+                </div>
             </div>
         </div>
     </div>

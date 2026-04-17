@@ -20,6 +20,12 @@ class CategoryController extends BaseApiController
     protected string $storeMessage = 'Category created successfully';
     protected string $updateMessage = 'Category updated successfully';
     protected string $deleteMessage = 'Category deleted successfully';
+    protected array $metaDataKeys = [
+        'title_en' => ['categories_meta_title_en', 'category_meta_title_en'],
+        'title_ar' => ['categories_meta_title_ar', 'category_meta_title_ar'],
+        'description_en' => ['categories_meta_description_en', 'category_meta_description_en'],
+        'description_ar' => ['categories_meta_description_ar', 'category_meta_description_ar'],
+    ];
 
     public function publicIndex(Request $request)
     {

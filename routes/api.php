@@ -34,7 +34,7 @@ Route::prefix('website')->group(function () {
     Route::get('/our-fleet', [CarController::class, 'publicIndex']);
     Route::get('/our-fleet/{car:slug}', [CarController::class, 'publicShow']);
     Route::get('/cars-with-driver', [CarWithDriverController::class, 'publicIndex']);
-    Route::get('/cars-with-driver/{carWithDriver}', [CarWithDriverController::class, 'publicShow']);
+    Route::get('/cars-with-driver/{carWithDriver:slug}', [CarWithDriverController::class, 'publicShow']);
     Route::get('/categories', [CategoryController::class, 'publicIndex']);
     Route::get('/categories/{category:slug}', [CategoryController::class, 'publicShow']);
     Route::get('/faqs', [FaqController::class, 'publicIndex']);
@@ -47,6 +47,6 @@ Route::prefix('website')->group(function () {
     Route::get('/promotions/{promotion:slug}', [PromotionController::class, 'publicShow']);
     Route::get('/settings', [SettingController::class, 'publicIndex']);
     Route::get('/testimonials', [TestimonialController::class, 'publicIndex']);
-    Route::post('/inquiries', [InquiryController::class, 'storePublic']);
+    Route::post('/inquiries', [InquiryController::class, 'storePublic'])->middleware('throttle:5,1');
 
 });

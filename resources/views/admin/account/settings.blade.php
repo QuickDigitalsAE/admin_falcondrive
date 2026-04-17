@@ -146,26 +146,6 @@
                                 </a>
                             </div>
                         </div>
-
-                        <div class="overflow-hidden rounded-[24px] border border-[#eadfbe] bg-[#071427] text-white shadow-sm">
-                            <div class="px-5 py-5">
-                                <p class="text-[11px] uppercase tracking-[0.24em] text-[#d4b563]">Security Notes</p>
-                                <ul class="mt-4 space-y-3 text-sm text-slate-300">
-                                    <li class="flex items-start gap-3">
-                                        <i class="fas fa-check-circle mt-0.5 text-[#f3d67b]"></i>
-                                        <span>Changing your password will update your web account credentials immediately.</span>
-                                    </li>
-                                    <li class="flex items-start gap-3">
-                                        <i class="fas fa-check-circle mt-0.5 text-[#f3d67b]"></i>
-                                        <span>API personal access tokens are cleared after a password change for security.</span>
-                                    </li>
-                                    <li class="flex items-start gap-3">
-                                        <i class="fas fa-check-circle mt-0.5 text-[#f3d67b]"></i>
-                                        <span>Use the profile page for photo, phone, address, and employee details.</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

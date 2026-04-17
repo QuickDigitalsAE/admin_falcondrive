@@ -20,6 +20,12 @@ class BlogController extends BaseApiController
     protected string $storeMessage = 'Blog created successfully';
     protected string $updateMessage = 'Blog updated successfully';
     protected string $deleteMessage = 'Blog deleted successfully';
+    protected array $metaDataKeys = [
+        'title_en' => ['messages_blogs_title_en'],
+        'title_ar' => ['messages_blogs_title_ar'],
+        'description_en' => ['messages_blogs_brief_en'],
+        'description_ar' => ['messages_blogs_brief_ar'],
+    ];
 
     public function publicIndex(Request $request)
     {

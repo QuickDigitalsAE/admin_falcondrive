@@ -4,8 +4,24 @@
         const roleLevelSelect = document.getElementById('role_level');
         const descriptionElement = document.getElementById('roleLevelDescription');
         const toggleVisibleButton = document.getElementById('toggleVisiblePermissions');
+        const permissionGroupSearch = document.getElementById('permissionGroupSearch');
         const permissionItems = Array.from(document.querySelectorAll('.permission-item'));
         const roleLevels = @json($roleLevels);
+
+        function getVisiblePermissionItems(group = null, respectGroupVisibility = true) {
+            const items = group
+                ? Array.from(group.querySelectorAll('.permission-item'))
+                : permissionItems;
+
+            return items.filter(item => {
+                const parentGroup = item.closest('.permission-group');
+                const isGroupVisible = !respectGroupVisibility || (parentGroup && !parentGroup.classList.contains('hidden'));
+
+                return !item.classList.contains('hidden')
+                    && parentGroup
+                    && isGroupVisible;
+            });
+        }
 
         function setLevelCards(level) {
             document.querySelectorAll('[data-level-card]').forEach(card => {
@@ -18,12 +34,32 @@
         }
 
         function updateGroupVisibility(group) {
-            const visibleItems = Array.from(group.querySelectorAll('.permission-item'))
-                .filter(item => !item.classList.contains('hidden'));
+            const visibleItems = getVisiblePermissionItems(group, false);
             const toggleButton = group.querySelector('.permission-toggle');
             const groupToggleButton = group.querySelector('.group-toggle-all');
+            const searchValue = (permissionGroupSearch?.value || '').trim().toLowerCase();
+            const matchesSearch = searchValue === '' || (group.dataset.groupName || '').includes(searchValue);
 
-            group.classList.toggle('hidden', visibleItems.length === 0);
+            group.classList.toggle('hidden', visibleItems.length === 0 || !matchesSearch);
+
+            if (!matchesSearch || visibleItems.length === 0) {
+                if (toggleButton) {
+                    toggleButton.classList.add('hidden');
+                    toggleButton.dataset.expanded = 'false';
+                    toggleButton.textContent = '';
+                }
+
+                if (groupToggleButton) {
+                    const icon = groupToggleButton.querySelector('i');
+                    const label = groupToggleButton.querySelector('span');
+
+                    icon?.classList.remove('fa-eraser');
+                    icon?.classList.add('fa-check-double');
+                    if (label) label.textContent = 'Select All';
+                }
+
+                return;
+            }
 
             if (groupToggleButton) {
                 const allSelected = visibleItems.length > 0 && visibleItems.every(item => {
@@ -103,7 +139,7 @@
                 return;
             }
 
-            const visibleItems = permissionItems.filter(item => !item.classList.contains('hidden'));
+            const visibleItems = getVisiblePermissionItems();
             const allSelected = visibleItems.length > 0 && visibleItems.every(item => {
                 const input = item.querySelector('.permission-checkbox');
                 return !!input && input.checked;
@@ -124,6 +160,7 @@
         }
 
         roleLevelSelect?.addEventListener('change', refreshPermissions);
+        permissionGroupSearch?.addEventListener('input', refreshGroupVisibility);
 
         document.querySelectorAll('.permission-toggle').forEach(button => {
             button.dataset.expanded = 'false';
@@ -143,7 +180,7 @@
                     return;
                 }
 
-                const visibleItems = Array.from(group.querySelectorAll('.permission-item')).filter(item => !item.classList.contains('hidden'));
+                const visibleItems = getVisiblePermissionItems(group);
                 const allSelected = visibleItems.length > 0 && visibleItems.every(item => {
                     const input = item.querySelector('.permission-checkbox');
                     return !!input && input.checked;
@@ -166,7 +203,7 @@
         });
 
         toggleVisibleButton?.addEventListener('click', function () {
-            const visibleItems = permissionItems.filter(item => !item.classList.contains('hidden'));
+            const visibleItems = getVisiblePermissionItems();
             const allSelected = visibleItems.length > 0 && visibleItems.every(item => {
                 const input = item.querySelector('.permission-checkbox');
                 return !!input && input.checked;

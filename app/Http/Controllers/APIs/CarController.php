@@ -21,6 +21,12 @@ class CarController extends BaseApiController
     protected string $storeMessage = 'Car created successfully';
     protected string $updateMessage = 'Car updated successfully';
     protected string $deleteMessage = 'Car deleted successfully';
+    protected array $metaDataKeys = [
+        'title_en' => ['messages_cars_title_en'],
+        'title_ar' => ['messages_cars_title_ar'],
+        'description_en' => ['messages_cars_brief_en'],
+        'description_ar' => ['messages_cars_brief_ar'],
+    ];
 
     protected array $sortable = ['id', 'name_en', 'price_daily', 'price_weekly', 'price_monthly', 'sorting', 'featured_sorting', 'stock'];
 

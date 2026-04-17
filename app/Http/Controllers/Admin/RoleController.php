@@ -215,7 +215,9 @@ class RoleController extends Controller
             ->get();
 
         return [
-            'roleLevels' => RolePermissionMatrix::levels(),
+            'roleLevels' => collect(RolePermissionMatrix::levels())
+                ->except('superadmin')
+                ->all(),
             'permissionGroups' => RolePermissionMatrix::groupedPermissions($permissions),
         ];
     }
@@ -229,7 +231,7 @@ class RoleController extends Controller
                 'max:100',
                 Rule::unique('roles', 'name')->ignore($roleId)->where(fn ($query) => $query->where('guard_name', 'web')),
             ],
-            'role_level' => ['required', Rule::in(RolePermissionMatrix::levelOptions())],
+            'role_level' => ['required', Rule::in(array_keys($this->formData()['roleLevels']))],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['string', Rule::exists('permissions', 'name')->where(fn ($query) => $query->where('guard_name', 'web'))],
         ]);

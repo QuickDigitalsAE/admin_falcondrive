@@ -22,7 +22,7 @@ class CarWithDriverResource extends BaseResource
             'card_text_ar' => $this->card_text_ar,
             'header_en' => $this->header_en,
             'header_ar' => $this->header_ar,
-            'cars' => CarResource::collection($this->whenLoaded('cars')),
+            'cars' => CarResource::collection($this->whenLoaded('carsRelation')),
             'content_en' => $this->content_en,
             'content_ar' => $this->content_ar,
             'created_at' => optional($this->created_at)->toISOString(),

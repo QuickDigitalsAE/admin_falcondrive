@@ -20,6 +20,12 @@ class BrandController extends BaseApiController
     protected string $storeMessage = 'Brand created successfully';
     protected string $updateMessage = 'Brand updated successfully';
     protected string $deleteMessage = 'Brand deleted successfully';
+    protected array $metaDataKeys = [
+        'title_en' => ['brands_meta_title_en', 'brand_meta_title_en', 'messages_brands_title_en'],
+        'title_ar' => ['brands_meta_title_ar', 'brand_meta_title_ar', 'messages_brands_title_ar'],
+        'description_en' => ['brands_meta_description_en', 'brand_meta_description_en', 'messages_brands_brief_en'],
+        'description_ar' => ['brands_meta_description_ar', 'brand_meta_description_ar', 'messages_brands_brief_ar'],
+    ];
 
     public function publicIndex(Request $request)
     {

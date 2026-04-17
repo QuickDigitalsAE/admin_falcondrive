@@ -20,6 +20,12 @@ class LeaseController extends BaseApiController
     protected string $storeMessage = 'Lease created successfully';
     protected string $updateMessage = 'Lease updated successfully';
     protected string $deleteMessage = 'Lease deleted successfully';
+    protected array $metaDataKeys = [
+        'title_en' => ['lease_meta_title_en', 'messages_lease_title_en'],
+        'title_ar' => ['lease_meta_title_ar', 'messages_lease_title_ar'],
+        'description_en' => ['lease_meta_description_en', 'messages_lease_brief_en'],
+        'description_ar' => ['lease_meta_description_ar', 'messages_lease_brief_ar'],
+    ];
 
     public function publicIndex(Request $request)
     {

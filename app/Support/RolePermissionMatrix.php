@@ -69,6 +69,20 @@ class RolePermissionMatrix
         return $permissions
             ->sortBy('name')
             ->groupBy(fn ($permission) => Str::before($permission->name, '_'))
+            ->sortKeysUsing(function (string $a, string $b) {
+                $priority = [
+                    'Dashboard' => 0,
+                ];
+
+                $aPriority = $priority[$a] ?? 999;
+                $bPriority = $priority[$b] ?? 999;
+
+                if ($aPriority !== $bPriority) {
+                    return $aPriority <=> $bPriority;
+                }
+
+                return strcasecmp($a, $b);
+            })
             ->map(function (Collection $group) {
                 return $group->map(function ($permission) {
                     return [

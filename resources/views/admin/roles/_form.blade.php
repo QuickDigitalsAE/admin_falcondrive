@@ -37,7 +37,12 @@
                 <h3 class="mt-1 text-xl font-bold text-slate-900">Allowed Permissions</h3>
                 <p id="roleLevelDescription" class="mt-1 text-sm text-slate-500"></p>
             </div>
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+                    <input id="permissionGroupSearch" type="text" placeholder="Search permission groups"
+                        class="w-full rounded-xl border border-[#eadfbe] bg-white py-2 pl-9 pr-3 text-sm text-slate-700 outline-none transition focus:border-[#caa23c] focus:ring-4 focus:ring-[#f7e9b5] sm:w-64">
+                </div>
                 <button type="button" id="toggleVisiblePermissions"
                     class="inline-flex items-center rounded-xl border border-[#eadfbe] bg-white px-4 py-2 text-sm font-semibold text-[#7d6220] transition hover:bg-[#fff8e8]">
                     <i class="fa-solid fa-check-double mr-2 text-[12px]"></i>
@@ -49,7 +54,8 @@
 
     <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         @foreach ($permissionGroups as $groupName => $permissions)
-            <div class="permission-group rounded-[18px] border border-[#eadfbe] bg-white p-3 shadow-sm">
+            <div class="permission-group rounded-[18px] border border-[#eadfbe] bg-white p-3 shadow-sm"
+                data-group-name="{{ strtolower($groupName) }}">
                 <div class="mb-3 flex items-center justify-between gap-2">
                     <div>
                         <h4 class="text-[13px] font-semibold leading-tight text-slate-900">{{ $groupName }}</h4>
