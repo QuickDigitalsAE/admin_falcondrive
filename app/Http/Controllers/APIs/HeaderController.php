@@ -51,7 +51,7 @@ class HeaderController
             ->all();
 
         array_unshift($categories, [
-            'slug' => 'cars',
+            'slug' => 'our-fleet',
             'name_en' => $this->settingValue($settings, ['messages_all_cars_en'], 'All Cars'),
             'name_ar' => $this->settingValue($settings, ['messages_all_cars_ar'], 'جميع السيارات'),
         ]);
