@@ -58,7 +58,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_300px]">
+    <div class="grid grid-cols-1 gap-5">
         <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[#eee4ca] bg-white shadow-sm">
             @if (!empty($orderedGroups))
                 <div class="border-b border-[#f2ead4] bg-[#fffdf9] px-6 py-4">
@@ -93,17 +93,6 @@
             <div class="shrink-0 flex flex-col gap-3 border-t border-[#f2ead4] bg-[#fffdf9] px-6 py-4 md:flex-row md:items-center md:justify-between">
                 <div id="tableMeta" class="text-sm text-slate-500">Showing 0 to 0 of 0 results</div>
                 <div id="paginationWrapper" class="flex flex-wrap items-center gap-2"></div>
-            </div>
-        </div>
-
-        <div class="space-y-5">
-            <div class="rounded-2xl border border-[#eee4ca] bg-white p-5 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[#b4861f]">Guide</p>
-                <div class="mt-4 space-y-3 text-sm text-slate-600">
-                    <p>Use `group` to cluster settings by feature or page.</p>
-                    <p>Keep `key` stable once frontend or APIs start consuming it.</p>
-                    <p>`details` is intended for metadata, JSON config, UI hints, and notes.</p>
-                </div>
             </div>
         </div>
     </div>

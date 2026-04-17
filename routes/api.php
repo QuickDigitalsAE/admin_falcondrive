@@ -9,6 +9,7 @@ use App\Http\Controllers\APIs\CarController;
 use App\Http\Controllers\APIs\CarWithDriverController;
 use App\Http\Controllers\APIs\CategoryController;
 use App\Http\Controllers\APIs\FaqController;
+use App\Http\Controllers\APIs\HeaderController;
 use App\Http\Controllers\APIs\HighlightController;
 use App\Http\Controllers\APIs\HomeController;
 use App\Http\Controllers\APIs\InquiryController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\APIs\TestimonialController;
 Route::prefix('website')->group(function () {
     // Public APIs
     Route::get('/home', HomeController::class);
+    Route::get('/header', HeaderController::class);
 
     Route::get('/about-us', [AboutUsController::class, 'publicIndex']);
     Route::get('/blogs', [BlogController::class, 'publicIndex']);

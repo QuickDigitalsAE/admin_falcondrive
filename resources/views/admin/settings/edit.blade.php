@@ -38,3 +38,5 @@
         </div>
     </section>
 @endsection
+
+@include('admin.layouts.partials.resource-ckeditor')

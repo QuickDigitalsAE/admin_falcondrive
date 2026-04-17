@@ -22,6 +22,7 @@ class SettingController extends Controller
         'json',
         'color',
         'html',
+        'rich_text_box',
         'image',
         'file',
     ];

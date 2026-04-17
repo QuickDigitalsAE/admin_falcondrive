@@ -71,6 +71,16 @@
             };
         };
 
+        window.buildResourceCkeditorConfig = buildEditorConfig;
+        window.createResourceCkeditor = function (fieldId, direction) {
+            const textarea = document.getElementById(fieldId);
+            if (!textarea || CKEDITOR.instances[fieldId]) {
+                return CKEDITOR.instances[fieldId] || null;
+            }
+
+            return CKEDITOR.replace(fieldId, buildEditorConfig(direction || 'ltr'));
+        };
+
         [
             'blog_description_en',
             'blog_description_ar',
@@ -88,7 +98,14 @@
                 return;
             }
 
-            CKEDITOR.replace(fieldId, buildEditorConfig(fieldId.endsWith('_ar') ? 'rtl' : 'ltr'));
+            window.createResourceCkeditor(fieldId, fieldId.endsWith('_ar') ? 'rtl' : 'ltr');
+        });
+
+        document.querySelectorAll('textarea[data-resource-ckeditor="true"]').forEach(function (textarea) {
+            window.createResourceCkeditor(
+                textarea.id,
+                textarea.dataset.ckeditorDirection || 'ltr'
+            );
         });
     });
 </script>

@@ -9,6 +9,7 @@
         'json' => 'Best for structured options, arrays, nested config, and API-ready data.',
         'color' => 'Best for theme colors, brand accents, and visual settings like #C79A2B.',
         'html' => 'Best for embed code, snippets, banners, or trusted rich markup.',
+        'rich_text_box' => 'Best for formatted content with headings, lists, links, tables, and rich text editing.',
         'image' => 'Best for logos, hero images, badges, app icons, and visual website assets.',
         'file' => 'Best for brochures, PDFs, policy docs, downloadable files, and attachments.',
     ];
@@ -25,9 +26,8 @@
 
 @csrf
 
-<div class="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-    <div class="space-y-6">
-        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+<div class="space-y-6">
+    <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <div class="min-w-0">
                 <div class="space-y-2">
                     <div class="relative">
@@ -127,9 +127,10 @@
                 </div>
 
                 <div id="valueAreaWrap">
-                    <div class="relative">
+                    <div id="valueEditorShell" class="resource-ckeditor-shell {{ $errors->has('value') ? 'is-invalid' : '' }}">
                         <textarea id="value" name="value" rows="8" placeholder="Value"
-                            class="peer w-full rounded-[18px] border {{ $errors->has('value') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 font-mono text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4">{{ old('value', $setting->value ?? '') }}</textarea>
+                            class="peer w-full rounded-[18px] border {{ $errors->has('value') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 font-mono text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4"
+                            data-ckeditor-direction="ltr">{{ old('value', $setting->value ?? '') }}</textarea>
                         <label for="value" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">Value</label>
                     </div>
                 </div>
@@ -188,33 +189,6 @@
                 @error('details')<p class="mt-2 px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
             </div>
         </div>
-    </div>
-
-    <div class="space-y-5">
-        <div class="rounded-[24px] border border-[#eadfbe] bg-gradient-to-br from-[#fffaf0] to-[#fffefb] p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[#b4861f]">Quick Help</p>
-            <div class="mt-4 space-y-3">
-                @foreach ($typeDocs as $settingType => $description)
-                    <button type="button" class="type-quick-link flex w-full items-start gap-3 rounded-[18px] border border-[#eadfbe] bg-white px-4 py-3 text-left transition hover:border-[#d6ab3d] hover:bg-[#fff8e8]" data-type-target="{{ $settingType }}">
-                        <span class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#fff4d6] text-[#8b6717]"><i class="fa-solid fa-wand-magic-sparkles text-[11px]"></i></span>
-                        <span class="min-w-0">
-                            <span class="block text-sm font-semibold text-slate-900">{{ ucfirst(str_replace('_', ' ', $settingType)) }}</span>
-                            <span class="mt-1 block text-xs text-slate-500">{{ $description }}</span>
-                        </span>
-                    </button>
-                @endforeach
-            </div>
-        </div>
-
-        <div class="rounded-[24px] border border-dashed border-[#eadfbe] bg-[#fffdf8] p-5">
-            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[#b4861f]">Good Practices</p>
-            <div class="mt-3 space-y-3 text-sm text-slate-600">
-                <p>Use clear groups like `contact`, `seo`, `homepage`, `footer`, or `social`.</p>
-                <p>Keep keys stable once frontend or API code starts using them.</p>
-                <p>Store arrays or complex UI config in `details` as JSON, not in the display name.</p>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="mt-6 flex flex-col gap-3 border-t border-[#f0e6ca] pt-6 sm:flex-row sm:flex-wrap">
@@ -244,6 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const assetFilePreview = document.getElementById('assetFilePreview');
     const assetFileName = document.getElementById('assetFileName');
     const assetHelpText = document.getElementById('assetHelpText');
+    const valueEditorShell = document.getElementById('valueEditorShell');
     const keyInput = document.getElementById('key');
     const displayNameInput = document.getElementById('display_name');
     const groupInput = document.getElementById('group');
@@ -251,6 +226,35 @@ document.addEventListener('DOMContentLoaded', function () {
     const storageBaseUrl = @json(asset('storage'));
     const initialAssetUrl = @json($setting->value_url ?? $fallbackAssetUrl);
     let previewObjectUrl = null;
+
+    function createValueEditor() {
+        if (!window.CKEDITOR || !valueField || window.CKEDITOR.instances[valueField.id]) {
+            return;
+        }
+
+        if (typeof window.createResourceCkeditor === 'function') {
+            window.createResourceCkeditor(valueField.id, valueField.dataset.ckeditorDirection || 'ltr');
+            return;
+        }
+
+        window.CKEDITOR.replace(valueField.id, {
+            height: 260,
+            versionCheck: false,
+            removePlugins: 'elementspath',
+            resize_enabled: true,
+            contentsLangDirection: valueField.dataset.ckeditorDirection || 'ltr',
+        });
+    }
+
+    function destroyValueEditor() {
+        const editor = window.CKEDITOR?.instances?.[valueField?.id];
+        if (!editor) {
+            return;
+        }
+
+        valueField.value = editor.getData();
+        editor.destroy(true);
+    }
 
     function revokePreviewObjectUrl() {
         if (!previewObjectUrl) {
@@ -266,10 +270,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const useSingle = ['text', 'number', 'url', 'email', 'color'].includes(type);
         const useBoolean = type === 'boolean';
         const useAsset = ['image', 'file'].includes(type);
+        const useRichTextEditor = type === 'rich_text_box';
         valueSingleWrap.classList.toggle('hidden', !useSingle);
         valueBooleanWrap.classList.toggle('hidden', !useBoolean);
         valueAreaWrap.classList.toggle('hidden', useSingle || useBoolean || useAsset);
         valueAssetWrap.classList.toggle('hidden', !useAsset);
+        valueEditorShell?.classList.toggle('resource-ckeditor-shell', useRichTextEditor);
+        valueField.classList.toggle('font-mono', !useRichTextEditor);
 
         typeBadge.textContent = type;
         typeDescription.textContent = docs[type] || docs.text;
@@ -282,6 +289,12 @@ document.addEventListener('DOMContentLoaded', function () {
             assetHelpText.textContent = type === 'image'
                 ? 'Upload one image for this setting. Use another setting if you need another image slot.'
                 : 'Upload one file for this setting. Use another setting if you need another downloadable file.';
+        }
+
+        if (useRichTextEditor) {
+            createValueEditor();
+        } else {
+            destroyValueEditor();
         }
 
         renderStoredAsset(type, valueField.value || '', initialAssetUrl);
@@ -394,13 +407,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.querySelectorAll('.type-quick-link').forEach(function (button) {
-        button.addEventListener('click', function () {
-            typeSelect.value = button.dataset.typeTarget;
-            syncValueUi();
-        });
-    });
-
     if (keyInput && displayNameInput) {
         displayNameInput.addEventListener('input', function () {
             if (keyInput.dataset.touched === '1') {
@@ -416,6 +422,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     syncValueUi();
+
+    document.querySelector('form')?.addEventListener('submit', function () {
+        const editor = window.CKEDITOR?.instances?.[valueField?.id];
+        if (editor) {
+            valueField.value = editor.getData();
+            editor.updateElement();
+        }
+    });
 
     window.addEventListener('beforeunload', revokePreviewObjectUrl);
 });
