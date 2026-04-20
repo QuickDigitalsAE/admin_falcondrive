@@ -29,7 +29,9 @@
                     </div>
                     <div class="flex flex-wrap gap-3">
                         @can('Blog_Edit')
-                        <a href="{{ route('admin.blogs.edit', $blog->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Blog</a>
+                            @if (is_null($blog->deleted_at))
+                                <a href="{{ route('admin.blogs.edit', $blog->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Blog</a>
+                            @endif
                         @endcan
                         <a href="{{ route('admin.blogs') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-5 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-arrow-left mr-2 text-[13px]"></i>Back to List</a>
                     </div>
@@ -43,7 +45,7 @@
                             <div class="flex flex-col items-center text-center">
                                 <div class="h-40 w-full overflow-hidden rounded-3xl border border-[#eadfbe] bg-white shadow-sm ring-4 ring-[#fbf2d6]"><img src="{{ $blog->image_url ?: 'https://placehold.co/800x500/f8e8b2/5e450a?text=Blog' }}" alt="{{ $blog->title_en }}" class="h-full w-full object-cover"></div>
                                 <h2 class="mt-4 text-xl font-bold text-slate-900">{{ $blog->title_en }}</h2>
-                                <p class="mt-1 text-sm text-slate-500">{{ $blog->title_ar }}</p>
+                                <p class="mt-1 break-words text-right text-sm leading-8 text-slate-500 [overflow-wrap:anywhere]" dir="rtl">{{ $blog->title_ar }}</p>
                                 <div class="mt-4 flex flex-wrap justify-center gap-2">
                                     <span class="inline-flex items-center rounded-full bg-[#f8edd0] px-3 py-1 text-xs font-semibold text-[#8b6717] ring-1 ring-[#ecdca8]">{{ $blog->slug }}</span>
                                     @if($blog->deleted_at)
@@ -66,16 +68,16 @@
                             </div>
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Title EN</p><p class="mt-2 text-sm font-semibold text-slate-900">{{ $blog->title_en ?: '—' }}</p></div>
-                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Title AR</p><p class="mt-2 text-sm font-semibold text-slate-900">{{ $blog->title_ar ?: '—' }}</p></div>
+                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Title AR</p><p class="mt-2 break-words text-right text-sm font-semibold leading-8 text-slate-900 [overflow-wrap:anywhere]" dir="rtl">{{ $blog->title_ar ?: '—' }}</p></div>
                                 <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Slug</p><p class="mt-2 break-all text-sm font-semibold text-slate-900">{{ $blog->slug ?: '—' }}</p></div>
                                 <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Title EN</p><p class="mt-2 text-sm font-semibold text-slate-900">{{ $blog->seo_title_en ?: '—' }}</p></div>
-                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Title AR</p><p class="mt-2 text-sm font-semibold text-slate-900">{{ $blog->seo_title_ar ?: '—' }}</p></div>
+                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Title AR</p><p class="mt-2 break-words text-right text-sm font-semibold leading-8 text-slate-900 [overflow-wrap:anywhere]" dir="rtl">{{ $blog->seo_title_ar ?: '—' }}</p></div>
                                 <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Blog Schedule</p><p class="mt-2 text-sm font-semibold text-slate-900">{{ $blog->blog_schedule ? $blog->blog_schedule->format('d M Y, h:i A') : '—' }}</p></div>
                                 <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Created At</p><p class="mt-2 text-sm font-semibold text-slate-900">{{ $blog->created_at ? $blog->created_at->format('d M Y, h:i A') : '—' }}</p></div>
-                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Brief EN</p><p class="mt-2 text-sm text-slate-700 whitespace-pre-line">{{ $blog->seo_brief_en ?: '—' }}</p></div>
-                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Brief AR</p><p class="mt-2 text-sm text-slate-700 whitespace-pre-line">{{ $blog->seo_brief_ar ?: '—' }}</p></div>
-                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Blog Description EN</p><div class="mt-2 text-sm text-slate-700 whitespace-pre-line">{!! nl2br(e($blog->blog_description_en ?: '—')) !!}</div></div>
-                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Blog Description AR</p><div class="mt-2 text-sm text-slate-700 whitespace-pre-line">{!! nl2br(e($blog->blog_description_ar ?: '—')) !!}</div></div>
+                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Brief EN</p><p class="mt-2 whitespace-pre-line text-sm text-slate-700">{{ $blog->seo_brief_en ?: '—' }}</p></div>
+                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Brief AR</p><p class="mt-2 whitespace-pre-line break-words text-right text-sm leading-8 text-slate-700 [overflow-wrap:anywhere]" dir="rtl">{{ $blog->seo_brief_ar ?: '—' }}</p></div>
+                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Blog Description EN</p><div class="mt-2 whitespace-pre-line text-sm text-slate-700">{!! nl2br(e($blog->blog_description_en ?: '—')) !!}</div></div>
+                                <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Blog Description AR</p><div class="mt-2 whitespace-pre-line break-words text-right text-sm leading-8 text-slate-700 [overflow-wrap:anywhere]" dir="rtl">{!! nl2br(e($blog->blog_description_ar ?: '—')) !!}</div></div>
                             </div>
                         </div>
                     </div>
@@ -83,7 +85,9 @@
 
                 <div class="mt-6 flex flex-col gap-3 border-t border-[#f0e6ca] pt-6 sm:flex-row sm:flex-wrap">
                     @can('Blog_Edit')
-                        <a href="{{ route('admin.blogs.edit', $blog->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Blog</a>
+                        @if (is_null($blog->deleted_at))
+                            <a href="{{ route('admin.blogs.edit', $blog->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Blog</a>
+                        @endif
                     @endcan
                     <a href="{{ route('admin.blogs') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-6 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-list mr-2 text-[13px]"></i>All Blogs</a>
                 </div>

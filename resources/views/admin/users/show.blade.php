@@ -32,11 +32,13 @@
 
                         <div class="flex flex-wrap gap-3">
                             @can('User_Edit')
+                                @if (is_null($user->deleted_at))
                                 <a href="{{ route('admin.users.edit', $user->id) }}"
                                     class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]">
                                     <i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>
                                     Edit User
                                 </a>
+                                @endif
                             @endcan
 
                             <a href="{{ route('admin.users') }}"
@@ -160,11 +162,13 @@
 
                     <div class="mt-6 flex flex-col gap-3 border-t border-[#f0e6ca] pt-6 sm:flex-row sm:flex-wrap">
                         @can('User_Edit')
+                            @if (is_null($user->deleted_at))
                             <a href="{{ route('admin.users.edit', $user->id) }}"
                                 class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]">
                                 <i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>
                                 Edit User
                             </a>
+                            @endif
                         @endcan
 
                         <a href="{{ route('admin.users') }}"

@@ -207,7 +207,7 @@
                     `);
                 }
 
-                if (permissions.can_edit) {
+                if (!user.deleted_at && permissions.can_edit) {
                     buttons.push(`
                         <a href="${user.edit_url}"
                             class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#d9c68f] bg-[#fff5d8] text-[#9b7a28] transition hover:bg-[#ffefc1]"

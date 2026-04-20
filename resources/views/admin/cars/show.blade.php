@@ -101,7 +101,7 @@
                         </div>
                         <div class="rounded-[24px] border border-[#eadfbe] bg-white p-5 shadow-sm">
                             <h3 class="text-sm font-semibold text-slate-900">Description AR</h3>
-                            <div class="prose prose-sm mt-4 max-w-none text-slate-600" dir="rtl">{!! $car->description_ar ?: '<p class="text-slate-400">No Arabic description added.</p>' !!}</div>
+                            <div class="prose prose-sm mt-4 max-w-none break-words text-right leading-8 text-slate-600 [overflow-wrap:anywhere] [&_h1]:text-right [&_h2]:text-right [&_h3]:text-right [&_h4]:text-right [&_li]:text-right [&_ol]:pr-6 [&_p]:my-0 [&_p]:mb-4 [&_p]:leading-8 [&_strong]:font-semibold [&_ul]:pr-6" dir="rtl">{!! $car->description_ar ?: '<p class="text-slate-400">No Arabic description added.</p>' !!}</div>
                         </div>
                     </div>
                 </div>

@@ -20,7 +20,14 @@
                 <div class="border-b border-[#f0e6ca] bg-gradient-to-r from-[#fffaf0] to-[#fffdf8] px-4 py-5 sm:px-6">
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                         <div class="min-w-0"><p class="text-[11px] uppercase tracking-[0.24em] text-[#b89a4c]">Brands Management</p><h1 class="text-[28px] font-bold leading-tight text-slate-900">Brand Profile</h1><p class="mt-1 text-sm text-slate-500">Detailed view of selected brand content and metadata.</p></div>
-                        <div class="flex flex-wrap gap-3">@can('Brand_Edit')<a href="{{ route('admin.brands.edit', $brand->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Brand</a>@endcan<a href="{{ route('admin.brands') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-5 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-arrow-left mr-2 text-[13px]"></i>Back to List</a></div>
+                        <div class="flex flex-wrap gap-3">
+                            @can('Brand_Edit')
+                                @if (is_null($brand->deleted_at))
+                                    <a href="{{ route('admin.brands.edit', $brand->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Brand</a>
+                                @endif
+                            @endcan
+                            <a href="{{ route('admin.brands') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-5 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-arrow-left mr-2 text-[13px]"></i>Back to List</a>
+                        </div>
                     </div>
                 </div>
                 <div class="p-4 sm:p-6">
@@ -40,18 +47,25 @@
                                 <div class="mb-5"><h3 class="text-lg font-semibold text-slate-900">Brand Information</h3><p class="mt-1 text-sm text-slate-500">View bilingual content and SEO information for this brand.</p></div>
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Name EN</p><p class="mt-2 text-sm font-semibold text-slate-900">{{ $brand->name_en ?: 'N/A' }}</p></div>
-                                    <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Name AR</p><p class="mt-2 text-sm font-semibold text-slate-900">{{ $brand->name_ar ?: 'N/A' }}</p></div>
+                                    <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Name AR</p><p class="mt-2 break-words text-right text-sm font-semibold leading-8 text-slate-900 [overflow-wrap:anywhere]" dir="rtl">{{ $brand->name_ar ?: 'N/A' }}</p></div>
                                     <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Title EN</p><p class="mt-2 text-sm font-semibold text-slate-900">{{ $brand->seo_title_en ?: 'N/A' }}</p></div>
-                                    <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Title AR</p><p class="mt-2 text-sm font-semibold text-slate-900">{{ $brand->seo_title_ar ?: 'N/A' }}</p></div>
+                                    <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Title AR</p><p class="mt-2 break-words text-right text-sm font-semibold leading-8 text-slate-900 [overflow-wrap:anywhere]" dir="rtl">{{ $brand->seo_title_ar ?: 'N/A' }}</p></div>
                                     <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Description EN</p><p class="mt-2 whitespace-pre-line text-sm font-semibold text-slate-900">{{ $brand->description_en ?: 'N/A' }}</p></div>
-                                    <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Description AR</p><p class="mt-2 whitespace-pre-line text-sm font-semibold text-slate-900">{{ $brand->description_ar ?: 'N/A' }}</p></div>
+                                    <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Description AR</p><p class="mt-2 whitespace-pre-line break-words text-right text-sm font-semibold leading-8 text-slate-900 [overflow-wrap:anywhere]" dir="rtl">{{ $brand->description_ar ?: 'N/A' }}</p></div>
                                     <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Brief EN</p><p class="mt-2 whitespace-pre-line text-sm font-semibold text-slate-900">{{ $brand->seo_brief_en ?: 'N/A' }}</p></div>
-                                    <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Brief AR</p><p class="mt-2 whitespace-pre-line text-sm font-semibold text-slate-900">{{ $brand->seo_brief_ar ?: 'N/A' }}</p></div>
+                                    <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">SEO Brief AR</p><p class="mt-2 whitespace-pre-line break-words text-right text-sm font-semibold leading-8 text-slate-900 [overflow-wrap:anywhere]" dir="rtl">{{ $brand->seo_brief_ar ?: 'N/A' }}</p></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="mt-6 flex flex-col gap-3 border-t border-[#f0e6ca] pt-6 sm:flex-row sm:flex-wrap">@can('Brand_Edit')<a href="{{ route('admin.brands.edit', $brand->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Brand</a>@endcan<a href="{{ route('admin.brands') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-6 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-list mr-2 text-[13px]"></i>All Brands</a></div>
+                    <div class="mt-6 flex flex-col gap-3 border-t border-[#f0e6ca] pt-6 sm:flex-row sm:flex-wrap">
+                        @can('Brand_Edit')
+                            @if (is_null($brand->deleted_at))
+                                <a href="{{ route('admin.brands.edit', $brand->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Brand</a>
+                            @endif
+                        @endcan
+                        <a href="{{ route('admin.brands') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-6 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-list mr-2 text-[13px]"></i>All Brands</a>
+                    </div>
                 </div>
             </div>
         </div>

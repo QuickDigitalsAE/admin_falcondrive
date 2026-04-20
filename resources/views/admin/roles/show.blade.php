@@ -25,9 +25,11 @@
                             <p class="mt-1 text-sm text-slate-500">Detailed view of role hierarchy, assignments, and permissions.</p>
                         </div>
                         <div class="flex flex-wrap gap-3">
-                            @can('Role_Edit')
+                        @can('Role_Edit')
+                            @if (is_null($role->deleted_at))
                                 <a href="{{ route('admin.roles.edit', $role->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Role</a>
-                            @endcan
+                            @endif
+                        @endcan
                             <a href="{{ route('admin.roles') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-5 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-arrow-left mr-2 text-[13px]"></i>Back to List</a>
                         </div>
                     </div>
@@ -92,7 +94,9 @@
 
                     <div class="mt-6 flex flex-col gap-3 border-t border-[#f0e6ca] pt-6 sm:flex-row sm:flex-wrap">
                         @can('Role_Edit')
-                            <a href="{{ route('admin.roles.edit', $role->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Role</a>
+                            @if (is_null($role->deleted_at))
+                                <a href="{{ route('admin.roles.edit', $role->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Role</a>
+                            @endif
                         @endcan
                         <a href="{{ route('admin.roles') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-6 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-list mr-2 text-[13px]"></i>All Roles</a>
                     </div>

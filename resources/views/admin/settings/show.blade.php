@@ -31,7 +31,9 @@
                     </div>
                     <div class="flex flex-wrap gap-3">
                         @can('Setting_Edit')
-                            <a href="{{ route('admin.settings.edit', $setting->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Setting</a>
+                            @if (is_null($setting->deleted_at))
+                                <a href="{{ route('admin.settings.edit', $setting->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]"><i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit Setting</a>
+                            @endif
                         @endcan
                         <a href="{{ route('admin.settings') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-5 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-arrow-left mr-2 text-[13px]"></i>Back to List</a>
                     </div>
