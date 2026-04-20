@@ -20,6 +20,7 @@ class BrandController extends BaseApiController
     protected string $storeMessage = 'Brand created successfully';
     protected string $updateMessage = 'Brand updated successfully';
     protected string $deleteMessage = 'Brand deleted successfully';
+    protected array $sortable = ['id', 'name_en', 'sorting'];
     protected array $metaDataKeys = [
         'title_en' => ['brands_meta_title_en', 'brand_meta_title_en', 'messages_brands_title_en'],
         'title_ar' => ['brands_meta_title_ar', 'brand_meta_title_ar', 'messages_brands_title_ar'],
@@ -30,6 +31,17 @@ class BrandController extends BaseApiController
     public function publicIndex(Request $request)
     {
         return $this->index($request);
+    }
+
+    protected function query(Request $request): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::query($request);
+
+        if (! $request->filled('sort_by')) {
+            $query->reorder()->orderedForListing();
+        }
+
+        return $query;
     }
 
     public function publicShow(\App\Models\Brand $brand)

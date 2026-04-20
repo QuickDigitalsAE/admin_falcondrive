@@ -1,37 +1,38 @@
 @csrf
 
 <div class="grid grid-cols-1 gap-5 xl:grid-cols-3">
-    <div class="min-w-0">
-        <div class="space-y-2">
-            <div class="relative">
-                <input id="name_en" type="text" name="name_en" value="{{ old('name_en', $brand->name_en ?? '') }}" placeholder="Brand name in English"
-                    class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('name_en') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
-                <label for="name_en" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('name_en') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">Name EN</label>
+
+    <div class="min-w-0 xl:col-span-3">
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+            <div class="space-y-2">
+                <div class="relative">
+                    <input id="name_en" type="text" name="name_en" value="{{ old('name_en', $brand->name_en ?? '') }}" placeholder="Brand name in English"
+                        class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('name_en') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                    <label for="name_en" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('name_en') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">Name EN</label>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2 px-1">
+                    <p class="text-xs text-slate-500">Primary brand name for frontend and admin use</p>
+                    <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b4861f]">Required</span>
+                </div>
+                @error('name_en')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
             </div>
-            <div class="flex flex-wrap items-center justify-between gap-2 px-1">
-                <p class="text-xs text-slate-500">Primary brand name for frontend and admin use</p>
-                <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b4861f]">Required</span>
+        
+            <div class="space-y-2">
+                <div class="relative">
+                    <input id="name_ar" type="text" name="name_ar" value="{{ old('name_ar', $brand->name_ar ?? '') }}" placeholder="Brand name in Arabic"
+                        class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('name_ar') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                    <label for="name_ar" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('name_ar') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">Name AR</label>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2 px-1">
+                    <p class="text-xs text-slate-500">Localized brand name for Arabic content</p>
+                    <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Optional</span>
+                </div>
+                @error('name_ar')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
             </div>
-            @error('name_en')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
         </div>
     </div>
 
-    <div class="min-w-0">
-        <div class="space-y-2">
-            <div class="relative">
-                <input id="name_ar" type="text" name="name_ar" value="{{ old('name_ar', $brand->name_ar ?? '') }}" placeholder="Brand name in Arabic"
-                    class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('name_ar') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
-                <label for="name_ar" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('name_ar') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">Name AR</label>
-            </div>
-            <div class="flex flex-wrap items-center justify-between gap-2 px-1">
-                <p class="text-xs text-slate-500">Localized brand name for Arabic content</p>
-                <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Optional</span>
-            </div>
-            @error('name_ar')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
-        </div>
-    </div>
-
-    <div class="min-w-0">
+    <div class="min-w-0 xl:col-span-3">
         <div class="space-y-2">
             <div class="relative">
                 <input id="slug" type="text" name="slug" value="{{ old('slug', $brand->slug ?? '') }}" placeholder="brand-slug"
@@ -43,6 +44,75 @@
                 <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b4861f]">Required</span>
             </div>
             @error('slug')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+        </div>
+    </div>
+
+    <div class="min-w-0 xl:col-span-3">
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+            <div class="space-y-2">
+                <div class="relative">
+                    <input id="seo_title_en" type="text" name="seo_title_en" value="{{ old('seo_title_en', $brand->seo_title_en ?? '') }}" placeholder="SEO title in English"
+                        class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('seo_title_en') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                    <label for="seo_title_en" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">SEO Title EN</label>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2 px-1"><p class="text-xs text-slate-500">Search engine title for English pages</p><span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Optional</span></div>
+            </div>
+
+            <div class="space-y-2">
+                <div class="relative">
+                    <input id="seo_title_ar" type="text" name="seo_title_ar" value="{{ old('seo_title_ar', $brand->seo_title_ar ?? '') }}" placeholder="SEO title in Arabic"
+                        class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('seo_title_ar') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                    <label for="seo_title_ar" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">SEO Title AR</label>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2 px-1"><p class="text-xs text-slate-500">Search engine title for Arabic pages</p><span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Optional</span></div>
+            </div>
+        </div>
+    </div>
+
+     <div class="min-w-0 xl:col-span-3 grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <div class="space-y-2">
+            <div class="relative">
+                <textarea id="seo_brief_en" name="seo_brief_en" rows="4" placeholder="SEO brief in English"
+                    class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('seo_brief_en') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4">{{ old('seo_brief_en', $brand->seo_brief_en ?? '') }}</textarea>
+                <label for="seo_brief_en" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">SEO Brief EN</label>
+            </div>
+        </div>
+        <div class="space-y-2">
+            <div class="relative">
+                <textarea id="seo_brief_ar" name="seo_brief_ar" rows="4" placeholder="SEO brief in Arabic"
+                    class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('seo_brief_ar') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4">{{ old('seo_brief_ar', $brand->seo_brief_ar ?? '') }}</textarea>
+                <label for="seo_brief_ar" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">SEO Brief AR</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="min-w-0 xl:col-span-3">
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+            <div class="space-y-2">
+                <div class="rounded-[24px] border {{ $errors->has('sorting') ? 'border-red-300' : 'border-[#eadfbe]' }} bg-gradient-to-br from-[#fffdf8] to-white p-5 shadow-sm h-full">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#b4861f]">Sort Order</p>
+                            <p class="mt-1 text-sm text-slate-500">Brand lists in admin tables, header menus, and APIs will follow this order.</p>
+                        </div>
+                        <span class="rounded-full bg-[#f8e8b2] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#7d6220]">Global</span>
+                    </div>
+
+                    <div class="mt-4 relative">
+                        <select id="sorting" name="sorting" data-current-sorting="{{ old('sorting', $brand?->sorting ?? '') }}"
+                            class="peer w-full appearance-none rounded-[20px] border {{ $errors->has('sorting') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 pr-11 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[60px] shadow-sm">
+                            <option value="">Loading sort order...</option>
+                        </select>
+                        <label for="sorting" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('sorting') ? 'text-red-500' : 'text-slate-500' }}">Sort Order</label>
+                        <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2 px-1">
+                    <p class="text-xs text-slate-500">Set the display order for brand lists across the project</p>
+                    <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Optional</span>
+                </div>
+                @error('sorting')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+            </div>
         </div>
     </div>
 
@@ -68,44 +138,7 @@
         </div>
     </div>
 
-    <div class="min-w-0">
-        <div class="space-y-2">
-            <div class="relative">
-                <input id="seo_title_en" type="text" name="seo_title_en" value="{{ old('seo_title_en', $brand->seo_title_en ?? '') }}" placeholder="SEO title in English"
-                    class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('seo_title_en') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
-                <label for="seo_title_en" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">SEO Title EN</label>
-            </div>
-            <div class="flex flex-wrap items-center justify-between gap-2 px-1"><p class="text-xs text-slate-500">Search engine title for English pages</p><span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Optional</span></div>
-        </div>
-    </div>
-
-    <div class="min-w-0">
-        <div class="space-y-2">
-            <div class="relative">
-                <input id="seo_title_ar" type="text" name="seo_title_ar" value="{{ old('seo_title_ar', $brand->seo_title_ar ?? '') }}" placeholder="SEO title in Arabic"
-                    class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('seo_title_ar') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
-                <label for="seo_title_ar" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">SEO Title AR</label>
-            </div>
-            <div class="flex flex-wrap items-center justify-between gap-2 px-1"><p class="text-xs text-slate-500">Search engine title for Arabic pages</p><span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Optional</span></div>
-        </div>
-    </div>
-
-    <div class="min-w-0 xl:col-span-3 grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <div class="space-y-2">
-            <div class="relative">
-                <textarea id="seo_brief_en" name="seo_brief_en" rows="4" placeholder="SEO brief in English"
-                    class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('seo_brief_en') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4">{{ old('seo_brief_en', $brand->seo_brief_en ?? '') }}</textarea>
-                <label for="seo_brief_en" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">SEO Brief EN</label>
-            </div>
-        </div>
-        <div class="space-y-2">
-            <div class="relative">
-                <textarea id="seo_brief_ar" name="seo_brief_ar" rows="4" placeholder="SEO brief in Arabic"
-                    class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has('seo_brief_ar') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4">{{ old('seo_brief_ar', $brand->seo_brief_ar ?? '') }}</textarea>
-                <label for="seo_brief_ar" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] text-slate-500">SEO Brief AR</label>
-            </div>
-        </div>
-    </div>
+   
 </div>
 
 <div class="rounded-[24px] border border-[#eadfbe] bg-gradient-to-br from-[#fffaf0] to-[#fffefb] p-4 sm:p-5">

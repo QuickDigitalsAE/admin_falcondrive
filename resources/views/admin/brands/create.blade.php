@@ -47,7 +47,35 @@
             const preview = document.getElementById('logoPreview');
             const fileName = document.getElementById('fileName');
             const removeBtn = document.getElementById('removeImageBtn');
+            const sortingSelect = document.getElementById('sorting');
+            const initialSortingValue = sortingSelect?.dataset.currentSorting || '';
+            const sortOrdersUrl = @json(route('admin.brands.sort-orders'));
             const defaultPreview = @json('https://ui-avatars.com/api/?name=Brand&background=F8E8B2&color=5E450A&size=200');
+
+            function renderSortingOptions(orders = [], selectedValue = '') {
+                if (!sortingSelect) return;
+
+                const normalizedOrders = orders.map(Number).filter(order => !Number.isNaN(order));
+                const maxSortOrder = normalizedOrders.length ? Math.max(...normalizedOrders) : -1;
+                const nextPosition = maxSortOrder + 1;
+                const targetValue = selectedValue !== '' ? Number(selectedValue) : nextPosition;
+                const optionValues = Array.from(new Set([...normalizedOrders, nextPosition, targetValue])).sort((a, b) => a - b);
+
+                sortingSelect.innerHTML = optionValues.map((value) => {
+                    const suffix = value === nextPosition ? ' (New slot)' : '';
+                    return `<option value="${value}">${value}${suffix}</option>`;
+                }).join('');
+
+                sortingSelect.value = String(targetValue);
+            }
+
+            function fetchSortOrders(selectedValue = '') {
+                fetch(sortOrdersUrl)
+                    .then((response) => response.json())
+                    .then((orders) => renderSortingOptions(Array.isArray(orders) ? orders : [], selectedValue))
+                    .catch(() => renderSortingOptions([], selectedValue));
+            }
+
             if (input) {
                 input.addEventListener('change', function (event) {
                     const file = event.target.files[0];
@@ -69,6 +97,8 @@
                     fileName.textContent = 'No file selected';
                 });
             }
+
+            fetchSortOrders(initialSortingValue);
         });
     </script>
 @endpush

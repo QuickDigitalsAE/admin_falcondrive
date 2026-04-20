@@ -205,8 +205,8 @@ abstract class BaseApiController extends Controller
     protected function allBrandList(): array
     {
         return Brand::query()
-            ->select(['id', 'name_en', 'name_ar', 'slug', 'logo'])
-            ->orderByDesc('id')
+            ->select(['id', 'name_en', 'name_ar', 'slug', 'logo', 'sorting'])
+            ->orderedForListing()
             ->get()
             ->map(fn (Brand $brand) => $this->transformBrandListItem($brand))
             ->values()
@@ -226,11 +226,21 @@ abstract class BaseApiController extends Controller
 
     protected function brandListFromCars(Collection $cars): array
     {
-        return $cars
-            ->pluck('brand')
+        $brandIds = $cars
+            ->pluck('brand.id')
             ->filter()
-            ->unique('id')
+            ->unique()
             ->values()
+            ->all();
+
+        if (empty($brandIds)) {
+            return [];
+        }
+
+        return Brand::query()
+            ->whereIn('id', $brandIds)
+            ->orderedForListing()
+            ->get()
             ->map(fn (Brand $brand) => $this->transformBrandListItem($brand))
             ->all();
     }

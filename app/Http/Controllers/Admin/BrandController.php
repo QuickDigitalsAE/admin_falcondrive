@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -52,14 +53,42 @@ class BrandController extends Controller
         return view('admin.brands.create');
     }
 
+    public function getSortOrders(Request $request)
+    {
+        $ignoreBrandId = $request->integer('ignore_brand_id');
+
+        $orders = Brand::query()
+            ->when($ignoreBrandId, fn ($query) => $query->where('id', '!=', $ignoreBrandId))
+            ->whereNotNull('sorting')
+            ->orderBy('sorting')
+            ->pluck('sorting')
+            ->map(fn ($sorting) => (int) $sorting)
+            ->values()
+            ->all();
+
+        return response()->json($orders);
+    }
+
     public function store(Request $request)
     {
         $validated = $this->validateBrand($request);
-        $validated['slug'] = Str::slug($validated['slug']);
-        $validated['created_by'] = Auth::id();
-        $validated['logo'] = $this->storeLogo($request);
+        DB::transaction(function () use ($request, $validated) {
+            $brand = Brand::create([
+                'name_en' => $validated['name_en'],
+                'name_ar' => $validated['name_ar'] ?? null,
+                'description_en' => $validated['description_en'] ?? null,
+                'description_ar' => $validated['description_ar'] ?? null,
+                'seo_title_en' => $validated['seo_title_en'] ?? null,
+                'seo_title_ar' => $validated['seo_title_ar'] ?? null,
+                'seo_brief_en' => $validated['seo_brief_en'] ?? null,
+                'seo_brief_ar' => $validated['seo_brief_ar'] ?? null,
+                'slug' => Str::slug($validated['slug']),
+                'logo' => $this->storeLogo($request),
+                'created_by' => Auth::id(),
+            ]);
 
-        Brand::create($validated);
+            $this->insertIntoBrandSorting($brand, $this->resolveSortingValue($validated));
+        });
 
         return redirect()->route('admin.brands')->with('success', 'Brand created successfully.');
     }
@@ -95,20 +124,36 @@ class BrandController extends Controller
         }
 
         $validated = $this->validateBrand($request, $brand->id);
-        $validated['slug'] = Str::slug($validated['slug']);
-        $validated['updated_by'] = Auth::id();
 
-        if ($request->boolean('remove_logo')) {
-            $this->deleteLogo($brand->logo);
-            $validated['logo'] = null;
-        }
+        DB::transaction(function () use ($request, $validated, $brand) {
+            $originalSorting = $brand->sorting !== null ? (int) $brand->sorting : null;
 
-        if ($request->hasFile('logo')) {
-            $this->deleteLogo($brand->logo);
-            $validated['logo'] = $this->storeLogo($request);
-        }
+            if ($request->boolean('remove_logo')) {
+                $this->deleteLogo($brand->logo);
+                $brand->logo = null;
+            }
 
-        $brand->update($validated);
+            if ($request->hasFile('logo')) {
+                $this->deleteLogo($brand->logo);
+                $brand->logo = $this->storeLogo($request);
+            }
+
+            $brand->fill([
+                'name_en' => $validated['name_en'],
+                'name_ar' => $validated['name_ar'] ?? null,
+                'description_en' => $validated['description_en'] ?? null,
+                'description_ar' => $validated['description_ar'] ?? null,
+                'seo_title_en' => $validated['seo_title_en'] ?? null,
+                'seo_title_ar' => $validated['seo_title_ar'] ?? null,
+                'seo_brief_en' => $validated['seo_brief_en'] ?? null,
+                'seo_brief_ar' => $validated['seo_brief_ar'] ?? null,
+                'slug' => Str::slug($validated['slug']),
+                'updated_by' => Auth::id(),
+            ]);
+            $brand->save();
+
+            $this->placeBrandInSorting($brand, $this->resolveSortingValue($validated, $brand), $originalSorting);
+        });
 
         return redirect()->route('admin.brands')->with('success', 'Brand updated successfully.');
     }
@@ -121,9 +166,17 @@ class BrandController extends Controller
             return back()->with('error', 'Brand not found.');
         }
 
-        $brand->deleted_by = Auth::id();
-        $brand->save();
-        $brand->delete();
+        DB::transaction(function () use ($brand) {
+            $sorting = $brand->sorting !== null ? (int) $brand->sorting : null;
+
+            $brand->deleted_by = Auth::id();
+            $brand->save();
+            $brand->delete();
+
+            if ($sorting !== null) {
+                $this->closeBrandSortingGap($sorting, $brand->id);
+            }
+        });
 
         return redirect()->route('admin.brands')->with('success', 'Brand deleted successfully.');
     }
@@ -140,9 +193,12 @@ class BrandController extends Controller
             return back()->with('error', 'Brand is not deleted.');
         }
 
-        $brand->restore();
-        $brand->deleted_by = null;
-        $brand->save();
+        DB::transaction(function () use ($brand) {
+            $brand->restore();
+            $brand->deleted_by = null;
+            $brand->save();
+            $this->insertIntoBrandSorting($brand, Brand::nextSorting($brand->id));
+        });
 
         return redirect()->route('admin.brands')->with('success', 'Brand restored successfully.');
     }
@@ -172,7 +228,7 @@ class BrandController extends Controller
             });
         }
 
-        $query->latest('id');
+        $query->orderedForListing();
 
         if ($isExport) {
             return $this->export($query, $isDeleted);
@@ -191,6 +247,7 @@ class BrandController extends Controller
                     'slug' => $brand->slug,
                     'seo_title_en' => $brand->seo_title_en,
                     'logo_url' => $brand->logo_url,
+                    'sorting' => $brand->sorting,
                     'deleted_at' => optional($brand->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($brand->created_at)->format('d M Y, h:i A'),
                     ...$this->superAdminAuditMeta($brand, $authUser),
@@ -245,6 +302,7 @@ class BrandController extends Controller
             'seo_brief_ar' => ['nullable', 'string'],
             'slug' => ['required', 'string', 'max:255', Rule::unique('brands', 'slug')->ignore($id)],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'sorting' => ['nullable', 'integer', 'min:0'],
             'remove_logo' => ['nullable', 'in:0,1'],
         ]);
     }
@@ -256,7 +314,7 @@ class BrandController extends Controller
         }
 
         $file = $request->file('logo');
-        $folder = 'blogs/' . now()->format('FY');
+        $folder = 'brands/' . now()->format('FY');
         $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
 
         return $file->storeAs($folder, $fileName, 'public');
@@ -275,7 +333,7 @@ class BrandController extends Controller
 
         return response()->stream(function () use ($records, $isDeleted) {
             $file = fopen('php://output', 'w');
-            $headers = ['ID', 'Name EN', 'Name AR', 'Slug', 'SEO Title EN', 'Created At'];
+            $headers = ['ID', 'Sort Order', 'Name EN', 'Name AR', 'Slug', 'SEO Title EN', 'Created At'];
             if ($isDeleted) {
                 $headers[] = 'Deleted At';
             }
@@ -284,6 +342,7 @@ class BrandController extends Controller
             foreach ($records as $record) {
                 $row = [
                     $record->id,
+                    $record->sorting,
                     $record->name_en,
                     $record->name_ar,
                     $record->slug,
@@ -303,6 +362,65 @@ class BrandController extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename=brands.csv',
         ]);
+    }
+
+    private function resolveSortingValue(array $validated, ?Brand $brand = null): int
+    {
+        if (!blank($validated['sorting'] ?? null)) {
+            return (int) $validated['sorting'];
+        }
+
+        return Brand::nextSorting($brand?->id);
+    }
+
+    private function placeBrandInSorting(Brand $brand, int $targetSorting, ?int $originalSorting = null): void
+    {
+        if ($originalSorting !== null) {
+            $this->moveWithinBrandSorting($brand, $originalSorting, $targetSorting);
+            return;
+        }
+
+        $this->insertIntoBrandSorting($brand, $targetSorting);
+    }
+
+    private function moveWithinBrandSorting(Brand $brand, int $fromSorting, int $toSorting): void
+    {
+        if ($fromSorting === $toSorting) {
+            $brand->forceFill(['sorting' => $toSorting])->saveQuietly();
+            return;
+        }
+
+        if ($toSorting < $fromSorting) {
+            Brand::query()
+                ->where('id', '!=', $brand->id)
+                ->whereBetween('sorting', [$toSorting, $fromSorting - 1])
+                ->increment('sorting');
+        } else {
+            Brand::query()
+                ->where('id', '!=', $brand->id)
+                ->whereBetween('sorting', [$fromSorting + 1, $toSorting])
+                ->decrement('sorting');
+        }
+
+        $brand->forceFill(['sorting' => $toSorting])->saveQuietly();
+    }
+
+    private function insertIntoBrandSorting(Brand $brand, int $targetSorting): void
+    {
+        Brand::query()
+            ->where('id', '!=', $brand->id)
+            ->where('sorting', '>=', $targetSorting)
+            ->increment('sorting');
+
+        $brand->forceFill(['sorting' => $targetSorting])->saveQuietly();
+    }
+
+    private function closeBrandSortingGap(int $fromSorting, int $ignoreBrandId): void
+    {
+        Brand::query()
+            ->where('id', '!=', $ignoreBrandId)
+            ->where('sorting', '>', $fromSorting)
+            ->decrement('sorting');
     }
 }
 

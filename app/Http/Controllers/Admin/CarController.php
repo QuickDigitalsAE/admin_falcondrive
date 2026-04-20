@@ -53,7 +53,7 @@ class CarController extends Controller
     public function createCar()
     {
         return view('admin.cars.create', [
-            'brands' => Brand::orderBy('name_en')->get(),
+            'brands' => Brand::orderedForListing()->get(),
             'categories' => Category::orderBy('name_en')->get(),
         ]);
     }
@@ -99,7 +99,7 @@ class CarController extends Controller
 
         return view('admin.cars.edit', [
             'car' => $car,
-            'brands' => Brand::orderBy('name_en')->get(),
+            'brands' => Brand::orderedForListing()->get(),
             'categories' => Category::orderBy('name_en')->get(),
         ]);
     }

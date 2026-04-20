@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -22,9 +23,14 @@ class Brand extends Model
         'seo_brief_ar',
         'slug',
         'logo',
+        'sorting',
         'created_by',
         'updated_by',
         'deleted_by',
+    ];
+
+    protected $casts = [
+        'sorting' => 'integer',
     ];
 
     protected $appends = [
@@ -62,5 +68,24 @@ class Brand extends Model
     public function cars()
     {
         return $this->hasMany(Car::class, 'brand_id')->orderedForListing();
+    }
+
+    public function scopeOrderedForListing(Builder $query): Builder
+    {
+        return $query
+            ->orderByRaw("CASE WHEN brands.sorting IS NULL THEN 1 ELSE 0 END ASC")
+            ->orderBy('brands.sorting')
+            ->orderByRaw('LOWER(COALESCE(brands.name_en, "")) ASC')
+            ->orderByDesc('brands.id');
+    }
+
+    public static function nextSorting(?int $ignoreId = null): int
+    {
+        $maxSorting = static::query()
+            ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId))
+            ->selectRaw("MAX(CAST(COALESCE(NULLIF(sorting, ''), '0') AS UNSIGNED)) as max_sorting")
+            ->value('max_sorting');
+
+        return $maxSorting === null ? 0 : ((int) $maxSorting + 1);
     }
 }

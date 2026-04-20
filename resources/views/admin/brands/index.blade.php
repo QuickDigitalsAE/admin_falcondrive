@@ -80,12 +80,13 @@
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Actions</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Brand</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">SEO</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Sort Order</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Created</th>
                         </tr>
                     </thead>
                     <tbody id="brandsTableBody" class="divide-y divide-[#f6f0df] bg-white">
                         <tr>
-                            <td colspan="4" class="px-6 py-12 text-center text-slate-500">Loading brands...</td>
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-500">Loading brands...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -143,10 +144,10 @@
 
             function renderRows(items) {
                 if (!items.length) {
-                    brandsTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-slate-500">No brands found.</td></tr>`;
+                    brandsTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">No brands found.</td></tr>`;
                     return;
                 }
-                brandsTableBody.innerHTML = items.map(item => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4">${brandHtml(item)}</td><td class="px-6 py-4"><p class="text-sm font-medium text-slate-700">${escapeHtml(item.seo_title_en || 'No SEO title')}</p><p class="text-xs text-slate-500">${escapeHtml(item.slug || '')}</p></td><td class="px-6 py-4 whitespace-nowrap text-gray-500">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(item, escapeHtml) : escapeHtml(item.created_at_human || '')}</td></tr>`).join('');
+                brandsTableBody.innerHTML = items.map(item => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4">${brandHtml(item)}</td><td class="px-6 py-4"><p class="text-sm font-medium text-slate-700">${escapeHtml(item.seo_title_en || 'No SEO title')}</p><p class="text-xs text-slate-500">${escapeHtml(item.slug || '')}</p></td><td class="px-6 py-4 whitespace-nowrap"><span class="inline-flex rounded-full bg-[#f7edd0] px-2.5 py-1 text-xs font-semibold text-[#8a6a1c]">${escapeHtml(item.sorting ?? 'N/A')}</span></td><td class="px-6 py-4 whitespace-nowrap text-gray-500">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(item, escapeHtml) : escapeHtml(item.created_at_human || '')}</td></tr>`).join('');
             }
 
             function renderPagination(pagination) {
@@ -166,7 +167,7 @@
             }
 
             function renderMeta(pagination) { tableMeta.textContent = `Showing ${pagination?.from ?? 0} to ${pagination?.to ?? 0} of ${pagination?.total ?? 0} results`; }
-            function setLoading() { brandsTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-slate-500"><div class="inline-flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin text-[#b49543]"></i><span>Loading brands...</span></div></td></tr>`; }
+            function setLoading() { brandsTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500"><div class="inline-flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin text-[#b49543]"></i><span>Loading brands...</span></div></td></tr>`; }
 
             function updateTrashUI() {
                 if (!trashToggleBtn) return;

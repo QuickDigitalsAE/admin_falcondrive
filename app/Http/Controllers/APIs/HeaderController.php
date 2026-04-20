@@ -23,7 +23,7 @@ class HeaderController
         $baseUrl = rtrim((string) config('app.url'), '/');
 
         $brands = Brand::query()
-            ->orderBy('name_en')
+            ->orderedForListing()
             ->get()
             ->map(function (Brand $brand) use ($baseUrl) {
                 return [

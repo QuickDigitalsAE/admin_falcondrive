@@ -18,6 +18,7 @@ class BrandResource extends BaseResource
             'slug' => $this->slug,
             'logo' => $this->logo,
             'logo_url' => $this->imageUrl($this->logo),
+            'sorting' => $this->sorting,
             'cars_count' => $this->whenCounted('cars'),
             'cars' => CarResource::collection($this->whenLoaded('cars')),
             'created_at' => optional($this->created_at)->toISOString(),

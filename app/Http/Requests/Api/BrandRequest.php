@@ -9,7 +9,7 @@ class BrandRequest extends BaseDataRequest
 {
     public function fillableFields(): array
     {
-        return ['name_en', 'name_ar', 'description_en', 'description_ar', 'seo_title_en', 'seo_title_ar', 'seo_brief_en', 'seo_brief_ar', 'slug', 'logo'];
+        return ['name_en', 'name_ar', 'description_en', 'description_ar', 'seo_title_en', 'seo_title_ar', 'seo_brief_en', 'seo_brief_ar', 'slug', 'logo', 'sorting'];
     }
 
     public function rules(?Model $model = null): array
@@ -27,6 +27,7 @@ class BrandRequest extends BaseDataRequest
             'seo_brief_ar' => ['nullable','string'],
             'slug' => ['nullable','string','max:191'],
             'logo' => ['nullable','string','max:191'],
+            'sorting' => ['nullable', 'integer', 'min:0'],
             'slug' => ['required','string', Rule::unique('brands','slug')->ignore($id)],
         ];
     }

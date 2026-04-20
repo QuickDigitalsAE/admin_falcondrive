@@ -175,6 +175,7 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
     Route::prefix('brands')->name('brands')->group(function () {
         Route::get('/', [BrandController::class, 'index'])->name('');
         Route::get('/create', [BrandController::class, 'create'])->name('.create');
+        Route::get('/sort-orders', [BrandController::class, 'getSortOrders'])->name('.sort-orders');
         Route::post('/store', [BrandController::class, 'store'])->name('.store');
         Route::get('/{id}', [BrandController::class, 'show'])->name('.show');
         Route::get('/{id}/edit', [BrandController::class, 'edit'])->name('.edit');
