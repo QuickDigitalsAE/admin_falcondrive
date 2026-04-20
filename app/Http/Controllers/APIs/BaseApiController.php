@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\APIs;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BrandResource;
+use App\Models\Brand;
 use App\Models\Setting;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -198,5 +200,38 @@ abstract class BaseApiController extends Controller
         }
 
         return $default;
+    }
+
+    protected function allBrandList(): array
+    {
+        return Brand::query()
+            ->select(['id', 'name_en', 'name_ar', 'slug', 'logo'])
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (Brand $brand) => $this->transformBrandListItem($brand))
+            ->values()
+            ->all();
+    }
+
+    protected function transformBrandListItem(Brand $brand): array
+    {
+        return [
+            'id' => $brand->id,
+            'name_en' => $brand->name_en,
+            'name_ar' => $brand->name_ar,
+            'slug' => $brand->slug,
+            'logo_url' => BrandResource::make($brand)->resolve()['logo_url'] ?? null,
+        ];
+    }
+
+    protected function brandListFromCars(Collection $cars): array
+    {
+        return $cars
+            ->pluck('brand')
+            ->filter()
+            ->unique('id')
+            ->values()
+            ->map(fn (Brand $brand) => $this->transformBrandListItem($brand))
+            ->all();
     }
 }

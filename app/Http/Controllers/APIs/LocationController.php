@@ -34,7 +34,13 @@ class LocationController extends BaseApiController
 
     public function publicShow(\App\Models\Location $location)
     {
-        return $this->successResponse($this->singleMessage, $this->transform($location->load($this->with)));
-    }
+        $location->load(['cars.brand']);
 
+        return $this->successResponse($this->singleMessage, array_merge(
+            $this->transform($location),
+            [
+                'brand_list' => $this->brandListFromCars($location->cars),
+            ]
+        ));
+    }
 }

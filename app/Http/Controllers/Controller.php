@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\SystemVisibility;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -14,15 +13,6 @@ class Controller extends BaseController
 
     protected function superAdminAuditMeta(object $record, $authUser): array
     {
-        if (!SystemVisibility::isSuperAdminUser($authUser)) {
-            return [
-                'show_super_admin_audit' => false,
-                'created_by_name' => null,
-                'updated_by_name' => null,
-                'deleted_by_name' => null,
-            ];
-        }
-
         $createdByName = null;
         $updatedByName = null;
         $deletedByName = null;
@@ -46,7 +36,7 @@ class Controller extends BaseController
         }
 
         return [
-            'show_super_admin_audit' => true,
+            'show_super_admin_audit' => !is_null($createdByName) || !is_null($updatedByName) || !is_null($deletedByName),
             'created_by_name' => $createdByName,
             'updated_by_name' => $updatedByName,
             'deleted_by_name' => $deletedByName,

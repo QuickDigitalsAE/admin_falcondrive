@@ -34,7 +34,13 @@ class CategoryController extends BaseApiController
 
     public function publicShow(\App\Models\Category $category)
     {
-        return $this->successResponse($this->singleMessage, $this->transform($category->load($this->with)));
-    }
+        $category->load(['cars.brand']);
 
+        return $this->successResponse($this->singleMessage, array_merge(
+            $this->transform($category),
+            [
+                'brand_list' => $this->brandListFromCars($category->cars),
+            ]
+        ));
+    }
 }

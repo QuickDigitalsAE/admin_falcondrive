@@ -74,12 +74,23 @@ class CarController extends BaseApiController
 
     public function publicIndex(Request $request)
     {
-        return $this->index($request);
+        $perPage = max(1, min((int) $request->get('per_page', 15), 100));
+        $records = $this->query($request)->paginate($perPage)->appends($request->query());
+        $resource = $this->resourceClass;
+        $data = $this->paginatedData($records, $resource::collection($records)->resolve());
+        $metaData = $this->buildMetaData($request);
+
+        if (!empty(array_filter($metaData, fn ($value) => $value !== null && $value !== ''))) {
+            $data['meta_data'] = $metaData;
+        }
+
+        $data['brand_list'] = $this->allBrandList();
+
+        return $this->successResponse($this->publicMessage, $data);
     }
 
     public function publicShow(\App\Models\Car $car)
     {
         return $this->successResponse($this->singleMessage, $this->transform($car->load($this->with)));
     }
-
 }

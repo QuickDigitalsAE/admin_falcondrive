@@ -1,10 +1,8 @@
 @php
-    $showAuditCard = \App\Support\SystemVisibility::isSuperAdminUser(auth()->user())
-        && (
-            !is_null(data_get($record, 'created_by')) ||
-            !is_null(data_get($record, 'updated_by')) ||
-            !is_null(data_get($record, 'deleted_by'))
-        );
+    $showAuditCard =
+        !is_null(data_get($record, 'created_by')) ||
+        !is_null(data_get($record, 'updated_by')) ||
+        !is_null(data_get($record, 'deleted_by'));
 @endphp
 
 @if($showAuditCard)

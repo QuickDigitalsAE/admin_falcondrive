@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\APIs;
 
 use App\Http\Requests\Api\LeaseRequest;
+use App\Http\Resources\CarResource;
 use App\Http\Resources\LeaseResource;
+use App\Models\Car;
 use App\Models\Lease;
 use Illuminate\Http\Request;
 
@@ -34,7 +36,26 @@ class LeaseController extends BaseApiController
 
     public function publicShow(\App\Models\Lease $lease)
     {
-        return $this->successResponse($this->singleMessage, $this->transform($lease->load($this->with)));
+        $perPage = max(1, min((int) request()->get('per_page', 15), 100));
+        $cars = Car::query()
+            ->with(['brand', 'categories', 'locations', 'driverPages'])
+            ->orderedForListing()
+            ->paginate($perPage)
+            ->appends(request()->query());
+
+        return $this->successResponse($this->singleMessage, array_merge(
+            $this->transform($lease->load($this->with)),
+            [
+                'cars' => CarResource::collection($cars)->resolve(),
+                'pagination' => [
+                    'current_page' => $cars->currentPage(),
+                    'last_page' => $cars->lastPage(),
+                    'per_page' => $cars->perPage(),
+                    'total' => $cars->total(),
+                ],
+                'brand_list' => $this->allBrandList(),
+            ]
+        ));
     }
 
 }
