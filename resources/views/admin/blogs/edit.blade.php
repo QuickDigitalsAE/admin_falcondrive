@@ -68,20 +68,6 @@
                             <label for="blog_schedule" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('blog_schedule') ? 'text-red-500' : 'text-slate-500' }}">Blog Schedule</label>
                         </div>@error('blog_schedule')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror</div></div>
 
-                        <div class="xl:col-span-2 min-w-0"><div class="space-y-2">
-                            <label for="blog_description_en" class="block px-1 text-xs font-medium {{ $errors->has('blog_description_en') ? 'text-red-500' : 'text-slate-500' }}">Blog Description EN</label>
-                            <div class="resource-ckeditor-shell {{ $errors->has('blog_description_en') ? 'is-invalid' : '' }}">
-                                <textarea id="blog_description_en" name="blog_description_en" rows="6">{{ old('blog_description_en', $blog->blog_description_en) }}</textarea>
-                            </div>
-                        @error('blog_description_en')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror</div></div>
-
-                        <div class="xl:col-span-2 min-w-0"><div class="space-y-2">
-                            <label for="blog_description_ar" class="block px-1 text-xs font-medium {{ $errors->has('blog_description_ar') ? 'text-red-500' : 'text-slate-500' }}">Blog Description AR</label>
-                            <div class="resource-ckeditor-shell {{ $errors->has('blog_description_ar') ? 'is-invalid' : '' }}">
-                                <textarea id="blog_description_ar" name="blog_description_ar" rows="6">{{ old('blog_description_ar', $blog->blog_description_ar) }}</textarea>
-                            </div>
-                        @error('blog_description_ar')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror</div></div>
-
                         <div class="min-w-0"><div class="space-y-2"><div class="relative">
                             <input id="seo_title_en" type="text" name="seo_title_en" value="{{ old('seo_title_en', $blog->seo_title_en) }}" placeholder="SEO Title English" class="peer w-full rounded-[18px] border {{ $errors->has('seo_title_en') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
                             <label for="seo_title_en" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('seo_title_en') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">SEO Title EN</label>
@@ -101,6 +87,20 @@
                             <textarea id="seo_brief_ar" name="seo_brief_ar" rows="4" placeholder="SEO Brief Arabic" class="peer w-full rounded-[18px] border {{ $errors->has('seo_brief_ar') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-3 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4">{{ old('seo_brief_ar', $blog->seo_brief_ar) }}</textarea>
                             <label for="seo_brief_ar" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('seo_brief_ar') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">SEO Brief AR</label>
                         </div>@error('seo_brief_ar')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror</div></div>
+
+                        <div class="xl:col-span-2 min-w-0"><div class="space-y-2">
+                            <label for="blog_description_en" class="block px-1 text-xs font-medium {{ $errors->has('blog_description_en') ? 'text-red-500' : 'text-slate-500' }}">Blog Description EN</label>
+                            <div class="resource-ckeditor-shell {{ $errors->has('blog_description_en') ? 'is-invalid' : '' }}">
+                                <textarea id="blog_description_en" name="blog_description_en" rows="6">{{ old('blog_description_en', $blog->blog_description_en) }}</textarea>
+                            </div>
+                        @error('blog_description_en')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror</div></div>
+
+                        <div class="xl:col-span-2 min-w-0"><div class="space-y-2">
+                            <label for="blog_description_ar" class="block px-1 text-xs font-medium {{ $errors->has('blog_description_ar') ? 'text-red-500' : 'text-slate-500' }}">Blog Description AR</label>
+                            <div class="resource-ckeditor-shell {{ $errors->has('blog_description_ar') ? 'is-invalid' : '' }}">
+                                <textarea id="blog_description_ar" name="blog_description_ar" rows="6">{{ old('blog_description_ar', $blog->blog_description_ar) }}</textarea>
+                            </div>
+                        @error('blog_description_ar')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror</div></div>
                     </div>
 
                     <div class="rounded-[24px] border border-[#eadfbe] bg-gradient-to-br from-[#fffaf0] to-[#fffefb] p-4 sm:p-5">

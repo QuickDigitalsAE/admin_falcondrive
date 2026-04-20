@@ -49,9 +49,6 @@
             </label>
             <div class="mt-3 flex flex-wrap items-center gap-3">
                 <span id="fileName" class="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-500 shadow-sm ring-1 ring-[#eadfbe]">{{ !empty($testimonial?->image) ? basename($testimonial->image) : 'No file selected' }}</span>
-                @if(!empty($testimonial?->image_url))
-                    <label class="inline-flex items-center rounded-xl border border-[#eadfbe] bg-white px-3 py-2 text-xs font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><input type="checkbox" name="remove_image" value="1" class="mr-2">Remove Current</label>
-                @endif
                 <button type="button" id="removeImageBtn" class="inline-flex items-center rounded-xl border border-[#eadfbe] bg-white px-3 py-2 text-xs font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-trash-can mr-2"></i>Remove</button>
             </div>
             @error('image')<p class="mt-2 text-xs font-medium text-red-600">{{ $message }}</p>@enderror

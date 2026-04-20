@@ -93,11 +93,6 @@ class TestimonialController extends Controller
         $validated = $this->validateTestimonial($request);
         $validated['updated_by'] = Auth::id();
 
-        if ($request->boolean('remove_image')) {
-            $this->deleteImage($testimonial->image);
-            $validated['image'] = null;
-        }
-
         if ($request->hasFile('image')) {
             $this->deleteImage($testimonial->image);
             $validated['image'] = $this->storeImage($request);
@@ -227,7 +222,6 @@ class TestimonialController extends Controller
             'description_en' => ['required', 'string'],
             'description_ar' => ['required', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'remove_image' => ['nullable', 'in:0,1'],
         ]);
     }
 
@@ -238,7 +232,7 @@ class TestimonialController extends Controller
         }
 
         $file = $request->file('image');
-        $folder = 'blogs/' . now()->format('FY');
+        $folder = 'testimonials/' . now()->format('FY');
         $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
 
         return $file->storeAs($folder, $fileName, 'public');

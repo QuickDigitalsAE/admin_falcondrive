@@ -128,11 +128,6 @@ class BrandController extends Controller
         DB::transaction(function () use ($request, $validated, $brand) {
             $originalSorting = $brand->sorting !== null ? (int) $brand->sorting : null;
 
-            if ($request->boolean('remove_logo')) {
-                $this->deleteLogo($brand->logo);
-                $brand->logo = null;
-            }
-
             if ($request->hasFile('logo')) {
                 $this->deleteLogo($brand->logo);
                 $brand->logo = $this->storeLogo($request);
@@ -303,7 +298,6 @@ class BrandController extends Controller
             'slug' => ['required', 'string', 'max:255', Rule::unique('brands', 'slug')->ignore($id)],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'sorting' => ['nullable', 'integer', 'min:0'],
-            'remove_logo' => ['nullable', 'in:0,1'],
         ]);
     }
 

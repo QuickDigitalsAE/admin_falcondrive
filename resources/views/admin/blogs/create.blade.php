@@ -90,26 +90,6 @@
                             </div>
                         </div>
 
-                        <div class="xl:col-span-2 min-w-0">
-                            <div class="space-y-2">
-                                <label for="blog_description_en" class="block px-1 text-xs font-medium {{ $errors->has('blog_description_en') ? 'text-red-500' : 'text-slate-500' }}">Blog Description EN</label>
-                                <div class="resource-ckeditor-shell {{ $errors->has('blog_description_en') ? 'is-invalid' : '' }}">
-                                    <textarea id="blog_description_en" name="blog_description_en" rows="6">{{ old('blog_description_en') }}</textarea>
-                                </div>
-                                @error('blog_description_en')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-
-                        <div class="xl:col-span-2 min-w-0">
-                            <div class="space-y-2">
-                                <label for="blog_description_ar" class="block px-1 text-xs font-medium {{ $errors->has('blog_description_ar') ? 'text-red-500' : 'text-slate-500' }}">Blog Description AR</label>
-                                <div class="resource-ckeditor-shell {{ $errors->has('blog_description_ar') ? 'is-invalid' : '' }}">
-                                    <textarea id="blog_description_ar" name="blog_description_ar" rows="6">{{ old('blog_description_ar') }}</textarea>
-                                </div>
-                                @error('blog_description_ar')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-
                         <div class="min-w-0">
                             <div class="space-y-2">
                                 <div class="relative">
@@ -151,6 +131,26 @@
                                     <label for="seo_brief_ar" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('seo_brief_ar') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">SEO Brief AR</label>
                                 </div>
                                 @error('seo_brief_ar')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+
+                        <div class="xl:col-span-2 min-w-0">
+                            <div class="space-y-2">
+                                <label for="blog_description_en" class="block px-1 text-xs font-medium {{ $errors->has('blog_description_en') ? 'text-red-500' : 'text-slate-500' }}">Blog Description EN</label>
+                                <div class="resource-ckeditor-shell {{ $errors->has('blog_description_en') ? 'is-invalid' : '' }}">
+                                    <textarea id="blog_description_en" name="blog_description_en" rows="6">{{ old('blog_description_en') }}</textarea>
+                                </div>
+                                @error('blog_description_en')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+
+                        <div class="xl:col-span-2 min-w-0">
+                            <div class="space-y-2">
+                                <label for="blog_description_ar" class="block px-1 text-xs font-medium {{ $errors->has('blog_description_ar') ? 'text-red-500' : 'text-slate-500' }}">Blog Description AR</label>
+                                <div class="resource-ckeditor-shell {{ $errors->has('blog_description_ar') ? 'is-invalid' : '' }}">
+                                    <textarea id="blog_description_ar" name="blog_description_ar" rows="6">{{ old('blog_description_ar') }}</textarea>
+                                </div>
+                                @error('blog_description_ar')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
                             </div>
                         </div>
                     </div>
