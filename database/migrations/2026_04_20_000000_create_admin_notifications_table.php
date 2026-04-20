@@ -10,7 +10,9 @@ return new class extends Migration
     {
         Schema::create('admin_notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            // Keep this column flexible across environments where users.id may differ.
+            // Notifications should also survive user soft-deletes, so a hard FK is unnecessary here.
+            $table->unsignedBigInteger('user_id')->index();
             $table->string('title');
             $table->text('message');
             $table->string('icon')->default('fa-bell');
