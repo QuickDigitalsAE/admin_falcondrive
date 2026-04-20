@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return buttons.length ? `<div class="flex items-center gap-2">${buttons.join('')}</div>` : `<span class="text-xs text-slate-400">No Actions</span>`;
     }
     function renderRows(items) {
-        carsTableBody.innerHTML = !items.length ? `<tr><td colspan="7" class="px-6 py-12 text-center text-slate-500">No cars found.</td></tr>` : items.map(car => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(car)}</td><td class="px-6 py-4">${carHtml(car)}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">${escapeHtml(car.brand_name || '')}</td><td class="px-6 py-4">${categoriesHtml(car)}</td><td class="px-6 py-4 whitespace-nowrap">${pricingHtml(car)}</td><td class="px-6 py-4 whitespace-nowrap">${stockHtml(car)}</td><td class="px-6 py-4 text-gray-500 whitespace-nowrap">${escapeHtml(car.created_at_human || '')}</td></tr>`).join('');
+        carsTableBody.innerHTML = !items.length ? `<tr><td colspan="7" class="px-6 py-12 text-center text-slate-500">No cars found.</td></tr>` : items.map(car => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(car)}</td><td class="px-6 py-4">${carHtml(car)}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">${escapeHtml(car.brand_name || '')}</td><td class="px-6 py-4">${categoriesHtml(car)}</td><td class="px-6 py-4 whitespace-nowrap">${pricingHtml(car)}</td><td class="px-6 py-4 whitespace-nowrap">${stockHtml(car)}</td><td class="px-6 py-4 text-gray-500 whitespace-nowrap">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(car, escapeHtml) : escapeHtml(car.created_at_human || '')}</td></tr>`).join('');
     }
     function renderPagination(p) {
         paginationWrapper.innerHTML = '';
@@ -174,3 +174,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endpush
+

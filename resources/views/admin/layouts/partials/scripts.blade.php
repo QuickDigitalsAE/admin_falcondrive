@@ -12,6 +12,10 @@
         const notificationDropdownWrapper = document.getElementById('notificationDropdownWrapper');
         const notificationDropdownToggle = document.getElementById('notificationDropdownToggle');
         const notificationDropdownMenu = document.getElementById('notificationDropdownMenu');
+        const notificationDropdownList = document.getElementById('notificationDropdownList');
+        const notificationUnreadBadge = document.getElementById('notificationUnreadBadge');
+        const notificationUnreadText = document.getElementById('notificationUnreadText');
+        const markAllNotificationsReadBtn = document.getElementById('markAllNotificationsReadBtn');
 
         const mobileSearchToggle = document.getElementById('mobileSearchToggle');
         const mobileSearchPanel = document.getElementById('mobileSearchPanel');
@@ -26,6 +30,7 @@
         const SIDEBAR_STORAGE_KEY = 'admin_sidebar_desktop_collapsed';
         let globalSearchTimer = null;
         let globalSearchRequestId = 0;
+        let notificationRequestInFlight = false;
 
         function isDesktop() {
             return window.innerWidth >= DESKTOP_BREAKPOINT;
@@ -76,6 +81,247 @@
 
             target.innerHTML = content;
             target.classList.remove('hidden');
+        }
+
+        function getCsrfToken() {
+            return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        }
+
+        function notificationColorClasses(color) {
+            switch (color) {
+                case 'blue':
+                    return 'bg-blue-100 text-blue-700';
+                case 'emerald':
+                    return 'bg-emerald-100 text-emerald-700';
+                case 'red':
+                    return 'bg-red-100 text-red-700';
+                default:
+                    return 'bg-amber-100 text-amber-700';
+            }
+        }
+
+        function setNotificationUnreadState(count) {
+            const unreadCount = Number(count) || 0;
+
+            if (notificationUnreadText) {
+                notificationUnreadText.textContent = unreadCount;
+            }
+
+            if (notificationUnreadBadge) {
+                notificationUnreadBadge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
+                notificationUnreadBadge.classList.toggle('hidden', unreadCount < 1);
+            }
+
+            if (markAllNotificationsReadBtn) {
+                markAllNotificationsReadBtn.classList.toggle('pointer-events-none', unreadCount < 1);
+                markAllNotificationsReadBtn.classList.toggle('opacity-50', unreadCount < 1);
+            }
+        }
+
+        window.renderSuperAdminAuditStamp = function (item, escapeFn = escapeHtml) {
+            const createdAt = escapeFn(item?.created_at_human || '');
+
+            if (!item?.show_super_admin_audit) {
+                return createdAt;
+            }
+
+            const auditRows = [];
+
+            if (item.created_by_name) {
+                auditRows.push(`<span class="block text-[11px] leading-5 text-slate-500">Created By: ${escapeFn(item.created_by_name)}</span>`);
+            }
+
+            if (item.updated_by_name) {
+                auditRows.push(`<span class="block text-[11px] leading-5 text-slate-500">Updated By: ${escapeFn(item.updated_by_name)}</span>`);
+            }
+
+            if (item.deleted_by_name) {
+                auditRows.push(`<span class="block text-[11px] leading-5 text-slate-500">Deleted By: ${escapeFn(item.deleted_by_name)}</span>`);
+            }
+
+            return `
+                <div class="min-w-[170px] whitespace-normal">
+                    <span class="block text-sm text-slate-600">${createdAt}</span>
+                    ${auditRows.join('')}
+                </div>
+            `;
+        };
+
+        function renderNotificationLoading() {
+            if (!notificationDropdownList) {
+                return;
+            }
+
+            notificationDropdownList.innerHTML = `
+                <div class="px-4 py-8">
+                    <div class="flex items-center gap-3 text-sm text-slate-500">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff1c8] text-[#b49543]">
+                            <i class="fas fa-spinner fa-spin text-[14px]"></i>
+                        </span>
+                        <div>
+                            <p class="font-semibold text-slate-800">Loading notifications</p>
+                            <p class="text-xs text-slate-500">Fetching your recent activity...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderNotificationEmpty() {
+            if (!notificationDropdownList) {
+                return;
+            }
+
+            notificationDropdownList.innerHTML = `
+                <div class="px-4 py-10 text-center">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fff3d9] text-[#b49543]">
+                        <i class="fas fa-bell-slash text-[14px]"></i>
+                    </div>
+                    <p class="mt-4 text-sm font-semibold text-slate-900">No notifications yet</p>
+                    <p class="mt-1 text-xs text-slate-500">New admin activity and inquiry alerts will appear here.</p>
+                </div>
+            `;
+        }
+
+        function renderNotificationError() {
+            if (!notificationDropdownList) {
+                return;
+            }
+
+            notificationDropdownList.innerHTML = `
+                <div class="px-4 py-10 text-center">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-500">
+                        <i class="fas fa-triangle-exclamation text-[14px]"></i>
+                    </div>
+                    <p class="mt-4 text-sm font-semibold text-slate-900">Notifications unavailable</p>
+                    <p class="mt-1 text-xs text-slate-500">Please try again in a moment.</p>
+                </div>
+            `;
+        }
+
+        function notificationItemHtml(item) {
+            return `
+                <a
+                    href="${escapeHtml(item.url || '#')}"
+                    data-read-url="${escapeHtml(item.read_url || '')}"
+                    data-notification-id="${escapeHtml(item.id || '')}"
+                    class="notification-item flex items-start gap-3 border-b border-slate-100 px-4 py-3 transition hover:bg-[#fffaf2] ${item.is_read ? 'bg-white' : 'bg-[#fffaf5]'}"
+                >
+                    <span class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${notificationColorClasses(item.color)}">
+                        <i class="fas ${escapeHtml(item.icon || 'fa-bell')} text-[13px]"></i>
+                    </span>
+                    <span class="min-w-0 flex-1">
+                        <span class="flex items-start justify-between gap-2">
+                            <span class="block text-[13px] font-semibold text-slate-800">${escapeHtml(item.title || 'Notification')}</span>
+                            ${item.is_read ? '' : '<span class="mt-1 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-[#d6ab3d]"></span>'}
+                        </span>
+                        <span class="mt-0.5 block text-[12px] leading-5 text-slate-500">${escapeHtml(item.message || '')}</span>
+                        ${item.actor_name ? `<span class="mt-1 block text-[11px] font-medium text-slate-600">By: ${escapeHtml(item.actor_name)}</span>` : ''}
+                        <span class="mt-1.5 block text-[11px] font-medium text-[#b49543]">${escapeHtml(item.time || '')}</span>
+                    </span>
+                </a>
+            `;
+        }
+
+        function renderNotifications(items) {
+            if (!notificationDropdownList) {
+                return;
+            }
+
+            if (!Array.isArray(items) || items.length === 0) {
+                renderNotificationEmpty();
+                return;
+            }
+
+            notificationDropdownList.innerHTML = items.map(notificationItemHtml).join('');
+        }
+
+        function removeNotificationItem(notificationLink) {
+            if (!notificationLink) {
+                return;
+            }
+
+            notificationLink.remove();
+
+            if (!notificationDropdownList?.querySelector('.notification-item')) {
+                renderNotificationEmpty();
+            }
+        }
+
+        async function postJson(url) {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+            });
+
+            const payload = await response.json();
+
+            if (!response.ok || !payload.status) {
+                throw new Error(payload.message || 'Request failed.');
+            }
+
+            return payload;
+        }
+
+        async function fetchRecentNotifications() {
+            if (!notificationDropdownMenu || !notificationDropdownList || notificationRequestInFlight) {
+                return;
+            }
+
+            const recentUrl = notificationDropdownMenu.dataset.recentUrl;
+
+            if (!recentUrl) {
+                return;
+            }
+
+            notificationRequestInFlight = true;
+            renderNotificationLoading();
+
+            try {
+                const response = await fetch(recentUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                });
+
+                const payload = await response.json();
+
+                if (!response.ok || !payload.status) {
+                    throw new Error(payload.message || 'Failed to load notifications.');
+                }
+
+                renderNotifications(payload?.data?.items || []);
+                setNotificationUnreadState(payload?.data?.meta?.unread_count || 0);
+            } catch (error) {
+                renderNotificationError();
+            } finally {
+                notificationRequestInFlight = false;
+            }
+        }
+
+        async function markNotificationAsRead(notificationLink) {
+            if (!notificationLink) {
+                return;
+            }
+
+            const readUrl = notificationLink.dataset.readUrl;
+
+            if (!readUrl || !notificationLink.classList.contains('bg-[#fffaf5]')) {
+                return;
+            }
+
+            try {
+                const payload = await postJson(readUrl);
+                removeNotificationItem(notificationLink);
+                setNotificationUnreadState(payload?.data?.unread_count || 0);
+            } catch (error) {
+                showToast(error.message || 'Unable to mark notification as read.', 'error');
+            }
         }
 
         function renderSearchLoading(target) {
@@ -326,11 +572,39 @@
         }
 
         if (notificationDropdownToggle && notificationDropdownMenu) {
-            notificationDropdownToggle.addEventListener('click', function (e) {
+            notificationDropdownToggle.addEventListener('click', async function (e) {
                 e.stopPropagation();
+                const isOpening = notificationDropdownMenu.classList.contains('hidden');
                 notificationDropdownMenu.classList.toggle('hidden');
                 closeProfileDropdown();
                 closeMobileSearch();
+
+                if (isOpening) {
+                    await fetchRecentNotifications();
+                }
+            });
+        }
+
+        if (markAllNotificationsReadBtn && notificationDropdownMenu) {
+            markAllNotificationsReadBtn.addEventListener('click', async function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const readAllUrl = notificationDropdownMenu.dataset.readAllUrl;
+
+                if (!readAllUrl || markAllNotificationsReadBtn.classList.contains('pointer-events-none')) {
+                    return;
+                }
+
+                try {
+                    await postJson(readAllUrl);
+                    setNotificationUnreadState(0);
+                    renderNotificationEmpty();
+
+                    showToast('All notifications marked as read.', 'success');
+                } catch (error) {
+                    showToast(error.message || 'Unable to mark all notifications as read.', 'error');
+                }
             });
         }
 
@@ -405,6 +679,28 @@
                 }
             }
         });
+
+        if (notificationDropdownList) {
+            notificationDropdownList.addEventListener('click', async function (event) {
+                const notificationLink = event.target.closest('.notification-item');
+
+                if (!notificationLink) {
+                    return;
+                }
+
+                const targetUrl = notificationLink.getAttribute('href');
+                const shouldMarkAsRead = notificationLink.dataset.readUrl && notificationLink.classList.contains('bg-[#fffaf5]');
+
+                if (shouldMarkAsRead) {
+                    event.preventDefault();
+                    await markNotificationAsRead(notificationLink);
+
+                    if (targetUrl && targetUrl !== '#') {
+                        window.location.href = targetUrl;
+                    }
+                }
+            });
+        }
 
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {

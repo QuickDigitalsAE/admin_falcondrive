@@ -91,6 +91,7 @@ class UserController extends Controller
                     'deleted_at' => $user->deleted_at ? $user->deleted_at->toDateTimeString() : null,
                     'created_at_human' => optional($user->created_at)->format('d M Y, h:i A'),
 
+                    ...$this->superAdminAuditMeta($user, $authUser),
                     'show_url' => route('admin.users.show', $user->id),
                     'edit_url' => route('admin.users.edit', $user->id),
                     'delete_url' => route('admin.users.delete', $user->id),
@@ -183,6 +184,7 @@ class UserController extends Controller
                     'deleted_at' => $user->deleted_at ? $user->deleted_at->toDateTimeString() : null,
                     'created_at_human' => optional($user->created_at)->format('d M Y, h:i A'),
 
+                    ...$this->superAdminAuditMeta($user, $authUser),
                     'show_url' => route('admin.users.show', $user->id),
                     'edit_url' => route('admin.users.edit', $user->id),
                     'delete_url' => route('admin.users.delete', $user->id),
@@ -544,3 +546,4 @@ class UserController extends Controller
         ]);
     }
 }
+

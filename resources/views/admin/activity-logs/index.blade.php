@@ -182,7 +182,7 @@
                                 <p class="mt-1 text-xs text-slate-500 break-all">${escapeHtml(item.performed_by_email || 'N/A')}</p>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">${escapeHtml(item.created_at_human || '')}</td>
+                        <td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(item, escapeHtml) : escapeHtml(item.created_at_human || '')}</td>
                     </tr>
                 `).join('');
             }
@@ -318,3 +318,4 @@
         });
     </script>
 @endpush
+

@@ -375,7 +375,7 @@
                             <p class="text-sm text-slate-700">${escapeHtml(record.promo_code || '')}</p>
                             <p class="text-xs text-slate-500">${escapeHtml(record.car_name || '')}</p>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${escapeHtml(record.created_at_human || '')}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(record, escapeHtml) : escapeHtml(record.created_at_human || '')}</td>
                     </tr>
                 `).join('');
             }
@@ -559,3 +559,4 @@
         });
     </script>
 @endpush
+

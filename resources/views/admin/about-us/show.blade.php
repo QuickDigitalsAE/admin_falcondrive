@@ -72,36 +72,6 @@
                     </div>
                 </div>
 
-                <div class="rounded-3xl border border-[#f0e6ca] bg-[#fffdf8] p-5">
-                    <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-[#a98527]">Audit Trail</h2>
-                    <div class="mt-4 grid grid-cols-1 gap-4 text-sm text-slate-600">
-                        <div>
-                            <p class="font-semibold text-slate-800">Created By</p>
-                            <p class="mt-1">{{ optional($aboutUs->createdByUser)->name ?? 'N/A' }}</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-slate-800">Updated By</p>
-                            <p class="mt-1">{{ optional($aboutUs->updatedByUser)->name ?? 'N/A' }}</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-slate-800">Deleted By</p>
-                            <p class="mt-1">{{ optional($aboutUs->deletedByUser)->name ?? 'N/A' }}</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-slate-800">Created At</p>
-                            <p class="mt-1">{{ optional($aboutUs->created_at)->format('d M Y, h:i A') ?? 'N/A' }}</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-slate-800">Updated At</p>
-                            <p class="mt-1">{{ optional($aboutUs->updated_at)->format('d M Y, h:i A') ?? 'N/A' }}</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-slate-800">Status</p>
-                            <p class="mt-1">{{ $aboutUs->deleted_at ? 'Deleted' : 'Active' }}</p>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="rounded-3xl border border-[#f0e6ca] bg-[#fffdf8] p-5 xl:col-span-2">
                     <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-[#a98527]">First Section</h2>
                     <div class="mt-4 grid grid-cols-1 gap-5 xl:grid-cols-2">
@@ -146,4 +116,5 @@
             </div>
         </div>
     </section>
+    @include('admin.layouts.partials.super-admin-audit-card', ['record' => $aboutUs])
 @endsection

@@ -63,7 +63,9 @@ class TestimonialController extends Controller
 
     public function show(int $id)
     {
-        $testimonial = Testimonial::withTrashed()->find($id);
+        $testimonial = Testimonial::withTrashed()
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->find($id);
         if (!$testimonial) {
             return redirect()->route('admin.testimonials')->with('error', 'Testimonial not found.');
         }
@@ -178,6 +180,7 @@ class TestimonialController extends Controller
                     'image_url' => $testimonial->image_url,
                     'deleted_at' => optional($testimonial->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($testimonial->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($testimonial, $authUser),
                     'show_url' => route('admin.testimonials.show', $testimonial->id),
                     'edit_url' => route('admin.testimonials.edit', $testimonial->id),
                     'delete_url' => route('admin.testimonials.delete', $testimonial->id),
@@ -283,3 +286,4 @@ class TestimonialController extends Controller
         ]);
     }
 }
+

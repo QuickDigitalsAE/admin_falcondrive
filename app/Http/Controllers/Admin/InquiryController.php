@@ -163,6 +163,7 @@ class InquiryController extends Controller
                     'message' => $inquiry->message,
                     'deleted_at' => optional($inquiry->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($inquiry->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($inquiry, $authUser),
                     'show_url' => route('admin.inquiries.show', $inquiry->id),
                     'edit_url' => route('admin.inquiries.edit', $inquiry->id),
                     'delete_url' => route('admin.inquiries.delete', $inquiry->id),
@@ -222,3 +223,4 @@ class InquiryController extends Controller
         }, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename=inquiries.csv']);
     }
 }
+

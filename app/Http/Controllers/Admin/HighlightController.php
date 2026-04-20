@@ -179,6 +179,7 @@ class HighlightController extends Controller
                     'image_url' => $highlight->image_url,
                     'deleted_at' => optional($highlight->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($highlight->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($highlight, $authUser),
                     'show_url' => route('admin.highlights.show', $highlight->id),
                     'edit_url' => route('admin.highlights.edit', $highlight->id),
                     'delete_url' => route('admin.highlights.delete', $highlight->id),
@@ -258,3 +259,4 @@ class HighlightController extends Controller
         }, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename=highlights.csv']);
     }
 }
+

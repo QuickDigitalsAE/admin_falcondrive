@@ -145,7 +145,7 @@
                 locationsTableBody.innerHTML = items.map(item => {
                     const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name_en || 'Location')}&background=f2d46b&color=222`;
                     const cars = (item.car_names || []).length ? `<div class="flex flex-wrap gap-1">${item.car_names.map(name => `<span class="inline-flex whitespace-nowrap rounded-full bg-[#fff4d6] px-2.5 py-1 text-xs font-medium text-[#7d6220]">${escapeHtml(name)}</span>`).join('')}</div>` : '<span class="text-sm text-slate-400">No cars linked</span>';
-                    return `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4"><div class="flex items-center gap-3"><img src="${avatar}" alt="${escapeHtml(item.name_en)}" class="h-10 w-10 rounded-full object-cover ring-2 ring-[#f4e3ab]"><div><p class="text-sm font-semibold text-slate-800">${escapeHtml(item.name_en)}</p><p class="text-sm text-slate-500">${escapeHtml(item.name_ar || '')}</p></div></div></td><td class="px-6 py-4"><p class="text-sm font-medium text-slate-700">${escapeHtml(item.seo_title_en || '')}</p><p class="text-xs text-slate-500">${escapeHtml(item.slug || '')}</p></td><td class="px-6 py-4">${cars}</td><td class="px-6 py-4 whitespace-nowrap text-gray-500">${escapeHtml(item.created_at_human || '')}</td></tr>`;
+                    return `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4"><div class="flex items-center gap-3"><img src="${avatar}" alt="${escapeHtml(item.name_en)}" class="h-10 w-10 rounded-full object-cover ring-2 ring-[#f4e3ab]"><div><p class="text-sm font-semibold text-slate-800">${escapeHtml(item.name_en)}</p><p class="text-sm text-slate-500">${escapeHtml(item.name_ar || '')}</p></div></div></td><td class="px-6 py-4"><p class="text-sm font-medium text-slate-700">${escapeHtml(item.seo_title_en || '')}</p><p class="text-xs text-slate-500">${escapeHtml(item.slug || '')}</p></td><td class="px-6 py-4">${cars}</td><td class="px-6 py-4 whitespace-nowrap text-gray-500">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(item, escapeHtml) : escapeHtml(item.created_at_human || '')}</td></tr>`;
                 }).join('');
             }
 
@@ -246,3 +246,4 @@
         });
     </script>
 @endpush
+

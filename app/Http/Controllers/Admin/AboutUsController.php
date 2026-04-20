@@ -188,6 +188,7 @@ class AboutUsController extends Controller
                             'mission_preview' => Str::limit(strip_tags((string) $aboutUs->mission_en), 70),
                             'deleted_at' => optional($aboutUs->deleted_at)->toDateTimeString(),
                             'created_at_human' => optional($aboutUs->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($aboutUs, $authUser),
                             'show_url' => route('admin.about-us.show', $aboutUs->id),
                             'edit_url' => route('admin.about-us.edit', $aboutUs->id),
                             'delete_url' => route('admin.about-us.delete', $aboutUs->id),
@@ -288,3 +289,4 @@ class AboutUsController extends Controller
         ]);
     }
 }
+

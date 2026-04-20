@@ -193,6 +193,7 @@ class BrandController extends Controller
                     'logo_url' => $brand->logo_url,
                     'deleted_at' => optional($brand->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($brand->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($brand, $authUser),
                     'show_url' => route('admin.brands.show', $brand->id),
                     'edit_url' => route('admin.brands.edit', $brand->id),
                     'delete_url' => route('admin.brands.delete', $brand->id),
@@ -304,3 +305,4 @@ class BrandController extends Controller
         ]);
     }
 }
+

@@ -175,6 +175,7 @@ class FaqController extends Controller
                     'answer_preview' => Str::limit(strip_tags((string) $faq->answer_en), 120),
                     'deleted_at' => optional($faq->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($faq->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($faq, $authUser),
                     'show_url' => route('admin.faq.show', $faq->id),
                     'edit_url' => route('admin.faq.edit', $faq->id),
                     'delete_url' => route('admin.faq.delete', $faq->id),
@@ -258,3 +259,4 @@ class FaqController extends Controller
         ]);
     }
 }
+

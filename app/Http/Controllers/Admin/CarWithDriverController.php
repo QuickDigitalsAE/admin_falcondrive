@@ -201,6 +201,7 @@ class CarWithDriverController extends Controller
                     'car_names' => $record->carsRelation->pluck('name_en')->values()->all(),
                     'deleted_at' => optional($record->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($record->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($record, $authUser),
                     'show_url' => route('admin.car-with-drivers.show', $record->id),
                     'edit_url' => route('admin.car-with-drivers.edit', $record->id),
                     'delete_url' => route('admin.car-with-drivers.delete', $record->id),
@@ -377,3 +378,4 @@ class CarWithDriverController extends Controller
         ]);
     }
 }
+

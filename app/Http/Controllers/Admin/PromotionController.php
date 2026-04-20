@@ -194,6 +194,7 @@ class PromotionController extends Controller
                     'top_offer' => (bool) $promotion->top_offer,
                     'deleted_at' => optional($promotion->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($promotion->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($promotion, $authUser),
                     'show_url' => route('admin.promotions.show', $promotion->id),
                     'edit_url' => route('admin.promotions.edit', $promotion->id),
                     'delete_url' => route('admin.promotions.delete', $promotion->id),
@@ -304,3 +305,4 @@ class PromotionController extends Controller
         }, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename=promotions.csv']);
     }
 }
+

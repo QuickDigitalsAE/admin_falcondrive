@@ -32,4 +32,5 @@
             </div>
         </div>
     </section>
+    @include('admin.layouts.partials.super-admin-audit-card', ['record' => $testimonial])
 @endsection

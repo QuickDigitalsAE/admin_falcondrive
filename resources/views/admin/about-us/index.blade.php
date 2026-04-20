@@ -217,7 +217,7 @@
                             <p class="text-sm text-slate-700">${escapeHtml(item.first_section_preview)}</p>
                             <p class="mt-1 text-xs text-slate-500">${escapeHtml(item.mission_preview)}</p>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${escapeHtml(item.created_at_human || '')}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(item, escapeHtml) : escapeHtml(item.created_at_human || '')}</td>
                     </tr>
                 `).join('');
             }
@@ -478,3 +478,4 @@
         });
     </script>
 @endpush
+

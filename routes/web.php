@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\GlobalSearchController;
 use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Admin\PromotionController;
+use App\Http\Controllers\Admin\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,6 +75,10 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/global-search', [GlobalSearchController::class, 'index'])->name('global-search');
     Route::get('/global-search/suggest', [GlobalSearchController::class, 'suggest'])->name('global-search.suggest');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 

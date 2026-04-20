@@ -1,33 +1,6 @@
 @php
     $pageTitle = trim($__env->yieldContent('page_title', 'Dashboard'));
     $pageBreadcrumbs = $__env->yieldContent('breadcrumbs');
-
-    $notifications = [
-        [
-            'title' => 'New user registered',
-            'message' => 'A new admin user account was created.',
-            'time' => '2 min ago',
-            'icon' => 'fa-user-plus',
-            'color' => 'amber',
-            'url' => route('admin.users'),
-        ],
-        [
-            'title' => 'Password reset requested',
-            'message' => 'A password recovery action was triggered.',
-            'time' => '18 min ago',
-            'icon' => 'fa-key',
-            'color' => 'blue',
-            'url' => route('admin.users'),
-        ],
-        [
-            'title' => 'Profile updated',
-            'message' => 'System profile details were recently changed.',
-            'time' => '1 hour ago',
-            'icon' => 'fa-user-gear',
-            'color' => 'emerald',
-            'url' => route('admin.users'),
-        ],
-    ];
 @endphp
 
 <header class="sticky top-0 z-20 border-b border-[#eadfbe] bg-[#fcfbf7]/95 backdrop-blur">
@@ -90,57 +63,77 @@
                     <button id="notificationDropdownToggle"
                         class="relative flex h-10 w-10 items-center justify-center rounded-xl border border-[#eadfbe] bg-white text-[#9b7a28] shadow-sm transition hover:bg-[#fff8e7]">
                         <i class="far fa-bell text-[15px]"></i>
-                        <span class="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#e0b63f] ring-2 ring-white"></span>
+                        @if($navbarUnreadNotificationsCount > 0)
+                            <span class="absolute right-1.5 top-1.5 inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#e0b63f] px-1 text-[10px] font-bold text-white ring-2 ring-white" id="notificationUnreadBadge">
+                                {{ $navbarUnreadNotificationsCount > 9 ? '9+' : $navbarUnreadNotificationsCount }}
+                            </span>
+                        @else
+                            <span class="absolute right-1.5 top-1.5 hidden min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#e0b63f] px-1 text-[10px] font-bold text-white ring-2 ring-white" id="notificationUnreadBadge">0</span>
+                        @endif
                     </button>
 
                     <div id="notificationDropdownMenu"
-                        class="absolute right-0 top-[calc(100%+10px)] z-40 hidden w-[340px] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl border border-[#eadfbe] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.12)]">
+                        data-recent-url="{{ route('admin.notifications.recent') }}"
+                        data-read-all-url="{{ route('admin.notifications.read-all') }}"
+                        class="absolute right-0 top-[calc(100%+10px)] z-40 hidden w-[360px] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl border border-[#eadfbe] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.12)]">
                         <div class="border-b border-[#f0e6ca] bg-[#fffaf0] px-4 py-3">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-[14px] font-semibold text-slate-900">Notifications</p>
-                                    <p class="text-[12px] text-slate-500">Recent system activity</p>
+                                    <p class="text-[12px] text-slate-500">
+                                        <span id="notificationUnreadText">{{ $navbarUnreadNotificationsCount }}</span> unread updates
+                                    </p>
                                 </div>
-                                <button type="button"
-                                    class="rounded-lg px-2 py-1 text-[11px] font-semibold text-[#a47d1f] transition hover:bg-[#fff3cf]">
+                                <button
+                                    type="button"
+                                    id="markAllNotificationsReadBtn"
+                                    class="rounded-lg px-2 py-1 text-[11px] font-semibold text-[#a47d1f] transition hover:bg-[#fff3cf] {{ $navbarUnreadNotificationsCount < 1 ? 'pointer-events-none opacity-50' : '' }}">
                                     Mark all read
                                 </button>
                             </div>
                         </div>
 
-                        <div class="max-h-[360px] overflow-y-auto">
-                            @forelse($notifications as $notification)
-                                <a href="{{ $notification['url'] }}"
-                                    class="flex items-start gap-3 border-b border-slate-100 px-4 py-3 transition hover:bg-[#fffaf2]">
-                                    <span
-                                        class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl
-                                        {{ $notification['color'] === 'amber' ? 'bg-amber-100 text-amber-700' : '' }}
-                                        {{ $notification['color'] === 'blue' ? 'bg-blue-100 text-blue-700' : '' }}
-                                        {{ $notification['color'] === 'emerald' ? 'bg-emerald-100 text-emerald-700' : '' }}">
+                        <div id="notificationDropdownList" class="max-h-[360px] overflow-y-auto">
+                            @forelse($navbarNotifications as $notification)
+                                <a
+                                    href="{{ $notification['url'] }}"
+                                    data-read-url="{{ $notification['read_url'] ?? route('admin.notifications.read', $notification['id']) }}"
+                                    class="notification-item flex items-start gap-3 border-b border-slate-100 px-4 py-3 transition hover:bg-[#fffaf2] {{ $notification['is_read'] ? 'bg-white' : 'bg-[#fffaf5]' }}">
+                                    <span class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {{ $notification['color'] === 'amber' ? 'bg-amber-100 text-amber-700' : ($notification['color'] === 'blue' ? 'bg-blue-100 text-blue-700' : ($notification['color'] === 'emerald' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700')) }}">
                                         <i class="fas {{ $notification['icon'] }} text-[13px]"></i>
                                     </span>
 
                                     <span class="min-w-0 flex-1">
-                                        <span class="block text-[13px] font-semibold text-slate-800">
-                                            {{ $notification['title'] }}
+                                        <span class="flex items-start justify-between gap-2">
+                                            <span class="block text-[13px] font-semibold text-slate-800">
+                                                {{ $notification['title'] }}
+                                            </span>
+                                            @if(!$notification['is_read'])
+                                                <span class="mt-1 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-[#d6ab3d]"></span>
+                                            @endif
                                         </span>
                                         <span class="mt-0.5 block text-[12px] leading-5 text-slate-500">
                                             {{ $notification['message'] }}
                                         </span>
+                                        @if(!empty($notification['actor_name']))
+                                            <span class="mt-1 block text-[11px] font-medium text-slate-600">
+                                                By: {{ $notification['actor_name'] }}
+                                            </span>
+                                        @endif
                                         <span class="mt-1.5 block text-[11px] font-medium text-[#b49543]">
                                             {{ $notification['time'] }}
                                         </span>
                                     </span>
                                 </a>
                             @empty
-                                <div class="px-4 py-10 text-center text-sm text-slate-500">
+                                <div class="px-4 py-10 text-center text-sm text-slate-500" id="notificationEmptyState">
                                     No notifications available.
                                 </div>
                             @endforelse
                         </div>
 
                         <div class="bg-[#fffaf0] px-4 py-3 text-center">
-                            <a href="#"
+                            <a href="{{ route('admin.notifications.index') }}"
                                 class="inline-flex items-center text-[12px] font-semibold text-[#9b7a28] transition hover:opacity-80">
                                 View all notifications
                             </a>

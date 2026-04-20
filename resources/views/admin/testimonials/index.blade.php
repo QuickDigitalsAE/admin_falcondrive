@@ -143,7 +143,7 @@
 
                 testimonialsTableBody.innerHTML = items.map(item => {
                     const avatar = item.image_url ? item.image_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name_en || 'Testimonial')}&background=f2d46b&color=222`;
-                    return `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4"><div class="flex items-center gap-3"><img src="${avatar}" alt="${escapeHtml(item.name_en)}" class="h-10 w-10 rounded-full object-cover ring-2 ring-[#f4e3ab]"><div><p class="text-sm font-semibold text-slate-800">${escapeHtml(item.name_en)}</p><p class="text-sm text-slate-500">${escapeHtml(item.name_ar || '')}</p></div></div></td><td class="px-6 py-4 text-sm text-slate-500">${escapeHtml(item.description_preview || '')}</td><td class="px-6 py-4 whitespace-nowrap text-gray-500">${escapeHtml(item.created_at_human || '')}</td></tr>`;
+                    return `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4"><div class="flex items-center gap-3"><img src="${avatar}" alt="${escapeHtml(item.name_en)}" class="h-10 w-10 rounded-full object-cover ring-2 ring-[#f4e3ab]"><div><p class="text-sm font-semibold text-slate-800">${escapeHtml(item.name_en)}</p><p class="text-sm text-slate-500">${escapeHtml(item.name_ar || '')}</p></div></div></td><td class="px-6 py-4 text-sm text-slate-500">${escapeHtml(item.description_preview || '')}</td><td class="px-6 py-4 whitespace-nowrap text-gray-500">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(item, escapeHtml) : escapeHtml(item.created_at_human || '')}</td></tr>`;
                 }).join('');
             }
 
@@ -244,3 +244,4 @@
         });
     </script>
 @endpush
+

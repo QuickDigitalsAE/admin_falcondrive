@@ -146,7 +146,7 @@
                     brandsTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-slate-500">No brands found.</td></tr>`;
                     return;
                 }
-                brandsTableBody.innerHTML = items.map(item => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4">${brandHtml(item)}</td><td class="px-6 py-4"><p class="text-sm font-medium text-slate-700">${escapeHtml(item.seo_title_en || 'No SEO title')}</p><p class="text-xs text-slate-500">${escapeHtml(item.slug || '')}</p></td><td class="px-6 py-4 whitespace-nowrap text-gray-500">${escapeHtml(item.created_at_human || '')}</td></tr>`).join('');
+                brandsTableBody.innerHTML = items.map(item => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4">${brandHtml(item)}</td><td class="px-6 py-4"><p class="text-sm font-medium text-slate-700">${escapeHtml(item.seo_title_en || 'No SEO title')}</p><p class="text-xs text-slate-500">${escapeHtml(item.slug || '')}</p></td><td class="px-6 py-4 whitespace-nowrap text-gray-500">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(item, escapeHtml) : escapeHtml(item.created_at_human || '')}</td></tr>`).join('');
             }
 
             function renderPagination(pagination) {
@@ -268,3 +268,4 @@
         });
     </script>
 @endpush
+

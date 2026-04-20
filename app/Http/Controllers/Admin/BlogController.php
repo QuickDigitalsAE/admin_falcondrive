@@ -79,6 +79,7 @@ class BlogController extends Controller
                     'blog_schedule' => optional($blog->blog_schedule)->format('d M Y, h:i A'),
                     'deleted_at' => $blog->deleted_at ? $blog->deleted_at->toDateTimeString() : null,
                     'created_at_human' => optional($blog->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($blog, $authUser),
                     'show_url' => route('admin.blogs.show', $blog->id),
                     'edit_url' => route('admin.blogs.edit', $blog->id),
                     'delete_url' => route('admin.blogs.delete', $blog->id),
@@ -160,6 +161,7 @@ class BlogController extends Controller
                     'blog_schedule' => optional($blog->blog_schedule)->format('d M Y, h:i A'),
                     'deleted_at' => $blog->deleted_at ? $blog->deleted_at->toDateTimeString() : null,
                     'created_at_human' => optional($blog->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($blog, $authUser),
                     'show_url' => route('admin.blogs.show', $blog->id),
                     'edit_url' => route('admin.blogs.edit', $blog->id),
                     'delete_url' => route('admin.blogs.delete', $blog->id),
@@ -412,3 +414,4 @@ class BlogController extends Controller
         ]);
     }
 }
+

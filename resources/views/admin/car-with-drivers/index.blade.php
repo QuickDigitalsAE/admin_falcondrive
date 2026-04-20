@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return buttons.length ? `<div class="flex items-center gap-2">${buttons.join('')}</div>` : `<span class="text-xs text-slate-400">No Actions</span>`;
     }
     function renderRows(items) {
-        recordsTableBody.innerHTML = !items.length ? `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">No records found.</td></tr>` : items.map(record => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(record)}</td><td class="px-6 py-4">${recordHtml(record)}</td><td class="px-6 py-4 text-sm text-slate-600">${escapeHtml(record.header_en || '')}</td><td class="px-6 py-4">${carsHtml(record)}</td><td class="px-6 py-4 text-gray-500 whitespace-nowrap">${escapeHtml(record.created_at_human || '')}</td></tr>`).join('');
+        recordsTableBody.innerHTML = !items.length ? `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">No records found.</td></tr>` : items.map(record => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(record)}</td><td class="px-6 py-4">${recordHtml(record)}</td><td class="px-6 py-4 text-sm text-slate-600">${escapeHtml(record.header_en || '')}</td><td class="px-6 py-4">${carsHtml(record)}</td><td class="px-6 py-4 text-gray-500 whitespace-nowrap">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(record, escapeHtml) : escapeHtml(record.created_at_human || '')}</td></tr>`).join('');
     }
     function renderPagination(p) {
         paginationWrapper.innerHTML = '';
@@ -165,3 +165,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endpush
+

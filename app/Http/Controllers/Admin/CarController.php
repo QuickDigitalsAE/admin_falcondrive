@@ -309,6 +309,7 @@ class CarController extends Controller
                     'featured' => (bool) $car->featured,
                     'deleted_at' => optional($car->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($car->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($car, $authUser),
                     'show_url' => route('admin.cars.show', $car->id),
                     'edit_url' => route('admin.cars.edit', $car->id),
                     'delete_url' => route('admin.cars.delete', $car->id),
@@ -677,3 +678,4 @@ class CarController extends Controller
         ]);
     }
 }
+

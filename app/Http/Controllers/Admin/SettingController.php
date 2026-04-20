@@ -228,6 +228,7 @@ class SettingController extends Controller
                     'order' => $setting->order,
                     'deleted_at' => optional($setting->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($setting->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($setting, $authUser),
                     'show_url' => route('admin.settings.show', $setting->id),
                     'edit_url' => route('admin.settings.edit', $setting->id),
                     'delete_url' => route('admin.settings.delete', $setting->id),
@@ -396,3 +397,4 @@ class SettingController extends Controller
         ]);
     }
 }
+

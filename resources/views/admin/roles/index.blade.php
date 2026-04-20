@@ -134,7 +134,7 @@
             }
             function renderRows(items) {
                 if (!items.length) { rolesTableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500">No roles found.</td></tr>`; return; }
-                rolesTableBody.innerHTML = items.map(role => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(role)}</td><td class="px-6 py-4"><div><p class="text-sm font-semibold text-slate-800">${escapeHtml(role.name)}</p><p class="text-xs text-slate-500">ID #${role.id}</p></div></td><td class="px-6 py-4"><span class="inline-flex rounded-full bg-[#f7edd0] px-2.5 py-1 text-xs font-medium text-[#8a6a1c]">${escapeHtml(role.role_level_label)}</span></td><td class="px-6 py-4 text-sm text-slate-700">${role.permissions_count}</td><td class="px-6 py-4 text-sm text-slate-700">${role.users_count}</td><td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">${escapeHtml(role.created_at_human || '')}</td></tr>`).join('');
+                rolesTableBody.innerHTML = items.map(role => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(role)}</td><td class="px-6 py-4"><div><p class="text-sm font-semibold text-slate-800">${escapeHtml(role.name)}</p><p class="text-xs text-slate-500">ID #${role.id}</p></div></td><td class="px-6 py-4"><span class="inline-flex rounded-full bg-[#f7edd0] px-2.5 py-1 text-xs font-medium text-[#8a6a1c]">${escapeHtml(role.role_level_label)}</span></td><td class="px-6 py-4 text-sm text-slate-700">${role.permissions_count}</td><td class="px-6 py-4 text-sm text-slate-700">${role.users_count}</td><td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(role, escapeHtml) : escapeHtml(role.created_at_human || '')}</td></tr>`).join('');
             }
             function renderPagination(pagination) {
                 paginationWrapper.innerHTML = ''; if (!pagination || pagination.last_page <= 1) return;
@@ -180,3 +180,4 @@
         });
     </script>
 @endpush
+

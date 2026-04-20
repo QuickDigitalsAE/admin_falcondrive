@@ -270,7 +270,7 @@
                         <td class="px-6 py-4">${avatarHtml(user)}</td>
                         <td class="px-6 py-4">${roleHtml(user)}</td>
                         <td class="px-6 py-4">${statusHtml(user)}</td>
-                        <td class="px-6 py-4 text-gray-500 whitespace-nowrap">${escapeHtml(user.created_at_human || '')}</td>
+                        <td class="px-6 py-4 text-gray-500 whitespace-nowrap">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(user, escapeHtml) : escapeHtml(user.created_at_human || '')}</td>
                     </tr>
                 `).join('');
             }
@@ -541,3 +541,4 @@
         });
     </script>
 @endpush
+

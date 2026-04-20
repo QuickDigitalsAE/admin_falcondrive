@@ -19,7 +19,7 @@
 @endsection
 
 @section('content')
-<section class="w-full pb-8">
+    <section class="w-full pb-8">
     <div class="mx-auto w-full max-w-7xl space-y-6">
         <div class="overflow-hidden rounded-[28px] border border-[#eadfbe] bg-white shadow-sm">
             <div class="border-b border-[#f0e6ca] bg-gradient-to-r from-[#fffaf0] to-[#fffdf8] px-4 py-5 sm:px-6">
@@ -111,5 +111,6 @@
             </div>
         </div>
     </div>
-</section>
+    </section>
+    @include('admin.layouts.partials.super-admin-audit-card', ['record' => $setting])
 @endsection

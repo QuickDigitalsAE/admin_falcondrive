@@ -68,7 +68,9 @@ class LocationController extends Controller
 
     public function show(int $id)
     {
-        $location = Location::withTrashed()->with('cars')->find($id);
+        $location = Location::withTrashed()
+            ->with(['cars', 'createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->find($id);
         if (!$location) {
             return redirect()->route('admin.locations')->with('error', 'Location not found.');
         }
@@ -180,6 +182,7 @@ class LocationController extends Controller
                     'car_names' => $location->cars->pluck('name_en')->values()->all(),
                     'deleted_at' => optional($location->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($location->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($location, $authUser),
                     'show_url' => route('admin.locations.show', $location->id),
                     'edit_url' => route('admin.locations.edit', $location->id),
                     'delete_url' => route('admin.locations.delete', $location->id),
@@ -288,3 +291,4 @@ class LocationController extends Controller
         ]);
     }
 }
+

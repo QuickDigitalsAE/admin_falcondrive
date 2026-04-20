@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </td>
                 <td class="px-6 py-4">${valuePreviewHtml(item)}</td>
                 <td class="px-6 py-4"><span class="inline-flex rounded-full border border-[#ead39a] bg-[#fff8e8] px-3 py-1 text-xs font-semibold text-[#8b6717]">${escapeHtml(item.type)}</span></td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-500">${escapeHtml(item.created_at_human || '')}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-500">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(item, escapeHtml) : escapeHtml(item.created_at_human || '')}</td>
             </tr>`).join('');
     }
 
@@ -400,3 +400,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endpush
+

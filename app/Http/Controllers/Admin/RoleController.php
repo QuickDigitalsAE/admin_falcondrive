@@ -73,6 +73,7 @@ class RoleController extends Controller
                             'users_count' => $role->users_count ?? 0,
                             'deleted_at' => optional($role->deleted_at)->toDateTimeString(),
                             'created_at_human' => optional($role->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($role, $authUser),
                             'show_url' => route('admin.roles.show', $role->id),
                             'edit_url' => route('admin.roles.edit', $role->id),
                             'delete_url' => route('admin.roles.delete', $role->id),
@@ -301,3 +302,4 @@ class RoleController extends Controller
         ]);
     }
 }
+

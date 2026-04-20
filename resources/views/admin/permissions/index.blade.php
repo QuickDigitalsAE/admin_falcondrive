@@ -100,7 +100,7 @@
             }
             function renderRows(items) {
                 if (!items.length) { permissionsTableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500">No permissions found.</td></tr>`; return; }
-                permissionsTableBody.innerHTML = items.map(item => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4"><p class="text-sm font-semibold text-slate-800">${escapeHtml(item.name)}</p></td><td class="px-6 py-4"><span class="inline-flex rounded-full bg-[#f7edd0] px-2.5 py-1 text-xs font-medium text-[#8a6a1c]">${escapeHtml(item.group)}</span></td><td class="px-6 py-4 text-sm text-slate-700">${escapeHtml(item.table_name || 'N/A')}</td><td class="px-6 py-4 text-sm text-slate-700">${item.roles_count}</td><td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">${escapeHtml(item.created_at_human || '')}</td></tr>`).join('');
+                permissionsTableBody.innerHTML = items.map(item => `<tr class="hover:bg-[#fffdf7] transition"><td class="px-6 py-4">${actionsHtml(item)}</td><td class="px-6 py-4"><p class="text-sm font-semibold text-slate-800">${escapeHtml(item.name)}</p></td><td class="px-6 py-4"><span class="inline-flex rounded-full bg-[#f7edd0] px-2.5 py-1 text-xs font-medium text-[#8a6a1c]">${escapeHtml(item.group)}</span></td><td class="px-6 py-4 text-sm text-slate-700">${escapeHtml(item.table_name || 'N/A')}</td><td class="px-6 py-4 text-sm text-slate-700">${item.roles_count}</td><td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(item, escapeHtml) : escapeHtml(item.created_at_human || '')}</td></tr>`).join('');
             }
             function renderPagination(pagination) {
                 paginationWrapper.innerHTML = ''; if (!pagination || pagination.last_page <= 1) return;
@@ -140,3 +140,4 @@
         });
     </script>
 @endpush
+

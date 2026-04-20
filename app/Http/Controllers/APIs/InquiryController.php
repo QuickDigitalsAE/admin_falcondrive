@@ -6,6 +6,7 @@ use App\Http\Requests\Api\InquiryRequest;
 use App\Http\Resources\InquiryResource;
 use App\Mail\InquiryConfirmationMail;
 use App\Models\Inquiry;
+use App\Support\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -42,6 +43,7 @@ class InquiryController extends BaseApiController
             $record = Inquiry::create($data);
 
             $this->sendInquiryEmails($record);
+            AdminNotificationService::notifyNewInquiry($record);
 
             return $this->successResponse($this->storeMessage, InquiryResource::make($record)->resolve(), 201);
         } catch (ValidationException $e) {

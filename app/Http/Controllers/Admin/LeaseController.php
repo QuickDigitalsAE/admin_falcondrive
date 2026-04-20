@@ -63,7 +63,9 @@ class LeaseController extends Controller
 
     public function show(int $id)
     {
-        $lease = Lease::withTrashed()->find($id);
+        $lease = Lease::withTrashed()
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->find($id);
         if (!$lease) {
             return redirect()->route('admin.lease')->with('error', 'Lease record not found.');
         }
@@ -168,6 +170,7 @@ class LeaseController extends Controller
                     'seo_title_en' => $lease->seo_title_en,
                     'deleted_at' => optional($lease->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($lease->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($lease, $authUser),
                     'show_url' => route('admin.lease.show', $lease->id),
                     'edit_url' => route('admin.lease.edit', $lease->id),
                     'delete_url' => route('admin.lease.delete', $lease->id),
@@ -257,3 +260,4 @@ class LeaseController extends Controller
         ]);
     }
 }
+

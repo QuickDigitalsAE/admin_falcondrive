@@ -190,6 +190,7 @@ class CategoryController extends Controller
                     'image_url' => $category->image_url,
                     'deleted_at' => optional($category->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($category->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($category, $authUser),
                     'show_url' => route('admin.categories.show', $category->id),
                     'edit_url' => route('admin.categories.edit', $category->id),
                     'delete_url' => route('admin.categories.delete', $category->id),
@@ -300,3 +301,4 @@ class CategoryController extends Controller
         ]);
     }
 }
+
