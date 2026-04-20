@@ -36,12 +36,20 @@ class SettingController extends BaseApiController
         $settings = $this->query($request)
             ->orderBy('order')
             ->orderBy('id')
-            ->get(['key', 'value']);
+            ->get(['key', 'value', 'type']);
+
+        $mappedSettings = $settings->mapWithKeys(function (Setting $setting) {
+            $value = in_array($setting->type, ['image', 'file'], true)
+                ? ($setting->value_url ?: $setting->value)
+                : $setting->value;
+
+            return [$setting->key => $value];
+        });
 
         return response()->json([
             'status' => true,
             'message' => 'Setting all list fetched successfully',
-            'data' => $settings->pluck('value', 'key')->toArray(),
+            'data' => $mappedSettings->toArray(),
         ]);
     }
 
