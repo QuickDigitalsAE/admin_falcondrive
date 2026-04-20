@@ -47,8 +47,9 @@ class CarController extends BaseApiController
             $query->where('brand_id', (int) $request->brand_id);
         }
 
-        if ($request->filled('category_id')) {
-            $query->whereHas('categories', fn (Builder $q) => $q->where('categories.id', (int) $request->category_id));
+        $categoryIds = $this->resolveCategoryIds($request);
+        if ($categoryIds !== []) {
+            $query->whereHas('categories', fn (Builder $q) => $q->whereIn('categories.id', $categoryIds));
         }
 
         if ($request->filled('featured')) {
@@ -61,15 +62,54 @@ class CarController extends BaseApiController
                 : $query->where('stock', '<=', 0);
         }
 
-        if ($request->filled('min_price')) {
-            $query->whereRaw('CAST(price_daily AS DECIMAL(10,2)) >= ?', [(float) $request->min_price]);
-        }
-
-        if ($request->filled('max_price')) {
-            $query->whereRaw('CAST(price_daily AS DECIMAL(10,2)) <= ?', [(float) $request->max_price]);
+        if ($this->applyPriceSorting($query, $request)) {
+            return $query;
         }
 
         return parent::applyFilters($query, $request);
+    }
+
+    private function resolveCategoryIds(Request $request): array
+    {
+        $categoryIds = $request->input('category_ids', $request->input('category_id', []));
+
+        if (!is_array($categoryIds)) {
+            $categoryIds = explode(',', (string) $categoryIds);
+        }
+
+        return collect($categoryIds)
+            ->map(fn ($categoryId) => (int) $categoryId)
+            ->filter(fn (int $categoryId) => $categoryId > 0)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function applyPriceSorting(Builder $query, Request $request): bool
+    {
+        $sortBy = strtolower(trim((string) $request->get('sort_by', '')));
+        $sortDirection = strtolower(trim((string) $request->get('sort_direction', '')));
+
+        $priceHighToLowValues = ['high_to_low', 'price_high_to_low', 'price-desc', 'price_desc'];
+        $priceLowToHighValues = ['low_to_high', 'price_low_to_high', 'price-asc', 'price_asc'];
+
+        if (in_array($sortBy, $priceHighToLowValues, true)) {
+            $query->reorder()->orderByRaw('CAST(price_daily AS DECIMAL(10,2)) DESC');
+            return true;
+        }
+
+        if (in_array($sortBy, $priceLowToHighValues, true)) {
+            $query->reorder()->orderByRaw('CAST(price_daily AS DECIMAL(10,2)) ASC');
+            return true;
+        }
+
+        if ($sortBy === 'price_daily') {
+            $direction = in_array($sortDirection, ['asc', 'desc'], true) ? $sortDirection : 'asc';
+            $query->reorder()->orderByRaw('CAST(price_daily AS DECIMAL(10,2)) ' . strtoupper($direction));
+            return true;
+        }
+
+        return false;
     }
 
     public function publicIndex(Request $request)

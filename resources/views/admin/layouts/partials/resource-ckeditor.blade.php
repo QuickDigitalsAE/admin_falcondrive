@@ -22,8 +22,34 @@
         background: #fffdf8 !important;
     }
 
+    .resource-ckeditor-shell .cke_contents,
+    .resource-ckeditor-shell .cke_wysiwyg_frame {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(201, 166, 74, 0.82) rgba(246, 239, 224, 0.45);
+    }
+
+    .resource-ckeditor-shell .cke_contents::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+    }
+
+    .resource-ckeditor-shell .cke_contents::-webkit-scrollbar-track {
+        background: linear-gradient(180deg, rgba(255, 250, 240, 0.98) 0%, rgba(246, 239, 224, 0.92) 100%);
+        border-left: 1px solid rgba(229, 215, 177, 0.85);
+    }
+
+    .resource-ckeditor-shell .cke_contents::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, rgba(216, 183, 96, 0.95) 0%, rgba(180, 138, 31, 0.95) 100%);
+        border: 2px solid rgba(255, 250, 240, 0.96);
+        border-radius: 999px;
+    }
+
+    .resource-ckeditor-shell .cke_contents::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, rgba(202, 162, 60, 1) 0%, rgba(147, 107, 16, 1) 100%);
+    }
+
     .resource-ckeditor-shell .cke_editable {
-        min-height: 220px;
+        min-height: 280px;
         padding: 16px !important;
         color: #1e293b !important;
         font-size: 14px !important;
@@ -49,9 +75,40 @@
             return;
         }
 
+        CKEDITOR.addCss(`
+            html {
+                scrollbar-width: thin;
+                scrollbar-color: rgba(201, 166, 74, 0.82) rgba(246, 239, 224, 0.45);
+            }
+
+            body {
+                scrollbar-width: thin;
+                scrollbar-color: rgba(201, 166, 74, 0.82) rgba(246, 239, 224, 0.45);
+            }
+
+            body::-webkit-scrollbar {
+                width: 12px;
+                height: 15px;
+            }
+
+            body::-webkit-scrollbar-track {
+                background: linear-gradient(180deg, rgba(255, 250, 240, 0.98) 0%, rgba(246, 239, 224, 0.92) 100%);
+            }
+
+            body::-webkit-scrollbar-thumb {
+                background: linear-gradient(180deg, rgba(216, 183, 96, 0.95) 0%, rgba(180, 138, 31, 0.95) 100%);
+                border: 2px solid rgba(255, 250, 240, 0.96);
+                border-radius: 999px;
+            }
+
+            body::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(180deg, rgba(202, 162, 60, 1) 0%, rgba(147, 107, 16, 1) 100%);
+            }
+        `);
+
         const buildEditorConfig = function (direction) {
             return {
-                height: 260,
+                height: 320,
                 versionCheck: false,
                 removePlugins: 'elementspath',
                 resize_enabled: true,

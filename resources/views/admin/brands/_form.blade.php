@@ -86,7 +86,7 @@
         </div>
     </div>
 
-    <div class="min-w-0 xl:col-span-3">
+    <div class="min-w-0 xl:col-span-3 mb-5">
         <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <div class="space-y-2">
                 <div class="rounded-[24px] border {{ $errors->has('sorting') ? 'border-red-300' : 'border-[#eadfbe]' }} bg-gradient-to-br from-[#fffdf8] to-white p-5 shadow-sm h-full">
