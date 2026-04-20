@@ -6,6 +6,7 @@ use App\Http\Requests\Api\SettingRequest;
 use App\Http\Resources\SettingResource;
 use App\Models\Setting;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SettingController extends BaseApiController
@@ -30,9 +31,18 @@ class SettingController extends BaseApiController
         return parent::query($request)->where('group', 'site');
     }
 
-    public function publicIndex(Request $request)
+    public function publicIndex(Request $request): JsonResponse
     {
-        return $this->index($request);
+        $settings = $this->query($request)
+            ->orderBy('order')
+            ->orderBy('id')
+            ->get(['key', 'value']);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Setting all list fetched successfully',
+            'data' => $settings->pluck('value', 'key')->toArray(),
+        ]);
     }
 
 }
