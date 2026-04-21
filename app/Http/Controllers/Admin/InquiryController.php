@@ -184,12 +184,10 @@ class InquiryController extends Controller
                     'created_at_human' => optional($inquiry->created_at)->format('d M Y, h:i A'),
                     ...$this->superAdminAuditMeta($inquiry, $authUser),
                     'show_url' => route('admin.inquiries.show', $inquiry->id),
-                    'edit_url' => route('admin.inquiries.edit', $inquiry->id),
                     'delete_url' => route('admin.inquiries.delete', $inquiry->id),
                     'restore_url' => route('admin.inquiries.restore', $inquiry->id),
                     'permissions' => [
                         'can_view' => $authUser->can('Inquiry_ViewAll') || $authUser->can('Inquiry_ViewMine') || $authUser->can('Inquiry_View'),
-                        'can_edit' => $authUser->can('Inquiry_Edit'),
                         'can_delete' => $authUser->can('Inquiry_Delete'),
                         'can_restore' => $authUser->can('Inquiry_Revoke'),
                     ],

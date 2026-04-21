@@ -34,7 +34,26 @@ class BlogController extends BaseApiController
 
     public function publicShow(\App\Models\Blog $blog)
     {
-        return $this->successResponse($this->singleMessage, $this->transform($blog->load($this->with)));
+        $recentPosts = Blog::query()
+            ->whereKeyNot($blog->id)
+            ->orderByRaw('COALESCE(blog_schedule, created_at) DESC')
+            ->limit(5)
+            ->get()
+            ->map(fn (Blog $recentBlog) => [
+                'image' => $recentBlog->image,
+                'image_url' => $recentBlog->image_url,
+                'slug' => $recentBlog->slug,
+                'title_en' => $recentBlog->title_en,
+                'title_ar' => $recentBlog->title_ar,
+                'post_datetime' => optional($recentBlog->blog_schedule ?? $recentBlog->created_at)?->toISOString(),
+            ])
+            ->values()
+            ->all();
+
+        return $this->successResponse($this->singleMessage, array_merge(
+            $this->transform($blog->load($this->with)),
+            ['recent_posts' => $recentPosts]
+        ));
     }
 
 }

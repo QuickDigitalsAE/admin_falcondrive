@@ -97,6 +97,7 @@
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Actions</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Inquiry</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Rental Period</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Message</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Promo / Car</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Created</th>
@@ -105,7 +106,7 @@
 
                     <tbody id="recordsTableBody" class="divide-y divide-[#f6f0df] bg-white">
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-500">
                                 Loading inquiries...
                             </td>
                         </tr>
@@ -180,7 +181,7 @@
             function setLoading() {
                 recordsTableBody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                        <td colspan="6" class="px-6 py-12 text-center text-slate-500">
                             <div class="inline-flex items-center gap-2">
                                 <i class="fa-solid fa-spinner fa-spin text-[#b49543]"></i>
                                 <span>Loading inquiries...</span>
@@ -295,17 +296,6 @@
                     `);
                 }
 
-                if (!record.deleted_at && permissions.can_edit) {
-                    buttons.push(`
-                        <a
-                            href="${record.edit_url}"
-                            class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#d9c68f] bg-[#fff5d8] text-[#9b7a28] transition hover:bg-[#ffefc1]"
-                            title="Edit">
-                            <i class="fa-solid fa-pen text-[13px]"></i>
-                        </a>
-                    `);
-                }
-
                 if (!record.deleted_at && permissions.can_delete) {
                     buttons.push(`
                         <button
@@ -347,7 +337,7 @@
                 if (!items.length) {
                     recordsTableBody.innerHTML = `
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-500">
                                 No inquiries found.
                             </td>
                         </tr>
@@ -362,6 +352,18 @@
                             <p class="text-sm font-semibold text-slate-800">${escapeHtml(record.name)}</p>
                             <p class="text-sm text-slate-500">${escapeHtml(record.number || '')}</p>
                             <p class="text-xs text-slate-400">${escapeHtml(record.email || '')}</p>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="space-y-2">
+                                <div class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                                    <i class="fa-solid fa-play text-[10px]"></i>
+                                    <span>${escapeHtml(record.from_date || 'N/A')}</span>
+                                </div>
+                                <div class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                                    <i class="fa-solid fa-flag-checkered text-[10px]"></i>
+                                    <span>${escapeHtml(record.to_date || 'N/A')}</span>
+                                </div>
+                            </div>
                         </td>
                         <td class="px-6 py-4">
                             <p
@@ -437,7 +439,7 @@
                 } catch (error) {
                     recordsTableBody.innerHTML = `
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-red-500">
+                            <td colspan="6" class="px-6 py-12 text-center text-red-500">
                                 ${escapeHtml(error.message || 'Something went wrong.')}
                             </td>
                         </tr>
