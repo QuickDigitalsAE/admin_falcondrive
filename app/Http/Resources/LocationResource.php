@@ -1,11 +1,14 @@
 <?php
 namespace App\Http\Resources;
+
+use App\Http\Controllers\APIs\LocationController;
 use Illuminate\Http\Request;
+
 class LocationResource extends BaseResource
 {
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'name_en' => $this->name_en,
             'name_ar' => $this->name_ar,
@@ -16,9 +19,26 @@ class LocationResource extends BaseResource
             'seo_brief_en' => $this->seo_brief_en,
             'seo_brief_ar' => $this->seo_brief_ar,
             'slug' => $this->slug,
-            'cars' => CarResource::collection($this->whenLoaded('cars')),
             'created_at' => optional($this->created_at)->toISOString(),
             'updated_at' => optional($this->updated_at)->toISOString(),
         ];
+
+        if ($this->shouldIncludeCars($request)) {
+            $data['cars'] = CarResource::collection($this->whenLoaded('cars'));
+        }
+
+        return $data;
+    }
+
+    private function shouldIncludeCars(Request $request): bool
+    {
+        $route = $request->route();
+
+        if (!$route) {
+            return false;
+        }
+
+        return !($route->getController() instanceof LocationController
+            && $route->getActionMethod() === 'publicIndex');
     }
 }

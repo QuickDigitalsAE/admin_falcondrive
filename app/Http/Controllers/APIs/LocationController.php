@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\APIs;
 
+use App\Http\Controllers\APIs\Concerns\InteractsWithCarListings;
 use App\Http\Requests\Api\LocationRequest;
 use App\Http\Resources\LocationResource;
 use App\Models\Location;
@@ -9,6 +10,8 @@ use Illuminate\Http\Request;
 
 class LocationController extends BaseApiController
 {
+    use InteractsWithCarListings;
+
     protected string $modelClass = Location::class;
     protected string $resourceClass = LocationResource::class;
     protected string $storeRequestClass = LocationRequest::class;
@@ -32,15 +35,14 @@ class LocationController extends BaseApiController
         return $this->index($request);
     }
 
-    public function publicShow(\App\Models\Location $location)
+    public function publicShow(Request $request, \App\Models\Location $location)
     {
-        $location->load(['cars.brand']);
-
         return $this->successResponse($this->singleMessage, array_merge(
             $this->transform($location),
-            [
-                'brand_list' => $this->brandListFromCars($location->cars),
-            ]
+            $this->paginatedCarListingPayload(
+                $request,
+                fn ($query) => $query->whereHas('locations', fn ($locationQuery) => $locationQuery->where('locations.id', $location->id))
+            )
         ));
     }
 }

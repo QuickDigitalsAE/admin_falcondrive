@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\APIs;
 
+use App\Http\Controllers\APIs\Concerns\InteractsWithCarListings;
 use App\Http\Requests\Api\CarRequest;
 use App\Http\Resources\CarResource;
 use App\Models\Car;
@@ -10,6 +11,8 @@ use Illuminate\Http\Request;
 
 class CarController extends BaseApiController
 {
+    use InteractsWithCarListings;
+
     protected string $modelClass = Car::class;
     protected string $resourceClass = CarResource::class;
     protected string $storeRequestClass = CarRequest::class;
@@ -44,72 +47,29 @@ class CarController extends BaseApiController
     protected function applyFilters(Builder $query, Request $request): Builder
     {
         if ($request->filled('brand_id')) {
-            $query->where('brand_id', (int) $request->brand_id);
+            $query->where('brand_id', (int) $request->input('brand_id'));
         }
 
-        $categoryIds = $this->resolveCategoryIds($request);
+        $categoryIds = $this->resolveCarCategoryIds($request);
         if ($categoryIds !== []) {
             $query->whereHas('categories', fn (Builder $q) => $q->whereIn('categories.id', $categoryIds));
         }
 
         if ($request->filled('featured')) {
-            $query->where('featured', (int) $request->featured);
+            $query->where('featured', (int) $request->input('featured'));
         }
 
         if ($request->filled('stock_status')) {
-            $request->stock_status === 'in_stock'
+            $request->input('stock_status') === 'in_stock'
                 ? $query->where('stock', '>', 0)
                 : $query->where('stock', '<=', 0);
         }
 
-        if ($this->applyPriceSorting($query, $request)) {
+        if ($this->applyCarPriceSorting($query, $request)) {
             return $query;
         }
 
         return parent::applyFilters($query, $request);
-    }
-
-    private function resolveCategoryIds(Request $request): array
-    {
-        $categoryIds = $request->input('category_ids', $request->input('category_id', []));
-
-        if (!is_array($categoryIds)) {
-            $categoryIds = explode(',', (string) $categoryIds);
-        }
-
-        return collect($categoryIds)
-            ->map(fn ($categoryId) => (int) $categoryId)
-            ->filter(fn (int $categoryId) => $categoryId > 0)
-            ->unique()
-            ->values()
-            ->all();
-    }
-
-    private function applyPriceSorting(Builder $query, Request $request): bool
-    {
-        $sortBy = strtolower(trim((string) $request->get('sort_by', '')));
-        $sortDirection = strtolower(trim((string) $request->get('sort_direction', '')));
-
-        $priceHighToLowValues = ['high_to_low', 'price_high_to_low', 'price-desc', 'price_desc'];
-        $priceLowToHighValues = ['low_to_high', 'price_low_to_high', 'price-asc', 'price_asc'];
-
-        if (in_array($sortBy, $priceHighToLowValues, true)) {
-            $query->reorder()->orderByRaw('CAST(price_daily AS DECIMAL(10,2)) DESC');
-            return true;
-        }
-
-        if (in_array($sortBy, $priceLowToHighValues, true)) {
-            $query->reorder()->orderByRaw('CAST(price_daily AS DECIMAL(10,2)) ASC');
-            return true;
-        }
-
-        if ($sortBy === 'price_daily') {
-            $direction = in_array($sortDirection, ['asc', 'desc'], true) ? $sortDirection : 'asc';
-            $query->reorder()->orderByRaw('CAST(price_daily AS DECIMAL(10,2)) ' . strtoupper($direction));
-            return true;
-        }
-
-        return false;
     }
 
     public function publicIndex(Request $request)

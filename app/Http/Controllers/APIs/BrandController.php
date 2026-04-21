@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\APIs;
 
+use App\Http\Controllers\APIs\Concerns\InteractsWithCarListings;
 use App\Http\Requests\Api\BrandRequest;
 use App\Http\Resources\BrandResource;
 use App\Models\Brand;
@@ -9,6 +10,8 @@ use Illuminate\Http\Request;
 
 class BrandController extends BaseApiController
 {
+    use InteractsWithCarListings;
+
     protected string $modelClass = Brand::class;
     protected string $resourceClass = BrandResource::class;
     protected string $storeRequestClass = BrandRequest::class;
@@ -44,9 +47,19 @@ class BrandController extends BaseApiController
         return $query;
     }
 
-    public function publicShow(\App\Models\Brand $brand)
+    public function publicShow(Request $request, \App\Models\Brand $brand)
     {
-        return $this->successResponse($this->singleMessage, $this->transform($brand->load($this->with)));
+        $payload = $this->paginatedCarListingPayload(
+            $request,
+            fn ($query) => $query->where('brand_id', $brand->id)
+        );
+
+        unset($payload['brand_list']);
+
+        return $this->successResponse($this->singleMessage, array_merge(
+            $this->transform($brand),
+            $payload
+        ));
     }
 
 }

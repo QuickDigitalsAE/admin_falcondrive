@@ -1,11 +1,14 @@
 <?php
 namespace App\Http\Resources;
+
+use App\Http\Controllers\APIs\BrandController;
 use Illuminate\Http\Request;
+
 class BrandResource extends BaseResource
 {
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'name_en' => $this->name_en,
             'name_ar' => $this->name_ar,
@@ -20,9 +23,26 @@ class BrandResource extends BaseResource
             'logo_url' => $this->imageUrl($this->logo),
             'sorting' => $this->sorting,
             'cars_count' => $this->whenCounted('cars'),
-            'cars' => CarResource::collection($this->whenLoaded('cars')),
             'created_at' => optional($this->created_at)->toISOString(),
             'updated_at' => optional($this->updated_at)->toISOString(),
         ];
+
+        if ($this->shouldIncludeCars($request)) {
+            $data['cars'] = CarResource::collection($this->whenLoaded('cars'));
+        }
+
+        return $data;
+    }
+
+    private function shouldIncludeCars(Request $request): bool
+    {
+        $route = $request->route();
+
+        if (!$route) {
+            return false;
+        }
+
+        return !($route->getController() instanceof BrandController
+            && $route->getActionMethod() === 'publicIndex');
     }
 }

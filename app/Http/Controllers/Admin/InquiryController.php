@@ -3,12 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\InquiryConfirmationMail;
 use App\Models\Inquiry;
+use App\Support\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class InquiryController extends Controller
 {
+    private const ADMIN_RECIPIENTS = [
+        'ahmedansari6112@gmail.com'
+    ];
+
     public function __construct()
     {
         $this->middleware('permission:Inquiry_ViewAll|Inquiry_ViewMine', ['only' => ['index']]);
@@ -50,7 +58,9 @@ class InquiryController extends Controller
             'car_name' => ['nullable', 'string', 'max:255'],
         ]);
 
-        Inquiry::create($validated + ['created_by' => Auth::id()]);
+        $inquiry = Inquiry::create($validated + ['created_by' => Auth::id()]);
+        $this->sendInquiryEmails($inquiry);
+        AdminNotificationService::notifyInquiry($inquiry, 'created');
 
         return redirect()->route('admin.inquiries')->with('success', 'Inquiry added successfully.');
     }
@@ -90,6 +100,8 @@ class InquiryController extends Controller
         ]);
 
         $inquiry->update($validated + ['updated_by' => Auth::id()]);
+        $this->sendInquiryEmails($inquiry->fresh());
+        AdminNotificationService::notifyInquiry($inquiry->fresh(), 'updated');
 
         return redirect()->route('admin.inquiries')->with('success', 'Inquiry updated successfully.');
     }
@@ -221,6 +233,23 @@ class InquiryController extends Controller
 
             fclose($file);
         }, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename=inquiries.csv']);
+    }
+
+    private function sendInquiryEmails(Inquiry $record): void
+    {
+        if (!empty($record->email)) {
+            try {
+                Mail::to($record->email)->send(new InquiryConfirmationMail($record, 'client'));
+            } catch (Throwable $mailException) {
+                report($mailException);
+            }
+        }
+
+        try {
+            Mail::to(self::ADMIN_RECIPIENTS)->send(new InquiryConfirmationMail($record, 'admin'));
+        } catch (Throwable $mailException) {
+            report($mailException);
+        }
     }
 }
 

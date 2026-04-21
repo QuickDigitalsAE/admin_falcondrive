@@ -43,7 +43,7 @@ class InquiryController extends BaseApiController
             $record = Inquiry::create($data);
 
             $this->sendInquiryEmails($record);
-            AdminNotificationService::notifyNewInquiry($record);
+            AdminNotificationService::notifyInquiry($record, 'created');
 
             return $this->successResponse($this->storeMessage, InquiryResource::make($record)->resolve(), 201);
         } catch (ValidationException $e) {

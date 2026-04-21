@@ -1,11 +1,14 @@
 <?php
 namespace App\Http\Resources;
+
+use App\Http\Controllers\APIs\CarController;
 use Illuminate\Http\Request;
+
 class CarResource extends BaseResource
 {
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'name_en' => $this->name_en,
             'name_ar' => $this->name_ar,
@@ -44,12 +47,29 @@ class CarResource extends BaseResource
             'brand_id' => $this->brand_id,
             'stock' => $this->stock,
             'sorting' => $this->sorting,
-            'brand' => BrandResource::make($this->whenLoaded('brand')),
-            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
-            'locations' => LocationResource::collection($this->whenLoaded('locations')),
-            'driver_pages' => CarWithDriverResource::collection($this->whenLoaded('driverPages')),
             'created_at' => optional($this->created_at)->toISOString(),
             'updated_at' => optional($this->updated_at)->toISOString(),
         ];
+
+        if ($this->shouldIncludeRelations($request)) {
+            $data['brand'] = BrandResource::make($this->whenLoaded('brand'));
+            $data['categories'] = CategoryResource::collection($this->whenLoaded('categories'));
+            $data['locations'] = LocationResource::collection($this->whenLoaded('locations'));
+            $data['driver_pages'] = CarWithDriverResource::collection($this->whenLoaded('driverPages'));
+        }
+
+        return $data;
+    }
+
+    private function shouldIncludeRelations(Request $request): bool
+    {
+        $route = $request->route();
+
+        if (!$route) {
+            return false;
+        }
+
+        return $route->getController() instanceof CarController
+            && $route->getActionMethod() === 'publicShow';
     }
 }

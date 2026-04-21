@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\APIs;
 
+use App\Http\Controllers\APIs\Concerns\InteractsWithCarListings;
 use App\Http\Requests\Api\CategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
@@ -9,6 +10,8 @@ use Illuminate\Http\Request;
 
 class CategoryController extends BaseApiController
 {
+    use InteractsWithCarListings;
+
     protected string $modelClass = Category::class;
     protected string $resourceClass = CategoryResource::class;
     protected string $storeRequestClass = CategoryRequest::class;
@@ -32,15 +35,14 @@ class CategoryController extends BaseApiController
         return $this->index($request);
     }
 
-    public function publicShow(\App\Models\Category $category)
+    public function publicShow(Request $request, \App\Models\Category $category)
     {
-        $category->load(['cars.brand']);
-
         return $this->successResponse($this->singleMessage, array_merge(
             $this->transform($category),
-            [
-                'brand_list' => $this->brandListFromCars($category->cars),
-            ]
+            $this->paginatedCarListingPayload(
+                $request,
+                fn ($query) => $query->whereHas('categories', fn ($categoryQuery) => $categoryQuery->where('categories.id', $category->id))
+            )
         ));
     }
 }

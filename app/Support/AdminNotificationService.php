@@ -42,22 +42,26 @@ class AdminNotificationService
         );
     }
 
-    public static function notifyNewInquiry(Inquiry $inquiry): void
+    public static function notifyInquiry(Inquiry $inquiry, string $action = 'created'): void
     {
+        $isUpdate = $action === 'updated';
+
         self::createForRecipients(
             self::recipients()->filter(fn (User $user) => self::canReceiveInquiryNotification($user)),
             [
-                'title' => 'New inquiry received',
+                'title' => $isUpdate ? 'Inquiry updated' : 'New inquiry received',
                 'message' => collect([
                     $inquiry->name ? "From {$inquiry->name}" : null,
                     $inquiry->car_name ? "Car: {$inquiry->car_name}" : null,
                     $inquiry->promo_code ? "Promo: {$inquiry->promo_code}" : null,
+                    $isUpdate ? 'Inquiry details were updated.' : null,
                 ])->filter()->implode(' | '),
-                'icon' => 'fa-envelope-open-text',
-                'color' => 'amber',
+                'icon' => $isUpdate ? 'fa-pen-to-square' : 'fa-envelope-open-text',
+                'color' => $isUpdate ? 'blue' : 'amber',
                 'url' => route('admin.inquiries.show', $inquiry->id),
                 'category' => 'inquiry',
                 'data' => [
+                    'action' => $action,
                     'inquiry_id' => $inquiry->id,
                     'table_name' => 'inquiries',
                     'name' => $inquiry->name,
@@ -247,7 +251,7 @@ class AdminNotificationService
             return false;
         }
 
-        return $user->can($permissions['view_all']) || $user->can($permissions['view']);
+        return $user->can($permissions['view_all']);
     }
 
     private static function permissionSetForTable(?string $tableName): ?array

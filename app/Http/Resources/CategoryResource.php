@@ -1,11 +1,14 @@
 <?php
 namespace App\Http\Resources;
+
+use App\Http\Controllers\APIs\CategoryController;
 use Illuminate\Http\Request;
+
 class CategoryResource extends BaseResource
 {
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'name_en' => $this->name_en,
             'name_ar' => $this->name_ar,
@@ -18,9 +21,26 @@ class CategoryResource extends BaseResource
             'slug' => $this->slug,
             'image' => $this->image,
             'image_url' => $this->imageUrl($this->image),
-            'cars' => CarResource::collection($this->whenLoaded('cars')),
             'created_at' => optional($this->created_at)->toISOString(),
             'updated_at' => optional($this->updated_at)->toISOString(),
         ];
+
+        if ($this->shouldIncludeCars($request)) {
+            $data['cars'] = CarResource::collection($this->whenLoaded('cars'));
+        }
+
+        return $data;
+    }
+
+    private function shouldIncludeCars(Request $request): bool
+    {
+        $route = $request->route();
+
+        if (!$route) {
+            return false;
+        }
+
+        return !($route->getController() instanceof CategoryController
+            && $route->getActionMethod() === 'publicIndex');
     }
 }
