@@ -321,7 +321,7 @@ class BlogController extends Controller
             'title_ar' => ['required', 'string', 'max:255'],
             'blog_description_en' => ['nullable', 'string'],
             'blog_description_ar' => ['nullable', 'string'],
-            'slug' => ['nullable', 'string', 'max:255', Rule::unique('blogs', 'slug')->ignore($blogId)],
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('blogs', 'slug')->ignore($blogId)],
             'seo_title_en' => ['nullable', 'string', 'max:255'],
             'seo_title_ar' => ['nullable', 'string', 'max:255'],
             'seo_brief_en' => ['nullable', 'string'],
@@ -333,7 +333,7 @@ class BlogController extends Controller
 
     private function generateUniqueSlug(string $source, ?int $ignoreId = null): string
     {
-        $baseSlug = Str::slug($source);
+        $baseSlug = $this->normalizeSlug($source);
         $baseSlug = $baseSlug ?: 'blog';
         $slug = $baseSlug;
         $counter = 1;
@@ -344,6 +344,15 @@ class BlogController extends Controller
         }
 
         return $slug;
+    }
+
+    private function normalizeSlug(string $source): string
+    {
+        $source = strtolower(trim($source));
+        $source = preg_replace('/[^a-z0-9-]+/', '-', $source) ?? '';
+        $source = preg_replace('/-+/', '-', $source) ?? '';
+
+        return trim($source, '-');
     }
 
     private function storeImage(Request $request): ?string

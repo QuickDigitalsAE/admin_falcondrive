@@ -41,10 +41,29 @@
             const preview = document.getElementById('logoPreview');
             const fileName = document.getElementById('fileName');
             const removeBtn = document.getElementById('removeImageBtn');
+            const nameEnInput = document.getElementById('name_en');
+            const slugInput = document.getElementById('slug');
             const sortingSelect = document.getElementById('sorting');
             const initialSortingValue = sortingSelect?.dataset.currentSorting || '';
             const sortOrdersUrl = @json(route('admin.brands.sort-orders', ['ignore_brand_id' => $brand->id]));
             const defaultPreview = @json($brand->logo_url ?: ('https://ui-avatars.com/api/?name=' . urlencode($brand->name_en ?? 'Brand') . '&background=F8E8B2&color=5E450A&size=200'));
+            let lastAutoSlug = slugify(nameEnInput?.value || '');
+
+            function slugify(value, preserveTrailingDash = false) {
+                return String(value || '')
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9-]+/g, '-')
+                    .replace(/-+/g, '-')
+                    .replace(/^-+/g, '')
+                    .replace(preserveTrailingDash ? /$/ : /-+$/g, '');
+            }
+
+            function shouldAutoSyncSlug() {
+                if (!slugInput) return false;
+                const currentSlug = slugify(slugInput.value);
+                return currentSlug === '' || currentSlug === lastAutoSlug;
+            }
 
             function renderSortingOptions(orders = [], selectedValue = '') {
                 if (!sortingSelect) return;
@@ -69,6 +88,22 @@
                     .then((orders) => renderSortingOptions(Array.isArray(orders) ? orders : [], selectedValue))
                     .catch(() => renderSortingOptions([], selectedValue));
             }
+
+            nameEnInput?.addEventListener('input', function () {
+                if (!slugInput) return;
+                const nextAutoSlug = slugify(nameEnInput.value);
+                if (shouldAutoSyncSlug()) {
+                    slugInput.value = nextAutoSlug;
+                }
+                lastAutoSlug = nextAutoSlug;
+            });
+
+            slugInput?.addEventListener('input', function () {
+                const sanitized = slugify(slugInput.value, true);
+                if (slugInput.value !== sanitized) {
+                    slugInput.value = sanitized;
+                }
+            });
 
             if (input) {
                 input.addEventListener('change', function (event) {

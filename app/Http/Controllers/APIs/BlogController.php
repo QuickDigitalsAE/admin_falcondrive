@@ -5,6 +5,8 @@ namespace App\Http\Controllers\APIs;
 use App\Http\Requests\Api\BlogRequest;
 use App\Http\Resources\BlogResource;
 use App\Models\Blog;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 
 class BlogController extends BaseApiController
@@ -34,8 +36,11 @@ class BlogController extends BaseApiController
 
     public function publicShow(\App\Models\Blog $blog)
     {
+        abort_unless($blog->publishedAt()?->lte(now(config('app.timezone'))), 404);
+
         $recentPosts = Blog::query()
             ->whereKeyNot($blog->id)
+            ->publiclyAvailable()
             ->orderByRaw('COALESCE(blog_schedule, created_at) DESC')
             ->limit(5)
             ->get()
@@ -45,7 +50,7 @@ class BlogController extends BaseApiController
                 'slug' => $recentBlog->slug,
                 'title_en' => $recentBlog->title_en,
                 'title_ar' => $recentBlog->title_ar,
-                'post_datetime' => optional($recentBlog->blog_schedule ?? $recentBlog->created_at)?->toISOString(),
+                'post_datetime' => optional($recentBlog->publishedAt())?->toISOString(),
             ])
             ->values()
             ->all();
@@ -54,6 +59,17 @@ class BlogController extends BaseApiController
             $this->transform($blog->load($this->with)),
             ['recent_posts' => $recentPosts]
         ));
+    }
+
+    protected function query(Request $request): Builder
+    {
+        $query = parent::query($request)->publiclyAvailable();
+
+        if (!$request->filled('sort_by')) {
+            $query->reorder()->orderByRaw('COALESCE(blog_schedule, created_at) DESC');
+        }
+
+        return $query;
     }
 
 }

@@ -243,7 +243,7 @@ class CarWithDriverController extends Controller
     private function validationRules(?int $id = null): array
     {
         return [
-            'slug' => ['nullable', 'string', 'max:255', Rule::unique('car_with_drivers', 'slug')->ignore($id)],
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('car_with_drivers', 'slug')->ignore($id)],
             'display_en' => ['required', 'string'],
             'display_ar' => ['required', 'string'],
             'meta_title_en' => ['required', 'string'],
@@ -287,7 +287,7 @@ class CarWithDriverController extends Controller
 
     private function generateUniqueSlug(string $source, ?int $ignoreId = null): string
     {
-        $baseSlug = Str::slug($source) ?: 'car-with-driver';
+        $baseSlug = $this->normalizeSlug($source) ?: 'car-with-driver';
         $slug = $baseSlug;
         $counter = 1;
 
@@ -308,6 +308,15 @@ class CarWithDriverController extends Controller
         $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
 
         return $file->storeAs($folder, $fileName, 'public');
+    }
+
+    private function normalizeSlug(string $source): string
+    {
+        $source = strtolower(trim($source));
+        $source = preg_replace('/[^a-z0-9-]+/', '-', $source) ?? '';
+        $source = preg_replace('/-+/', '-', $source) ?? '';
+
+        return trim($source, '-');
     }
 
     private function deleteImage(?string $path): void

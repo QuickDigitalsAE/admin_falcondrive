@@ -40,7 +40,7 @@
                 <label for="slug" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('slug') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">Slug</label>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2 px-1">
-                <p class="text-xs text-slate-500">Used in URLs and SEO routing</p>
+                <p class="text-xs text-slate-500">Auto-generates from Name EN. You can still edit it manually. Allowed: `a-z`, `0-9`, `-`.</p>
                 <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b4861f]">Required</span>
             </div>
             @error('slug')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror

@@ -19,6 +19,7 @@ class BlogResource extends BaseResource
             'image' => $this->image,
             'image_url' => $this->imageUrl($this->image),
             'blog_schedule' => $this->blog_schedule,
+            'post_datetime' => optional($this->publishedAt())?->toISOString(),
             'created_at' => optional($this->created_at)->toISOString(),
             'updated_at' => optional($this->updated_at)->toISOString(),
         ];

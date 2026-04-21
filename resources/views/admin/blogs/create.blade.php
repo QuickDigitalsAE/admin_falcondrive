@@ -73,7 +73,7 @@
                                         class="peer w-full rounded-[18px] border {{ $errors->has('slug') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
                                     <label for="slug" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('slug') ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">Slug</label>
                                 </div>
-                                <p class="px-1 text-xs text-slate-500">Leave empty to auto-generate from Title EN.</p>
+                                <p class="px-1 text-xs text-slate-500">Auto-generates from Title EN. You can still edit it manually. Allowed: `a-z`, `0-9`, `-`.</p>
                                 @error('slug')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
                             </div>
                         </div>
@@ -214,7 +214,51 @@
         const imageInput = document.getElementById('image');
         const blogPreview = document.getElementById('blogPreview');
         const fileName = document.getElementById('fileName');
+        const titleEnInput = document.getElementById('title_en');
+        const slugInput = document.getElementById('slug');
         const defaultPreview = 'https://placehold.co/200x200/f8e8b2/5e450a?text=Blog';
+        let lastAutoSlug = slugify(titleEnInput?.value || '');
+
+        function slugify(value, preserveTrailingDash = false) {
+            return String(value || '')
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9-]+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-+/g, '')
+                .replace(preserveTrailingDash ? /$/ : /-+$/g, '');
+        }
+
+        function shouldAutoSyncSlug() {
+            if (!slugInput) {
+                return false;
+            }
+
+            const currentSlug = slugify(slugInput.value);
+
+            return currentSlug === '' || currentSlug === lastAutoSlug;
+        }
+
+        titleEnInput?.addEventListener('input', function () {
+            if (!slugInput) {
+                return;
+            }
+
+            const nextAutoSlug = slugify(titleEnInput.value);
+
+            if (shouldAutoSyncSlug()) {
+                slugInput.value = nextAutoSlug;
+            }
+
+            lastAutoSlug = nextAutoSlug;
+        });
+
+        slugInput?.addEventListener('input', function () {
+            const sanitized = slugify(slugInput.value, true);
+            if (slugInput.value !== sanitized) {
+                slugInput.value = sanitized;
+            }
+        });
 
         imageInput?.addEventListener('change', function (event) {
             const file = event.target.files[0];

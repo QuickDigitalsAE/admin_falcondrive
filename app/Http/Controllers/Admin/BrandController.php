@@ -82,7 +82,7 @@ class BrandController extends Controller
                 'seo_title_ar' => $validated['seo_title_ar'] ?? null,
                 'seo_brief_en' => $validated['seo_brief_en'] ?? null,
                 'seo_brief_ar' => $validated['seo_brief_ar'] ?? null,
-                'slug' => Str::slug($validated['slug']),
+                'slug' => $this->normalizeSlug($validated['slug']),
                 'logo' => $this->storeLogo($request),
                 'created_by' => Auth::id(),
             ]);
@@ -142,7 +142,7 @@ class BrandController extends Controller
                 'seo_title_ar' => $validated['seo_title_ar'] ?? null,
                 'seo_brief_en' => $validated['seo_brief_en'] ?? null,
                 'seo_brief_ar' => $validated['seo_brief_ar'] ?? null,
-                'slug' => Str::slug($validated['slug']),
+                'slug' => $this->normalizeSlug($validated['slug']),
                 'updated_by' => Auth::id(),
             ]);
             $brand->save();
@@ -295,10 +295,19 @@ class BrandController extends Controller
             'seo_title_ar' => ['nullable', 'string', 'max:255'],
             'seo_brief_en' => ['nullable', 'string'],
             'seo_brief_ar' => ['nullable', 'string'],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('brands', 'slug')->ignore($id)],
+            'slug' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('brands', 'slug')->ignore($id)],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'sorting' => ['nullable', 'integer', 'min:0'],
         ]);
+    }
+
+    private function normalizeSlug(string $source): string
+    {
+        $source = strtolower(trim($source));
+        $source = preg_replace('/[^a-z0-9-]+/', '-', $source) ?? '';
+        $source = preg_replace('/-+/', '-', $source) ?? '';
+
+        return trim($source, '-');
     }
 
     private function storeLogo(Request $request): ?string

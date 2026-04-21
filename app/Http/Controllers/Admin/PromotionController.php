@@ -241,7 +241,7 @@ class PromotionController extends Controller
             'seo_title_ar' => ['required', 'string', 'max:255'],
             'seo_brief_en' => ['required', 'string'],
             'seo_brief_ar' => ['required', 'string'],
-            'slug' => ['nullable', 'string', 'max:255', Rule::unique('promotions', 'slug')->ignore($id)],
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('promotions', 'slug')->ignore($id)],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'top_offer' => ['nullable', 'boolean'],
         ];
@@ -249,7 +249,7 @@ class PromotionController extends Controller
 
     private function generateUniqueSlug(string $source, ?int $ignoreId = null): string
     {
-        $baseSlug = Str::slug($source) ?: 'promotion';
+        $baseSlug = $this->normalizeSlug($source) ?: 'promotion';
         $slug = $baseSlug;
         $counter = 1;
 
@@ -272,6 +272,15 @@ class PromotionController extends Controller
         $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
 
         return $file->storeAs($folder, $fileName, 'public');
+    }
+
+    private function normalizeSlug(string $source): string
+    {
+        $source = strtolower(trim($source));
+        $source = preg_replace('/[^a-z0-9-]+/', '-', $source) ?? '';
+        $source = preg_replace('/-+/', '-', $source) ?? '';
+
+        return trim($source, '-');
     }
 
     private function deleteImage(?string $path): void

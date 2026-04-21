@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class Blog extends Model
@@ -34,6 +36,26 @@ class Blog extends Model
     ];
 
     protected $appends = ['image_url'];
+
+    public function scopePubliclyAvailable(Builder $query): Builder
+    {
+        $now = now(config('app.timezone'));
+
+        return $query->where(function (Builder $innerQuery) use ($now) {
+            $innerQuery->where(function (Builder $scheduleQuery) use ($now) {
+                $scheduleQuery->whereNotNull('blog_schedule')
+                    ->where('blog_schedule', '<=', $now);
+            })->orWhere(function (Builder $createdQuery) use ($now) {
+                $createdQuery->whereNull('blog_schedule')
+                    ->where('created_at', '<=', $now);
+            });
+        });
+    }
+
+    public function publishedAt(): ?Carbon
+    {
+        return $this->blog_schedule ?: $this->created_at;
+    }
 
     public function getImageUrlAttribute(): ?string
     {

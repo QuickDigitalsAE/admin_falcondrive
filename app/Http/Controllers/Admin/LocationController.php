@@ -58,7 +58,7 @@ class LocationController extends Controller
     {
         $validated = $this->validateLocation($request);
         $carIds = $this->normalizeCarIds($validated['car_ids'] ?? []);
-        $validated['slug'] = Str::slug($validated['slug']);
+        $validated['slug'] = $this->normalizeSlug($validated['slug']);
         $validated['created_by'] = Auth::id();
         $location = Location::create($validated);
         $location->cars()->sync($this->buildCarPivotPayload($carIds));
@@ -100,7 +100,7 @@ class LocationController extends Controller
 
         $validated = $this->validateLocation($request, $location->id);
         $carIds = $this->normalizeCarIds($validated['car_ids'] ?? []);
-        $validated['slug'] = Str::slug($validated['slug']);
+        $validated['slug'] = $this->normalizeSlug($validated['slug']);
         $validated['updated_by'] = Auth::id();
         $location->update($validated);
         $location->cars()->sync($this->buildCarPivotPayload($carIds));
@@ -232,10 +232,19 @@ class LocationController extends Controller
             'seo_title_ar' => ['required', 'string', 'max:255'],
             'seo_brief_en' => ['required', 'string'],
             'seo_brief_ar' => ['required', 'string'],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('locations', 'slug')->ignore($id)],
+            'slug' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('locations', 'slug')->ignore($id)],
             'car_ids' => ['nullable', 'array'],
             'car_ids.*' => ['integer', Rule::exists('cars', 'id')],
         ]);
+    }
+
+    private function normalizeSlug(string $source): string
+    {
+        $source = strtolower(trim($source));
+        $source = preg_replace('/[^a-z0-9-]+/', '-', $source) ?? '';
+        $source = preg_replace('/-+/', '-', $source) ?? '';
+
+        return trim($source, '-');
     }
 
     private function normalizeCarIds(array $carIds): array

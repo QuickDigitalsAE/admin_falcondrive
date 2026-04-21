@@ -38,7 +38,11 @@ class HomeController
             ->get();
 
         $topOffers = Promotion::where('top_offer', 1)->latest('id')->limit(6)->get();
-        $latestBlogs = Blog::latest('blog_schedule')->limit(6)->get();
+        $latestBlogs = Blog::query()
+            ->publiclyAvailable()
+            ->orderByRaw('COALESCE(blog_schedule, created_at) DESC')
+            ->limit(6)
+            ->get();
 
         return $this->successResponse('Home page data fetched successfully', [
             'meta_data' => [

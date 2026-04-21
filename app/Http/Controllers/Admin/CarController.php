@@ -282,7 +282,7 @@ class CarController extends Controller
             });
         }
 
-        $query->orderedForListing();
+        $query->latest('id');
 
         if ($isExport) {
             return $this->exportCars($query, $isDeleted);
@@ -376,7 +376,7 @@ class CarController extends Controller
             'navigation' => ['nullable', 'boolean'],
             'carplay' => ['nullable', 'boolean'],
             'camera' => ['nullable', 'boolean'],
-            'slug' => ['nullable', 'string', 'max:255', Rule::unique('cars', 'slug')->ignore($carId)],
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('cars', 'slug')->ignore($carId)],
             'seo_title_en' => ['nullable', 'string', 'max:255'],
             'seo_title_ar' => ['nullable', 'string', 'max:255'],
             'seo_brief_en' => ['nullable', 'string'],
@@ -591,7 +591,7 @@ class CarController extends Controller
 
     private function generateUniqueSlug(string $source, ?int $ignoreId = null): string
     {
-        $baseSlug = Str::slug($source);
+        $baseSlug = $this->normalizeSlug($source);
         $baseSlug = $baseSlug ?: 'car';
         $slug = $baseSlug;
         $counter = 1;
@@ -610,6 +610,15 @@ class CarController extends Controller
         $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
 
         return $file->storeAs($folder, $fileName, 'public');
+    }
+
+    private function normalizeSlug(string $source): string
+    {
+        $source = strtolower(trim($source));
+        $source = preg_replace('/[^a-z0-9-]+/', '-', $source) ?? '';
+        $source = preg_replace('/-+/', '-', $source) ?? '';
+
+        return trim($source, '-');
     }
 
     private function storeMultipleImages(array $files, string $segment): array

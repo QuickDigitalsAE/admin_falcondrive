@@ -55,7 +55,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validated = $this->validateCategory($request);
-        $validated['slug'] = Str::slug($validated['slug']);
+        $validated['slug'] = $this->normalizeSlug($validated['slug']);
         $validated['image'] = $this->storeImage($request);
         $validated['created_by'] = Auth::id();
 
@@ -95,7 +95,7 @@ class CategoryController extends Controller
         }
 
         $validated = $this->validateCategory($request, $category->id);
-        $validated['slug'] = Str::slug($validated['slug']);
+        $validated['slug'] = $this->normalizeSlug($validated['slug']);
 
         if ($request->hasFile('image')) {
             $this->deleteImage($category->image);
@@ -240,9 +240,18 @@ class CategoryController extends Controller
             'seo_title_ar' => ['nullable', 'string', 'max:255'],
             'seo_brief_en' => ['nullable', 'string'],
             'seo_brief_ar' => ['nullable', 'string'],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('categories', 'slug')->ignore($id)],
+            'slug' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('categories', 'slug')->ignore($id)],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
+    }
+
+    private function normalizeSlug(string $source): string
+    {
+        $source = strtolower(trim($source));
+        $source = preg_replace('/[^a-z0-9-]+/', '-', $source) ?? '';
+        $source = preg_replace('/-+/', '-', $source) ?? '';
+
+        return trim($source, '-');
     }
 
     private function storeImage(Request $request): ?string

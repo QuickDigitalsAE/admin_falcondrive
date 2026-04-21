@@ -54,7 +54,7 @@ class LeaseController extends Controller
     public function store(Request $request)
     {
         $validated = $this->validateLease($request);
-        $validated['slug'] = Str::slug($validated['slug']);
+        $validated['slug'] = $this->normalizeSlug($validated['slug']);
         $validated['created_by'] = Auth::id();
         Lease::create($validated);
 
@@ -91,7 +91,7 @@ class LeaseController extends Controller
         }
 
         $validated = $this->validateLease($request, $lease->id);
-        $validated['slug'] = Str::slug($validated['slug']);
+        $validated['slug'] = $this->normalizeSlug($validated['slug']);
         $validated['updated_by'] = Auth::id();
         $lease->update($validated);
 
@@ -220,8 +220,17 @@ class LeaseController extends Controller
             'seo_title_ar' => ['nullable', 'string', 'max:255'],
             'seo_brief_en' => ['required', 'string'],
             'seo_brief_ar' => ['nullable', 'string'],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('lease', 'slug')->ignore($id)],
+            'slug' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('lease', 'slug')->ignore($id)],
         ]);
+    }
+
+    private function normalizeSlug(string $source): string
+    {
+        $source = strtolower(trim($source));
+        $source = preg_replace('/[^a-z0-9-]+/', '-', $source) ?? '';
+        $source = preg_replace('/-+/', '-', $source) ?? '';
+
+        return trim($source, '-');
     }
 
     private function export($query, bool $isDeleted)
