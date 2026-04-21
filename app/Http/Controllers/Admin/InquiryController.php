@@ -14,7 +14,8 @@ use Throwable;
 class InquiryController extends Controller
 {
     private const ADMIN_RECIPIENTS = [
-        'ahmedansari6112@gmail.com'
+        'tahreem@falcondrive.ae',
+        'sales@falcondrive.ae',
     ];
 
     public function __construct()
@@ -245,11 +246,11 @@ class InquiryController extends Controller
             }
         }
 
-        try {
-            Mail::to(self::ADMIN_RECIPIENTS)->send(new InquiryConfirmationMail($record, 'admin'));
-        } catch (Throwable $mailException) {
-            report($mailException);
-        }
+        // try {
+        //     Mail::to(self::ADMIN_RECIPIENTS)->send(new InquiryConfirmationMail($record, 'admin'));
+        // } catch (Throwable $mailException) {
+        //     report($mailException);
+        // }
     }
 }
 
