@@ -50,6 +50,16 @@
                             <td style="padding:0 0 12px;font-size:14px;line-height:1.7;color:#334155;"><strong style="color:#0f172a;">Car Name:</strong> {{ $inquiry->car_name }}</td>
                         </tr>
                     @endif
+                    @if($inquiry->from_date)
+                        <tr>
+                            <td style="padding:0 0 12px;font-size:14px;line-height:1.7;color:#334155;"><strong style="color:#0f172a;">From Date:</strong> {{ \Illuminate\Support\Carbon::parse($inquiry->from_date)->format('d M Y') }}</td>
+                        </tr>
+                    @endif
+                    @if($inquiry->to_date)
+                        <tr>
+                            <td style="padding:0 0 12px;font-size:14px;line-height:1.7;color:#334155;"><strong style="color:#0f172a;">To Date:</strong> {{ \Illuminate\Support\Carbon::parse($inquiry->to_date)->format('d M Y') }}</td>
+                        </tr>
+                    @endif
                     @if($inquiry->message)
                         <tr>
                             <td style="padding:0;font-size:14px;line-height:1.8;color:#334155;"><strong style="color:#0f172a;">Message:</strong><br>{{ $inquiry->message }}</td>

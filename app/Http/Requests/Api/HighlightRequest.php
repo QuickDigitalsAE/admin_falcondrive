@@ -9,7 +9,7 @@ class HighlightRequest extends BaseDataRequest
 {
     public function fillableFields(): array
     {
-        return ['title_en', 'title_ar', 'image'];
+        return ['title_en', 'title_ar', 'image', 'sorting'];
     }
 
     public function rules(?Model $model = null): array
@@ -20,6 +20,7 @@ class HighlightRequest extends BaseDataRequest
             'title_en' => ['required','string','max:191'],
             'title_ar' => ['required','string','max:191'],
             'image' => ['nullable','string','max:191'],
+            'sorting' => ['nullable', 'integer', 'min:0'],
         ];
     }
 }

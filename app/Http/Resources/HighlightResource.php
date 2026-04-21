@@ -11,6 +11,7 @@ class HighlightResource extends BaseResource
             'title_ar' => $this->title_ar,
             'image' => $this->image,
             'image_url' => $this->imageUrl($this->image),
+            'sorting' => $this->sorting,
             'created_at' => optional($this->created_at)->toISOString(),
             'updated_at' => optional($this->updated_at)->toISOString(),
         ];

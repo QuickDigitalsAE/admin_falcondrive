@@ -129,6 +129,7 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
     Route::prefix('highlights')->name('highlights')->group(function () {
         Route::get('/', [HighlightController::class, 'index'])->name('');
         Route::get('/create', [HighlightController::class, 'create'])->name('.create');
+        Route::get('/sort-orders', [HighlightController::class, 'getSortOrders'])->name('.sort-orders');
         Route::post('/store', [HighlightController::class, 'store'])->name('.store');
         Route::get('/show/{id}', [HighlightController::class, 'show'])->name('.show');
         Route::get('/edit/{id}', [HighlightController::class, 'edit'])->name('.edit');

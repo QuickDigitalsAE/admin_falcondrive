@@ -85,6 +85,16 @@
                                 <p class="mt-2 text-sm font-semibold text-slate-900">{{ $inquiry->car_name ?: 'N/A' }}</p>
                             </div>
 
+                            <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4">
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">From Date</p>
+                                <p class="mt-2 text-sm font-semibold text-slate-900">{{ $inquiry->from_date ? $inquiry->from_date->format('d M Y') : 'N/A' }}</p>
+                            </div>
+
+                            <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4">
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">To Date</p>
+                                <p class="mt-2 text-sm font-semibold text-slate-900">{{ $inquiry->to_date ? $inquiry->to_date->format('d M Y') : 'N/A' }}</p>
+                            </div>
+
                             <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4 sm:col-span-2">
                                 <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Message</p>
                                 <p class="mt-2 whitespace-pre-line text-sm text-slate-900">{{ $inquiry->message ?: 'N/A' }}</p>

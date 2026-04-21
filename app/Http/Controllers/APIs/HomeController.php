@@ -47,7 +47,7 @@ class HomeController
                 'description_en' => $this->settingValue($settings, ['site.description_en'], $this->settingValue($settings, ['messages_home_p_en'])),
                 'description_ar' => $this->settingValue($settings, ['site.description_ar'], $this->settingValue($settings, ['messages_home_p_ar'])),
             ],
-            'highlights' => HighlightResource::collection(Highlight::latest('id')->get())->resolve(),
+            'highlights' => HighlightResource::collection(Highlight::orderedForListing()->get())->resolve(),
             'featured_cars' => CarResource::collection($featuredCars)->resolve(),
             'categories' => CategoryResource::collection(Category::orderBy('name_en')->get())->resolve(),
             'top_promotions' => PromotionResource::collection($topOffers)->resolve(),

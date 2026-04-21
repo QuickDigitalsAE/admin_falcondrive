@@ -20,6 +20,22 @@
         </div>
     @endforeach
 
+    @foreach ([
+        ['id' => 'from_date', 'label' => 'From Date', 'value' => old('from_date', !empty($inquiry?->from_date) ? optional($inquiry->from_date)->format('Y-m-d') : '')],
+        ['id' => 'to_date', 'label' => 'To Date', 'value' => old('to_date', !empty($inquiry?->to_date) ? optional($inquiry->to_date)->format('Y-m-d') : '')],
+    ] as $field)
+        <div class="min-w-0">
+            <div class="space-y-2">
+                <div class="relative">
+                    <input id="{{ $field['id'] }}" type="date" name="{{ $field['id'] }}" value="{{ $field['value'] }}" placeholder="{{ $field['label'] }}"
+                        class="peer w-full rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                    <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has($field['id']) ? 'text-red-500' : 'text-slate-500' }}">{{ $field['label'] }}</label>
+                </div>
+                @error($field['id'])<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+            </div>
+        </div>
+    @endforeach
+
     <div class="xl:col-span-2 min-w-0">
         <div class="space-y-2">
             <div class="relative">

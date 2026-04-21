@@ -23,7 +23,35 @@ document.addEventListener('DOMContentLoaded', function () {
     const imageInput = document.getElementById('image');
     const preview = document.getElementById('highlightPreview');
     const fileName = document.getElementById('fileName');
+    const sortingSelect = document.getElementById('sorting');
+    const initialSortingValue = sortingSelect?.dataset.currentSorting || '';
+    const sortOrdersUrl = @json(route('admin.highlights.sort-orders', ['ignore_highlight_id' => $highlight->id]));
     const defaultPreview = @json($highlight->image_url ?: 'https://placehold.co/200x200/f8e8b2/5e450a?text=Highlight');
+
+    function renderSortingOptions(orders = [], selectedValue = '') {
+        if (!sortingSelect) return;
+
+        const normalizedOrders = orders.map(Number).filter(order => !Number.isNaN(order));
+        const maxSortOrder = normalizedOrders.length ? Math.max(...normalizedOrders) : -1;
+        const nextPosition = maxSortOrder + 1;
+        const targetValue = selectedValue !== '' ? Number(selectedValue) : nextPosition;
+        const optionValues = Array.from(new Set([...normalizedOrders, nextPosition, targetValue])).sort((a, b) => a - b);
+
+        sortingSelect.innerHTML = optionValues.map((value) => {
+            const suffix = value === nextPosition ? ' (New slot)' : '';
+            return `<option value="${value}">${value}${suffix}</option>`;
+        }).join('');
+
+        sortingSelect.value = String(targetValue);
+    }
+
+    function fetchSortOrders(selectedValue = '') {
+        fetch(sortOrdersUrl)
+            .then((response) => response.json())
+            .then((orders) => renderSortingOptions(Array.isArray(orders) ? orders : [], selectedValue))
+            .catch(() => renderSortingOptions([], selectedValue));
+    }
+
     imageInput?.addEventListener('change', function (event) {
         const file = event.target.files[0];
         if (!file) { preview.src = defaultPreview; fileName.textContent = @json($highlight->image ? basename($highlight->image) : 'No file selected'); return; }
@@ -32,6 +60,8 @@ document.addEventListener('DOMContentLoaded', function () {
         reader.onload = function (e) { preview.src = e.target.result; };
         reader.readAsDataURL(file);
     });
+
+    fetchSortOrders(initialSortingValue);
 });
 </script>
 @endpush

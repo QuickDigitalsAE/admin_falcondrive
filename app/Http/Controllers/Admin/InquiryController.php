@@ -57,6 +57,8 @@ class InquiryController extends Controller
             'message' => ['nullable', 'string'],
             'promo_code' => ['nullable', 'string', 'max:255'],
             'car_name' => ['nullable', 'string', 'max:255'],
+            'from_date' => ['nullable', 'date'],
+            'to_date' => ['nullable', 'date', 'after_or_equal:from_date'],
         ]);
 
         $inquiry = Inquiry::create($validated + ['created_by' => Auth::id()]);
@@ -98,6 +100,8 @@ class InquiryController extends Controller
             'message' => ['nullable', 'string'],
             'promo_code' => ['nullable', 'string', 'max:255'],
             'car_name' => ['nullable', 'string', 'max:255'],
+            'from_date' => ['nullable', 'date'],
+            'to_date' => ['nullable', 'date', 'after_or_equal:from_date'],
         ]);
 
         $inquiry->update($validated + ['updated_by' => Auth::id()]);
@@ -173,6 +177,8 @@ class InquiryController extends Controller
                     'email' => $inquiry->email,
                     'promo_code' => $inquiry->promo_code,
                     'car_name' => $inquiry->car_name,
+                    'from_date' => optional($inquiry->from_date)->format('Y-m-d'),
+                    'to_date' => optional($inquiry->to_date)->format('Y-m-d'),
                     'message' => $inquiry->message,
                     'deleted_at' => optional($inquiry->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($inquiry->created_at)->format('d M Y, h:i A'),
@@ -218,14 +224,14 @@ class InquiryController extends Controller
 
         return response()->stream(function () use ($records, $isDeleted) {
             $file = fopen('php://output', 'w');
-            $headers = ['ID', 'Name', 'Number', 'Email', 'Promo Code', 'Car Name', 'Message', 'Created At'];
+            $headers = ['ID', 'Name', 'Number', 'Email', 'Promo Code', 'Car Name', 'From Date', 'To Date', 'Message', 'Created At'];
             if ($isDeleted) {
                 $headers[] = 'Deleted At';
             }
             fputcsv($file, $headers);
 
             foreach ($records as $record) {
-                $row = [$record->id, $record->name, $record->number, $record->email, $record->promo_code, $record->car_name, preg_replace('/\s+/', ' ', (string) $record->message), optional($record->created_at)->format('Y-m-d H:i:s')];
+                $row = [$record->id, $record->name, $record->number, $record->email, $record->promo_code, $record->car_name, optional($record->from_date)->format('Y-m-d'), optional($record->to_date)->format('Y-m-d'), preg_replace('/\s+/', ' ', (string) $record->message), optional($record->created_at)->format('Y-m-d H:i:s')];
                 if ($isDeleted) {
                     $row[] = optional($record->deleted_at)->format('Y-m-d H:i:s');
                 }
@@ -253,4 +259,3 @@ class InquiryController extends Controller
         // }
     }
 }
-

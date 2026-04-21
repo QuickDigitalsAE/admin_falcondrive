@@ -18,9 +18,16 @@ class Inquiry extends Model
         'message',
         'promo_code',
         'car_name',
+        'from_date',
+        'to_date',
         'created_by',
         'updated_by',
         'deleted_by',
+    ];
+
+    protected $casts = [
+        'from_date' => 'date',
+        'to_date' => 'date',
     ];
 
     public function createdByUser()

@@ -20,6 +20,18 @@ class HighlightController extends BaseApiController
     protected string $storeMessage = 'Highlight created successfully';
     protected string $updateMessage = 'Highlight updated successfully';
     protected string $deleteMessage = 'Highlight deleted successfully';
+    protected array $sortable = ['id', 'title_en', 'title_ar', 'sorting'];
+
+    protected function query(Request $request): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::query($request);
+
+        if (!$request->filled('sort_by')) {
+            $query->reorder()->orderedForListing();
+        }
+
+        return $query;
+    }
 
     public function publicIndex(Request $request)
     {

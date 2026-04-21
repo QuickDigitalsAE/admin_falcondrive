@@ -18,6 +18,36 @@
     @endforeach
 </div>
 
+<div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+    <div class="min-w-0">
+        <div class="space-y-2">
+            <div class="rounded-[24px] border {{ $errors->has('sorting') ? 'border-red-300' : 'border-[#eadfbe]' }} bg-gradient-to-br from-[#fffdf8] to-white p-5 shadow-sm h-full">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#b4861f]">Sort Order</p>
+                        <p class="mt-1 text-sm text-slate-500">Highlight lists in admin tables and frontend APIs will follow this order.</p>
+                    </div>
+                    <span class="rounded-full bg-[#f8e8b2] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#7d6220]">Global</span>
+                </div>
+
+                <div class="mt-4 relative">
+                    <select id="sorting" name="sorting" data-current-sorting="{{ old('sorting', $highlight?->sorting ?? '') }}"
+                        class="peer w-full appearance-none rounded-[20px] border {{ $errors->has('sorting') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 pr-11 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[60px] shadow-sm">
+                        <option value="">Loading sort order...</option>
+                    </select>
+                    <label for="sorting" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('sorting') ? 'text-red-500' : 'text-slate-500' }}">Sort Order</label>
+                    <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 px-1">
+                <p class="text-xs text-slate-500">Set the display order for highlights across the project</p>
+                <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Optional</span>
+            </div>
+            @error('sorting')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+        </div>
+    </div>
+</div>
+
 <div class="rounded-[24px] border border-[#eadfbe] bg-gradient-to-br from-[#fffaf0] to-[#fffefb] p-4 sm:p-5">
     <div class="flex flex-col gap-5 lg:flex-row lg:items-center">
         <div class="flex shrink-0 items-center gap-4">
