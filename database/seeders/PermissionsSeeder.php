@@ -47,6 +47,7 @@ class PermissionsSeeder extends Seeder
             'Inquiry_Edit',
             'Inquiry_Delete',
             'Inquiry_Revoke',
+            'Inquiry_SendBooking',
             'Car_Menu',
             'Car_ViewAll',
             'Car_ViewMine',

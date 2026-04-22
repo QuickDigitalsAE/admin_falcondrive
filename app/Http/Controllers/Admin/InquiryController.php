@@ -86,6 +86,24 @@ class InquiryController extends Controller
         return view('admin.inquiries.edit', compact('inquiry'));
     }
 
+    public function payload(int $id)
+    {
+        $inquiry = Inquiry::find($id);
+
+        if (!$inquiry) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Inquiry not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'send_booking_id' => $inquiry->send_booking_id,
+            'payload' => json_decode($inquiry->form_payload ?? 'null', true),
+        ]);
+    }
+
     public function update(Request $request, int $id)
     {
         $inquiry = Inquiry::find($id);
@@ -175,6 +193,7 @@ class InquiryController extends Controller
                     'name' => $inquiry->name,
                     'number' => $inquiry->number,
                     'email' => $inquiry->email,
+                    'send_booking_id' => $inquiry->send_booking_id,
                     'promo_code' => $inquiry->promo_code,
                     'car_name' => $inquiry->car_name,
                     'from_date' => optional($inquiry->from_date)->format('Y-m-d'),
@@ -190,6 +209,7 @@ class InquiryController extends Controller
                         'can_view' => $authUser->can('Inquiry_ViewAll') || $authUser->can('Inquiry_ViewMine') || $authUser->can('Inquiry_View'),
                         'can_delete' => $authUser->can('Inquiry_Delete'),
                         'can_restore' => $authUser->can('Inquiry_Revoke'),
+                        'can_send_booking' => $authUser->can('Inquiry_SendBooking'),
                     ],
                 ];
             })->values();

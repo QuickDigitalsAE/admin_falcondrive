@@ -65,7 +65,8 @@ return [
                 'User_View',
                 'Inquiry_Menu',
                 'Inquiry_ViewAll',
-                'Inquiry_View'
+                'Inquiry_View',
+                'Inquiry_SendBooking',
             ],
         ],
     ],

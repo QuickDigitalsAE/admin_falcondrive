@@ -18,6 +18,8 @@ class Inquiry extends Model
         'message',
         'promo_code',
         'car_name',
+        'send_booking_id',
+        'form_payload',
         'from_date',
         'to_date',
         'created_by',

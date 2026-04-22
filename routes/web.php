@@ -41,7 +41,6 @@ Route::get('/', function () {
     return redirect()->route('login');
 })->name('home');
 
-
 /*
 |--------------------------------------------------------------------------
 | Guest Routes
@@ -144,6 +143,7 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
         Route::post('/store', [InquiryController::class, 'store'])->name('.store');
         Route::get('/show/{id}', [InquiryController::class, 'show'])->name('.show');
         Route::get('/edit/{id}', [InquiryController::class, 'edit'])->name('.edit');
+        Route::get('/{id}/payload', [InquiryController::class, 'payload'])->name('.payload');
         Route::put('/update/{id}', [InquiryController::class, 'update'])->name('.update');
         Route::delete('/delete/{id}', [InquiryController::class, 'destroy'])->name('.delete');
         Route::put('/restore/{id}', [InquiryController::class, 'restore'])->name('.restore');

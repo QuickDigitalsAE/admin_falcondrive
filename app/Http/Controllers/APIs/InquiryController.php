@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Throwable;
 use Illuminate\Validation\ValidationException;
 
@@ -422,8 +423,8 @@ class InquiryController extends BaseApiController
             ]);
         }
 
-        $startDate = Carbon::parse($inquiry->date_from)->toISOString();
-        $endDate = Carbon::parse($inquiry->date_to)->toISOString();
+        $startDate = Carbon::parse($inquiry->from_date)->toISOString();
+        $endDate = Carbon::parse($inquiry->to_date)->toISOString();
 
         // Charges array (agar dynamic hai)
         $charges = json_decode($request->charges_json, true) ?? [];
