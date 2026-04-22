@@ -1563,15 +1563,17 @@
                     .then(res => {
                         if (res.success && res.result) {
                             const customer = res.result;
-                            document.getElementById('customerId').value = customer.customerId || customer.id || '';
-                            document.getElementById('firstName').value = customer.firstName || customer.customer?.firstName || '';
-                            document.getElementById('lastName').value = customer.lastName || customer.customer?.lastName || '';
-                            document.getElementById('mobileNo').value = customer.mobileNo || customer.customer?.mobileNo || '';
-                            document.getElementById('city').value = customer.address?.city || customer.customer?.address?.city || '';
-                            document.getElementById('country').value = customer.address?.country || customer.customer?.address?.country || '';
-                            document.getElementById('street').value = customer.address?.street || customer.customer?.address?.street || '';
-                            document.getElementById('state').value = customer.address?.state || customer.customer?.address?.state || '';
-                            document.getElementById('postalCode').value = customer.address?.postalCode || customer.customer?.address?.postalCode || '';
+                            const address = customerAddress(customer);
+
+                            document.getElementById('customerId').value = pickCustomerValue(customer, ['customerId', 'CustomerId', 'id', 'Id']);
+                            document.getElementById('firstName').value = pickCustomerValue(customer, ['firstName', 'FirstName']) || pickCustomerValue(customer.customer, ['firstName', 'FirstName']);
+                            document.getElementById('lastName').value = pickCustomerValue(customer, ['lastName', 'LastName']) || pickCustomerValue(customer.customer, ['lastName', 'LastName']);
+                            document.getElementById('mobileNo').value = pickCustomerValue(customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']) || pickCustomerValue(customer.customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']);
+                            document.getElementById('city').value = pickCustomerValue(address, ['city', 'City']);
+                            document.getElementById('country').value = pickCustomerValue(address, ['country', 'Country']);
+                            document.getElementById('street').value = pickCustomerValue(address, ['street', 'Street', 'addressLine1', 'AddressLine1']);
+                            document.getElementById('state').value = pickCustomerValue(address, ['state', 'State']);
+                            document.getElementById('postalCode').value = pickCustomerValue(address, ['postalCode', 'PostalCode', 'zipCode', 'ZipCode']);
 
                             showCustomerFieldsReadonly();
                             emailErrorEl.textContent = '';
@@ -1638,6 +1640,35 @@
             $('#sendBookingSubmitBtn').prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Booking Data');
         }
 
+        function pickCustomerValue(source, keys = []) {
+            if (!source || typeof source !== 'object') {
+                return '';
+            }
+
+            for (const key of keys) {
+                const value = source[key];
+                if (value !== undefined && value !== null && String(value).trim() !== '') {
+                    return value;
+                }
+            }
+
+            return '';
+        }
+
+        function customerAddress(customer) {
+            return customer?.address || customer?.Address || customer?.customer?.address || customer?.customer?.Address || {};
+        }
+
+        function syncCustomerFieldsToFormData(formData) {
+            ['customerId', 'customerEmail', 'firstName', 'lastName', 'mobileNo', 'street', 'city', 'state', 'postalCode', 'country']
+                .forEach((field) => {
+                    const element = document.getElementById(field);
+                    if (element) {
+                        formData.set(field, element.value || '');
+                    }
+                });
+        }
+
         function proceedBooking(formData, inquiryId) {
             const charges = [];
 
@@ -1664,6 +1695,7 @@
 
             formData.set('charges_json', JSON.stringify(charges));
             formData.set('inquiry_id', inquiryId);
+            syncCustomerFieldsToFormData(formData);
 
             $.ajax({
                 url: @json(route('send.booking')),
