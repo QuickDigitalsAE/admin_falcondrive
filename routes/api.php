@@ -20,6 +20,17 @@ use App\Http\Controllers\APIs\PromotionController;
 use App\Http\Controllers\APIs\SettingController;
 use App\Http\Controllers\APIs\TestimonialController;
 
+
+Route::prefix('speed')->group(function () {
+    Route::get('/getVehicles', [InquiryController::class, 'getVehicles']);
+    Route::get('/getVehicleGroups', [InquiryController::class, 'GetVehicleGroups']);
+    Route::get('/getLocations', [InquiryController::class, 'GetLocations']);
+    Route::get('/getChargesSettings', [InquiryController::class, 'GetChargesSettings']);
+    Route::post('/getCustomerDetailByEmailOrMobileNo', [InquiryController::class, 'GetCustomerDetailByEmailOrMobileNo'])->name('get.customer.by.email');
+    Route::post('/send-booking', [InquiryController::class, 'createBooking'])->name('send.booking');
+    Route::post('/create-customer', [InquiryController::class, 'createCustomer'])->name('create.customer');
+});
+
 Route::prefix('website')->group(function () {
     // Public APIs
     Route::get('/home', HomeController::class);
