@@ -135,7 +135,7 @@
                 <div class="flex justify-between items-center p-6 border-b border-gray-100 flex-shrink-0">
                     <div class="flex items-center gap-3">
                         <div>
-                            <h2 class="text-xl font-bold text-gray-800">Send Booking</h2>
+                            <h2 class="text-xl font-bold text-gray-800">Send Booking To Speed</h2>
                             <p class="text-xs text-gray-500">Dispatch booking data to the Speed System</p>
                         </div>
                     </div>
