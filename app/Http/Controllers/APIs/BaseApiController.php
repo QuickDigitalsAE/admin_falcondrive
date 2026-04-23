@@ -4,7 +4,9 @@ namespace App\Http\Controllers\APIs;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BrandResource;
+use App\Http\Resources\CategoryResource;
 use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Setting;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -213,6 +215,18 @@ abstract class BaseApiController extends Controller
             ->all();
     }
 
+    protected function allCategoryList(): array
+    {
+        return Category::query()
+            ->select(['id', 'name_en', 'name_ar', 'slug', 'image'])
+            ->orderByRaw('LOWER(COALESCE(name_en, "")) ASC')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (Category $category) => $this->transformCategoryListItem($category))
+            ->values()
+            ->all();
+    }
+
     protected function transformBrandListItem(Brand $brand): array
     {
         return [
@@ -221,6 +235,17 @@ abstract class BaseApiController extends Controller
             'name_ar' => $brand->name_ar,
             'slug' => $brand->slug,
             'logo_url' => BrandResource::make($brand)->resolve()['logo_url'] ?? null,
+        ];
+    }
+
+    protected function transformCategoryListItem(Category $category): array
+    {
+        return [
+            'id' => $category->id,
+            'name_en' => $category->name_en,
+            'name_ar' => $category->name_ar,
+            'slug' => $category->slug,
+            'image_url' => CategoryResource::make($category)->resolve()['image_url'] ?? null,
         ];
     }
 

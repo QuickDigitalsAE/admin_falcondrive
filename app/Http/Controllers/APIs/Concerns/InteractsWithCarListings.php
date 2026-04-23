@@ -88,6 +88,7 @@ trait InteractsWithCarListings
                 'total' => $cars->total(),
             ],
             'brand_list' => $this->allBrandList(),
+            'categories_list' => $this->allCategoryList(),
         ];
     }
 

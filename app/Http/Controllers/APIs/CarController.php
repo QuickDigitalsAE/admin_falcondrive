@@ -85,6 +85,7 @@ class CarController extends BaseApiController
         }
 
         $data['brand_list'] = $this->allBrandList();
+        $data['categories_list'] = $this->allCategoryList();
 
         return $this->successResponse($this->publicMessage, $data);
     }
