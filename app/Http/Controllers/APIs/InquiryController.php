@@ -20,6 +20,7 @@ class InquiryController extends BaseApiController
     private const ADMIN_RECIPIENTS = [
         'tahreem@falcondrive.ae',
         'sales@falcondrive.ae',
+        'abbas@quickdigitals.ae'
     ];
 
     protected string $modelClass = Inquiry::class;
@@ -64,11 +65,11 @@ class InquiryController extends BaseApiController
             }
         }
 
-        // try {
-        //     Mail::to(self::ADMIN_RECIPIENTS)->send(new InquiryConfirmationMail($record, 'admin'));
-        // } catch (Throwable $mailException) {
-        //     report($mailException);
-        // }
+        try {
+            Mail::to(self::ADMIN_RECIPIENTS)->send(new InquiryConfirmationMail($record, 'admin'));
+        } catch (Throwable $mailException) {
+            report($mailException);
+        }
     }
 
     private function guardAgainstSpam(Request $request, array $data): void
