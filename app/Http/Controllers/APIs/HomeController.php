@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\APIs;
 
+use App\Http\Controllers\APIs\Concerns\InteractsWithCarListings;
 use App\Http\Resources\AboutUsResource;
 use App\Http\Resources\BlogResource;
 use App\Http\Resources\CarResource;
@@ -13,28 +14,27 @@ use App\Http\Resources\SettingResource;
 use App\Http\Resources\TestimonialResource;
 use App\Models\AboutUs;
 use App\Models\Blog;
-use App\Models\Car;
 use App\Models\Category;
 use App\Models\Faq;
 use App\Models\Highlight;
 use App\Models\Promotion;
 use App\Models\Setting;
 use App\Models\Testimonial;
-use App\Traits\ApiResponseTrait;
+use Illuminate\Http\Request;
 
-class HomeController
+class HomeController extends BaseApiController
 {
-    use ApiResponseTrait;
+    use InteractsWithCarListings;
 
-    public function __invoke()
+    public function __invoke(Request $request)
     {
         $settingsCollection = Setting::where('group', 'site')->orderBy('order')->get();
         $settings = $settingsCollection->keyBy('key');
-        $featuredCars = Car::with(['brand', 'categories'])
-            ->where('featured', 1)
-            ->orderBy('featured_sorting', 'asc')
-            ->orderBy('id', 'desc')
-            ->limit(12)
+        $carsLimit = max(1, min((int) $request->get('cars_limit', 9), 24));
+        $carListingQuery = $this->buildPublicCarListingQuery($request);
+        $fleetCarsCount = (clone $carListingQuery)->count();
+        $fleetCars = $carListingQuery
+            ->limit($carsLimit)
             ->get();
 
         $topOffers = Promotion::where('top_offer', 1)->latest('id')->limit(6)->get();
@@ -52,7 +52,11 @@ class HomeController
                 'description_ar' => $this->settingValue($settings, ['site.description_ar'], $this->settingValue($settings, ['messages_home_p_ar'])),
             ],
             'highlights' => HighlightResource::collection(Highlight::orderedForListing()->get())->resolve(),
-            'featured_cars' => CarResource::collection($featuredCars)->resolve(),
+            'featured_cars' => CarResource::collection($fleetCars)->resolve(),
+            'fleet_cars' => CarResource::collection($fleetCars)->resolve(),
+            'fleet_cars_count' => $fleetCarsCount,
+            'brand_list' => $this->allBrandList(),
+            'categories_list' => $this->allCategoryList(),
             'categories' => CategoryResource::collection(Category::orderBy('name_en')->get())->resolve(),
             'top_promotions' => PromotionResource::collection($topOffers)->resolve(),
             'about_us' => AboutUsResource::collection(AboutUs::latest('id')->limit(1)->get())->resolve(),
