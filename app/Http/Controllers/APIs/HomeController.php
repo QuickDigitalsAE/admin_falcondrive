@@ -31,9 +31,13 @@ class HomeController extends BaseApiController
         $settingsCollection = Setting::where('group', 'site')->orderBy('order')->get();
         $settings = $settingsCollection->keyBy('key');
         $carsLimit = max(1, min((int) $request->get('cars_limit', 9), 24));
+        $currentPage = max(1, (int) $request->get('page', 1));
         $carListingQuery = $this->buildPublicCarListingQuery($request);
         $fleetCarsCount = (clone $carListingQuery)->count();
+        $lastPage = max(1, (int) ceil($fleetCarsCount / $carsLimit));
+        $currentPage = min($currentPage, $lastPage);
         $fleetCars = $carListingQuery
+            ->forPage($currentPage, $carsLimit)
             ->limit($carsLimit)
             ->get();
 
@@ -55,6 +59,12 @@ class HomeController extends BaseApiController
             'featured_cars' => CarResource::collection($fleetCars)->resolve(),
             'fleet_cars' => CarResource::collection($fleetCars)->resolve(),
             'fleet_cars_count' => $fleetCarsCount,
+            'fleet_pagination' => [
+                'current_page' => $currentPage,
+                'last_page' => $lastPage,
+                'per_page' => $carsLimit,
+                'total' => $fleetCarsCount,
+            ],
             'brand_list' => $this->allBrandList(),
             'categories_list' => $this->allCategoryList(),
             'categories' => CategoryResource::collection(Category::orderBy('name_en')->get())->resolve(),
