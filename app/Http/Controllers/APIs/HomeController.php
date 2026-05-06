@@ -69,7 +69,7 @@ class HomeController extends BaseApiController
         ]);
     }
 
-    private function settingValue($settings, array $keys, ?string $default = null): ?string
+    protected function settingValue($settings, array $keys, ?string $default = null): ?string
     {
         foreach ($keys as $key) {
             $value = $settings->get($key)?->value;
