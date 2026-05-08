@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Resources;
 
 use App\Http\Controllers\APIs\CarController;
@@ -45,11 +46,22 @@ class CarResource extends BaseResource
             'seo_brief_en' => $this->seo_brief_en,
             'seo_brief_ar' => $this->seo_brief_ar,
             'brand_id' => $this->brand_id,
+
             'brand_name_en' => $this->whenLoaded('brand', fn () => $this->brand?->name_en),
             'brand_name_ar' => $this->whenLoaded('brand', fn () => $this->brand?->name_ar),
             'brand_logo_url' => $this->whenLoaded('brand', fn () => $this->brand ? BrandResource::make($this->brand)->resolve()['logo_url'] ?? null : null),
+
             'primary_category_name_en' => $this->whenLoaded('categories', fn () => optional($this->categories->first())->name_en),
             'primary_category_name_ar' => $this->whenLoaded('categories', fn () => optional($this->categories->first())->name_ar),
+
+            'category_names_en' => $this->whenLoaded('categories', function () {
+                return $this->categories->pluck('name_en')->filter()->implode(', ');
+            }),
+
+            'category_names_ar' => $this->whenLoaded('categories', function () {
+                return $this->categories->pluck('name_ar')->filter()->implode(', ');
+            }),
+
             'stock' => $this->stock,
             'sorting' => $this->sorting,
             'created_at' => optional($this->created_at)->toISOString(),
