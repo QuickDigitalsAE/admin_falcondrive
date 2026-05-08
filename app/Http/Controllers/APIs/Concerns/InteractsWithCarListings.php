@@ -46,8 +46,9 @@ trait InteractsWithCarListings
             });
         }
 
-        if ($request->filled('brand_id')) {
-            $query->where('brand_id', (int) $request->input('brand_id'));
+        $brandIds = $this->resolveCarBrandIds($request);
+        if ($brandIds !== []) {
+            $query->whereIn('brand_id', $brandIds);
         }
 
         $categoryIds = $this->resolveCarCategoryIds($request);
@@ -111,6 +112,22 @@ trait InteractsWithCarListings
         return collect($categoryIds)
             ->map(fn ($categoryId) => (int) $categoryId)
             ->filter(fn (int $categoryId) => $categoryId > 0)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    protected function resolveCarBrandIds(Request $request): array
+    {
+        $brandIds = $request->input('brand_ids', $request->input('brand_id', []));
+
+        if (!is_array($brandIds)) {
+            $brandIds = explode(',', (string) $brandIds);
+        }
+
+        return collect($brandIds)
+            ->map(fn ($brandId) => (int) $brandId)
+            ->filter(fn (int $brandId) => $brandId > 0)
             ->unique()
             ->values()
             ->all();
