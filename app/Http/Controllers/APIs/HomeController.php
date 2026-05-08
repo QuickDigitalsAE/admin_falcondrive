@@ -30,7 +30,7 @@ class HomeController extends BaseApiController
     {
         $settingsCollection = Setting::where('group', 'site')->orderBy('order')->get();
         $settings = $settingsCollection->keyBy('key');
-        $carsLimit = max(1, min((int) $request->get('cars_limit', 9), 24));
+        $carsLimit = max(1, min((int) $request->get('cars_limit', 12), 24));
         $currentPage = max(1, (int) $request->get('page', 1));
         $carListingQuery = $this->buildPublicCarListingQuery($request);
         $fleetCarsCount = (clone $carListingQuery)->count();
