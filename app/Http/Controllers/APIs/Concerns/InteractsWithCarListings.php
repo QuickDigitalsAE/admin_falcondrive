@@ -34,7 +34,15 @@ trait InteractsWithCarListings
                 $inner->where('name_en', 'like', "%{$search}%")
                     ->orWhere('name_ar', 'like', "%{$search}%")
                     ->orWhere('slug', 'like', "%{$search}%")
-                    ->orWhere('model', 'like', "%{$search}%");
+                    ->orWhere('model', 'like', "%{$search}%")
+                    ->orWhereHas('brand', function (Builder $brandQuery) use ($search) {
+                        $brandQuery->where('name_en', 'like', "%{$search}%")
+                            ->orWhere('name_ar', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('categories', function (Builder $categoryQuery) use ($search) {
+                        $categoryQuery->where('name_en', 'like', "%{$search}%")
+                            ->orWhere('name_ar', 'like', "%{$search}%");
+                    });
             });
         }
 
