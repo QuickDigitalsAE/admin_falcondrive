@@ -145,7 +145,7 @@ class InquiryController extends BaseApiController
             $code = env('APP_CODE');
             $email = $request->email;
 
-            $url = "https://speedbookingapitest.azurewebsites.net/api/GetCustomerDetailByEmailOrMobileNo?code=" . urlencode($code);
+            $url = "https://speedbookingportalapi.azurewebsites.net/api/GetCustomerDetailByEmailOrMobileNo?code=" . urlencode($code);
 
             $response = Http::withHeaders([
                 'ApiKey' => env('API_Key'),
@@ -195,7 +195,7 @@ class InquiryController extends BaseApiController
     public function getVehicles()
     {
         $code = env('APP_CODE');
-        $url = "https://speedbookingapitest.azurewebsites.net/api/GetVehicles";
+        $url = "https://speedbookingportalapi.azurewebsites.net/api/GetVehicles";
 
         $page = 1;
         $allItems = [];
@@ -231,7 +231,7 @@ class InquiryController extends BaseApiController
     public function GetVehicleGroups()
     {
         $code = env('APP_CODE');
-        $url = "https://speedbookingapitest.azurewebsites.net/api/GetVehicleGroups";
+        $url = "https://speedbookingportalapi.azurewebsites.net/api/GetVehicleGroups";
 
         $page = 1;
         $allItems = [];
@@ -267,7 +267,7 @@ class InquiryController extends BaseApiController
     public function GetLocations()
     {
         $code = env('APP_CODE');
-        $url = "https://speedbookingapitest.azurewebsites.net/api/GetLocations";
+        $url = "https://speedbookingportalapi.azurewebsites.net/api/GetLocations";
 
         $page = 1;
         $allItems = [];
@@ -302,7 +302,7 @@ class InquiryController extends BaseApiController
     public function GetChargesSettings()
     {
         $code = env('APP_CODE');
-        $url = "https://speedbookingapitest.azurewebsites.net/api/GetChargesSettings";
+        $url = "https://speedbookingportalapi.azurewebsites.net/api/GetChargesSettings";
 
         $page = 1;
         $allItems = [];
@@ -361,7 +361,7 @@ class InquiryController extends BaseApiController
         try {
             $code = env('APP_CODE');
 
-            $url = "https://speedbookingapitest.azurewebsites.net/api/CreateCustomer?code=" . urlencode($code);
+            $url = "https://speedbookingportalapi.azurewebsites.net/api/CreateCustomer?code=" . urlencode($code);
 
             $payload = [
                 "firstName" => $request->firstName,
@@ -413,7 +413,7 @@ class InquiryController extends BaseApiController
     public function createBooking(Request $request)
     {
         $code = env('APP_CODE');
-        $url = "https://speedbookingapitest.azurewebsites.net/api/CreateBooking";
+        $url = "https://speedbookingportalapi.azurewebsites.net/api/CreateBooking";
 
         $inquiry = Inquiry::find($request->inquiry_id);
 
