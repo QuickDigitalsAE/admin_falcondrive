@@ -14,6 +14,7 @@ use App\Http\Controllers\APIs\HeaderController;
 use App\Http\Controllers\APIs\HighlightController;
 use App\Http\Controllers\APIs\HomeController;
 use App\Http\Controllers\APIs\InquiryController;
+use App\Http\Controllers\APIs\BookingController;
 use App\Http\Controllers\APIs\LeaseController;
 use App\Http\Controllers\APIs\LocationController;
 use App\Http\Controllers\APIs\PromotionController;
@@ -59,5 +60,6 @@ Route::prefix('website')->group(function () {
     Route::get('/settings', [SettingController::class, 'publicIndex']);
     Route::get('/testimonials', [TestimonialController::class, 'publicIndex']);
     Route::post('/inquiries', [InquiryController::class, 'storePublic'])->middleware('throttle:5,1');
+    Route::post('/bookings', [BookingController::class, 'storePublic'])->middleware('throttle:5,1');
 
 });

@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
 use App\Http\Controllers\Admin\HighlightController;
 use App\Http\Controllers\Admin\InquiryController;
+use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\GlobalSearchController;
 use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Admin\PromotionController;
@@ -147,6 +148,16 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
         Route::put('/update/{id}', [InquiryController::class, 'update'])->name('.update');
         Route::delete('/delete/{id}', [InquiryController::class, 'destroy'])->name('.delete');
         Route::put('/restore/{id}', [InquiryController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('bookings')->name('bookings')->group(function () {
+        Route::get('/', [BookingController::class, 'index'])->name('');
+        Route::get('/create', [BookingController::class, 'create'])->name('.create');
+        Route::post('/store', [BookingController::class, 'store'])->name('.store');
+        Route::get('/show/{id}', [BookingController::class, 'show'])->name('.show');
+        Route::get('/edit/{id}', [BookingController::class, 'edit'])->name('.edit');
+        Route::put('/update/{id}', [BookingController::class, 'update'])->name('.update');
+        Route::delete('/delete/{id}', [BookingController::class, 'destroy'])->name('.delete');
     });
 
     Route::prefix('cars')->name('cars')->group(function () {

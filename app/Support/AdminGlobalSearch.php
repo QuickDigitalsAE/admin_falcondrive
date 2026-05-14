@@ -11,6 +11,7 @@ use App\Models\Category;
 use App\Models\Faq;
 use App\Models\Highlight;
 use App\Models\Inquiry;
+use App\Models\Booking;
 use App\Models\Lease;
 use App\Models\Location;
 use App\Models\Permission;
@@ -265,6 +266,21 @@ class AdminGlobalSearch
                 'title' => fn (Inquiry $record) => $record->name ?: 'Inquiry #' . $record->id,
                 'subtitle' => fn (Inquiry $record) => collect([$record->email, $record->number])->filter()->implode(' | '),
                 'meta' => fn (Inquiry $record) => Str::limit($record->message ?: ($record->car_name ?: 'Inquiry received'), 90),
+                'order_by' => [['created_at', 'desc']],
+            ],
+            [
+                'key' => 'bookings',
+                'label' => 'Bookings',
+                'icon' => 'fa-calendar-check',
+                'model' => Booking::class,
+                'menu_permissions' => ['Booking_Menu'],
+                'view_permissions' => ['Booking_ViewAll', 'Booking_View'],
+                'edit_permissions' => ['Booking_Edit'],
+                'routes' => ['index' => 'admin.bookings', 'show' => 'admin.bookings.show', 'edit' => 'admin.bookings.edit'],
+                'searchable' => ['name', 'email', 'number', 'coupon_code', 'paid_id', 'paid_status', 'paid_via'],
+                'title' => fn (Booking $record) => $record->name ?: 'Booking #' . $record->id,
+                'subtitle' => fn (Booking $record) => collect([$record->email, $record->number])->filter()->implode(' | '),
+                'meta' => fn (Booking $record) => Str::limit($record->notes ?: ($record->description ?: 'Booking received'), 90),
                 'order_by' => [['created_at', 'desc']],
             ],
             [
