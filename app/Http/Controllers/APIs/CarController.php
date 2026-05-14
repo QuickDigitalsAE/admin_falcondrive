@@ -46,8 +46,9 @@ class CarController extends BaseApiController
 
     protected function applyFilters(Builder $query, Request $request): Builder
     {
-        if ($request->filled('brand_id')) {
-            $query->where('brand_id', (int) $request->input('brand_id'));
+        $brandIds = $this->resolveCarBrandIds($request);
+        if ($brandIds !== []) {
+            $query->whereIn('brand_id', $brandIds);
         }
 
         $categoryIds = $this->resolveCarCategoryIds($request);
@@ -74,7 +75,7 @@ class CarController extends BaseApiController
 
     public function publicIndex(Request $request)
     {
-        $perPage = max(1, min((int) $request->get('per_page', 15), 100));
+        $perPage = max(1, min((int) $request->get('per_page', 12), 100));
         $records = $this->query($request)->paginate($perPage)->appends($request->query());
         $resource = $this->resourceClass;
         $data = $this->paginatedData($records, $resource::collection($records)->resolve());
