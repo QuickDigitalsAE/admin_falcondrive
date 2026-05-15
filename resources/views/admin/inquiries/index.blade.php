@@ -1403,7 +1403,7 @@
                     vehiclesList = res.items || [];
 
                     vehiclesList.forEach(vehicle => {
-                        const option = new Option(`${vehicle.makeModelVariant} (${vehicle.plateNo})`, vehicle.id, false, false);
+                        const option = new Option(`${vehicle.makeModelVariant}`, vehicle.id, false, false);
                         option.dataset.vehicle = JSON.stringify(vehicle);
                         select.append(option);
                     });
