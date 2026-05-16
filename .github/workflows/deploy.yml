@@ -1,0 +1,46 @@
+name: Deploy Laravel 12 to Subdomain Root
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+concurrency:
+  group: falcondrive-admin-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.CPANEL_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ secrets.CPANEL_PORT }} -H ${{ secrets.CPANEL_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy project
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.CPANEL_PORT }} ${{ secrets.CPANEL_USERNAME }}@${{ secrets.CPANEL_HOST }} << 'EOF'
+            set -e
+
+            cd /home/falcondrive/public_html/admin.falcondrive.ae
+
+            if [ ! -f artisan ]; then
+              echo "ERROR: artisan file not found in /home/falcondrive/public_html/admin.falcondrive.ae"
+              exit 1
+            fi
+
+            php artisan down || true
+            git pull origin dev
+            composer install --no-dev --optimize-autoloader || true
+            php artisan config:clear
+            php artisan cache:clear
+            php artisan route:clear
+            php artisan view:clear
+            chmod -R 775 storage bootstrap/cache
+            php artisan up || true
+          EOF

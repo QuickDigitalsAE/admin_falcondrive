@@ -207,7 +207,7 @@
                     `);
                 }
 
-                if (permissions.can_edit) {
+                if (!user.deleted_at && permissions.can_edit) {
                     buttons.push(`
                         <a href="${user.edit_url}"
                             class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#d9c68f] bg-[#fff5d8] text-[#9b7a28] transition hover:bg-[#ffefc1]"
@@ -270,7 +270,7 @@
                         <td class="px-6 py-4">${avatarHtml(user)}</td>
                         <td class="px-6 py-4">${roleHtml(user)}</td>
                         <td class="px-6 py-4">${statusHtml(user)}</td>
-                        <td class="px-6 py-4 text-gray-500 whitespace-nowrap">${escapeHtml(user.created_at_human || '')}</td>
+                        <td class="px-6 py-4 text-gray-500 whitespace-nowrap">${window.renderSuperAdminAuditStamp ? window.renderSuperAdminAuditStamp(user, escapeHtml) : escapeHtml(user.created_at_human || '')}</td>
                     </tr>
                 `).join('');
             }
@@ -541,3 +541,4 @@
         });
     </script>
 @endpush
+

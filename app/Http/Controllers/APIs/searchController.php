@@ -8,11 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use App\Models\Department;
 use App\Models\User;
 use App\Models\Job;
-use App\Models\Shift;
-use App\Models\Contract;
 
 class searchController extends Controller
 {
@@ -154,18 +151,6 @@ class searchController extends Controller
 
                     if (isset($row['job_id'])) {
                         $row['job_title'] = optional(Job::find($row['job_id']))->title ?? '';
-                    }
-
-                    if (isset($row['department_id'])) {
-                        $row['department_name'] = optional(Department::find($row['department_id']))->title ?? '';
-                    }
-
-                    if (isset($row['shift_id'])) {
-                        $row['shift_title'] = optional(Shift::find($row['shift_id']))->title ?? '';
-                    }
-
-                    if (isset($row['contract_id'])) {
-                        $row['contract_title'] = optional(Contract::find($row['contract_id']))->title ?? '';
                     }
 
                     // Convert created_by, updated_by, deleted_by

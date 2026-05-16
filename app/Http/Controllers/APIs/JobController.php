@@ -34,7 +34,7 @@ class JobController extends Controller
             'start_date'    => 'required|date',
             'end_date'      => 'required|date',
             'position'      => 'required|string',
-            'department_id' => 'required|exists:department,id',
+            'department_id' => 'nullable|integer',
             'quantity'      => 'nullable|integer',
         ];
 
@@ -79,7 +79,7 @@ class JobController extends Controller
         $is_export = request()->query('is_export');
 
         $query = $is_deleted ? Job::onlyTrashed() : Job::query();
-        $query->with(['department:id,title', 'createdByUser:id,name', 'updatedByUser:id,name', 'deletedByUser:id,name'])
+        $query->with(['createdByUser:id,name', 'updatedByUser:id,name', 'deletedByUser:id,name'])
             ->orderBy('created_at', 'DESC');
 
         if (!empty($search)) {
@@ -87,10 +87,7 @@ class JobController extends Controller
                 $q->where('title', 'LIKE', "%{$search}%")
                 ->orWhere('desc', 'LIKE', "%{$search}%")
                 ->orWhere('body', 'LIKE', "%{$search}%")
-                ->orWhere('position', 'LIKE', "%{$search}%")
-                ->orWhereHas('department', function ($sub) use ($search) {
-                    $sub->where('title', 'LIKE', "%{$search}%");
-                });
+                ->orWhere('position', 'LIKE', "%{$search}%");
             });
         }
 
@@ -104,7 +101,7 @@ class JobController extends Controller
                 'end_date' => $job->end_date,
                 'position' => $job->position,
                 'department_id' => $job->department_id,
-                'department_name' => optional($job->department)->title,
+                'department_name' => null,
                 'quantity' => $job->quantity,
                 
                 'created_by' => optional($job->createdByUser)->name,
@@ -180,7 +177,7 @@ class JobController extends Controller
             ? Job::onlyTrashed()->where('created_by', $user->id)
             : Job::where('created_by', $user->id);
 
-        $query->with(['department:id,title', 'createdByUser:id,name', 'updatedByUser:id,name', 'deletedByUser:id,name'])
+        $query->with(['createdByUser:id,name', 'updatedByUser:id,name', 'deletedByUser:id,name'])
             ->orderBy('created_at', 'DESC');
 
         if (!empty($search)) {
@@ -188,10 +185,7 @@ class JobController extends Controller
                 $q->where('title', 'LIKE', "%{$search}%")
                 ->orWhere('desc', 'LIKE', "%{$search}%")
                 ->orWhere('body', 'LIKE', "%{$search}%")
-                ->orWhere('position', 'LIKE', "%{$search}%")
-                ->orWhereHas('department', function ($sub) use ($search) {
-                    $sub->where('title', 'LIKE', "%{$search}%");
-                });
+                ->orWhere('position', 'LIKE', "%{$search}%");
             });
         }
 
@@ -205,7 +199,7 @@ class JobController extends Controller
                 'end_date' => $job->end_date,
                 'position' => $job->position,
                 'department_id' => $job->department_id,
-                'department_name' => optional($job->department)->title,
+                'department_name' => null,
                 'quantity' => $job->quantity,
                 
                 'created_by' => optional($job->createdByUser)->name,
@@ -272,7 +266,7 @@ class JobController extends Controller
     public function editJob($id)
     {
         $job = Job::withTrashed()
-            ->with(['department:id,title', 'createdByUser:id,name', 'updatedByUser:id,name', 'deletedByUser:id,name'])
+            ->with(['createdByUser:id,name', 'updatedByUser:id,name', 'deletedByUser:id,name'])
             ->find($id);
 
         if (!$job) {
@@ -292,7 +286,7 @@ class JobController extends Controller
             'end_date' => $job->end_date,
             'position' => $job->position,
             'department_id' => $job->department_id,
-            'department_name' => optional($job->department)->title,
+            'department_name' => null,
             'quantity' => $job->quantity,
             
             'created_by' => optional($job->createdByUser)->name,
@@ -319,7 +313,7 @@ class JobController extends Controller
             'start_date'    => 'nullable|date',
             'end_date'      => 'nullable|date',
             'position'      => 'nullable|string',
-            'department_id' => 'nullable|exists:department,id',
+            'department_id' => 'nullable|integer',
             'quantity'      => 'nullable|integer',
         ];
 

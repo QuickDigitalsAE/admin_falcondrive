@@ -3,362 +3,303 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use App\Models\Role;
 use App\Models\Permission;
-use Symfony\Component\HttpFoundation\Response;
+use App\Models\Role;
+use App\Support\RolePermissionMatrix;
+use App\Support\SystemVisibility;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class RoleController extends Controller
 {
-    /**
-     * Constructor to apply permission-based middlewar
-     *     
-     */
-    function __construct()
+    public function __construct()
     {
-        $this->middleware('permission:Role_ViewAll', ['only' => ['getRoles']]);
-        $this->middleware('permission:Role_View', ['only' => ['editRole']]);
-        $this->middleware('permission:Role_Add', ['only' => ['postRole']]);
-        $this->middleware('permission:Role_Edit', ['only' => ['updateRole']]);
-        $this->middleware('permission:Role_Delete', ['only' => ['deleteRole']]);
-        $this->middleware('permission:Role_Revoke', ['only' => ['revokeRole']]);
+        $this->middleware('permission:Role_ViewAll', ['only' => ['index']]);
+        $this->middleware('permission:Role_ViewAll|Role_View', ['only' => ['show']]);
+        $this->middleware('permission:Role_Add', ['only' => ['create', 'store']]);
+        $this->middleware('permission:Role_Edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:Role_Delete', ['only' => ['destroy']]);
+        $this->middleware('permission:Role_Revoke', ['only' => ['restore']]);
     }
 
-    public function getRoles()
+    public function index(Request $request)
     {
-        $per_page = getPerPage();
-        $search = request()->query('search');
-        $is_deleted = request()->query('is_deleted');
-        $is_export = request()->query('is_export');
+        $perPage = $request->query('per_page', 10);
+        $search = trim((string) $request->query('search', ''));
+        $isDeleted = $request->boolean('is_deleted');
+        $isExport = $request->boolean('is_export');
 
-        // Base query
-        if ($is_deleted) {
-            $rolesQuery = Role::onlyTrashed();
-        } else {
-            $rolesQuery = Role::query();
-        }
+        $rolesQuery = $isDeleted
+            ? Role::onlyTrashed()->with(['permissions', 'createdByUser', 'updatedByUser', 'deletedByUser'])
+            : Role::with(['permissions', 'createdByUser', 'updatedByUser']);
 
-        // Exclude super admin
-        $rolesQuery->where('id', '!=', 1)->orderBy('created_at', 'DESC');
-
-        // Search filter
-        if (!empty($search)) {
-            $rolesQuery->where('name', 'LIKE', "%{$search}%");
-        }
-
-        // === CSV EXPORT ===
-        if ($is_export) {
-            $roles = $rolesQuery->get();
-
-            // Preload related user data (assuming relationships exist)
-            $roles->load(['createdByUser', 'updatedByUser']);
-            if ($is_deleted) {
-                $roles->load(['deletedByUser']);
-            }
-
-            $csvHeader = [
-                'ID',
-                'Name',
-                'Created By',
-                'Created At',
-                'Updated By',
-                'Updated At'
-            ];
-
-            if ($is_deleted) {
-                $csvHeader[] = 'Deleted By';
-                $csvHeader[] = 'Deleted At';
-            }
-
-            $callback = function () use ($roles, $csvHeader, $is_deleted) {
-                $file = fopen('php://output', 'w');
-                fputcsv($file, $csvHeader);
-
-                foreach ($roles as $role) {
-                    $row = [
-                        $role->id,
-                        $role->name,
-                        optional($role->createdByUser)->name,
-                        optional($role->created_at)->format('Y-m-d H:i:s'),
-                        optional($role->updatedByUser)->name,
-                        optional($role->updated_at)->format('Y-m-d H:i:s')
-                    ];
-
-                    if ($is_deleted) {
-                        $row[] = optional($role->deletedByUser)->name;
-                        $row[] = optional($role->deleted_at)->format('Y-m-d H:i:s');
-                    }
-
-                    fputcsv($file, $row);
-                }
-
-                fclose($file);
-            };
-
-            $fileName = 'roles_export_' . now()->format('Ymd_His') . '.csv';
-
-            return response()->stream($callback, 200, [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => "attachment; filename={$fileName}",
-            ]);
-        }
-
-        // === Paginated JSON Response ===
-        $roles = $rolesQuery->paginate($per_page);
-
-        if ($roles->isEmpty()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'No roles found!'
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        $roleList = $roles->map(function ($role) {
-            return [
-                'id' => $role->id,
-                'name' => $role->name,
-            ];
-        });
-
-        $pagination = [
-            'current_page' => $roles->currentPage(),
-            'last_page' => $roles->lastPage(),
-            'per_page' => $roles->perPage(),
-            'total' => $roles->total()
-        ];
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Roles fetched successfully!',
-            'data' => [
-                'list' => $roleList,
-                'pagination' => $pagination
-            ]
-        ], Response::HTTP_OK);
-    }
-
-    public function postRole(Request $request)
-    {
-        // Validate the request
-        $validator = [
-            'role_name' => 'required|string|max:255',
-            'permissions' => 'array', // should be an array of permission names
-        ];
-
-        $request->validate($validator);
-
-        try {
-            $authId = Auth::id();
-
-            // Create a new role
-            $role = Role::create([
-                'name' => $request['role_name'],
-                'guard_name' => 'sanctum',
-                'created_by' => $authId
+        $rolesQuery->withCount([
+                'users as users_count' => function ($query) {
+                    SystemVisibility::hideSuperAdminUsers($query);
+                },
             ]);
 
-            // Re-assign based on permissionAll or permissions input
-            if ($request->has('permissionAll') && $request->permissionAll == 1) {
-                $allPermissions = Permission::pluck('name')->toArray();
-                $role->syncPermissions($allPermissions);
-            } elseif (!empty($request->permissions)) {
-                $role->syncPermissions($request->permissions);
-            } else {
-                // Remove all existing permissions
-                $role->syncPermissions([]);
-            }
+        SystemVisibility::hideSuperAdminRole($rolesQuery, 'roles.id')->orderByDesc('created_at');
+
+        if ($search !== '') {
+            $rolesQuery->where(function ($query) use ($search) {
+                $query->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('role_level', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if ($isExport) {
+            return $this->exportRoles($rolesQuery, $isDeleted);
+        }
+
+        $roles = $rolesQuery->paginate($perPage)->withQueryString();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            $authUser = Auth::user();
 
             return response()->json([
                 'status' => true,
-                'message' => 'Role created successfully',
-                'data' => $role
-            ], Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Something went wrong!'
-            ], Response::HTTP_BAD_REQUEST);
+                'message' => 'Roles fetched successfully.',
+                'data' => [
+                    'items' => $roles->getCollection()->map(function (Role $role) use ($authUser) {
+                        return [
+                            'id' => $role->id,
+                            'name' => $role->name,
+                            'role_level' => $role->role_level,
+                            'role_level_label' => RolePermissionMatrix::label($role->role_level),
+                            'permissions_count' => $role->permissions->count(),
+                            'users_count' => $role->users_count ?? 0,
+                            'deleted_at' => optional($role->deleted_at)->toDateTimeString(),
+                            'created_at_human' => optional($role->created_at)->format('d M Y, h:i A'),
+                    ...$this->superAdminAuditMeta($role, $authUser),
+                            'show_url' => route('admin.roles.show', $role->id),
+                            'edit_url' => route('admin.roles.edit', $role->id),
+                            'delete_url' => route('admin.roles.delete', $role->id),
+                            'restore_url' => route('admin.roles.restore', $role->id),
+                            'permissions' => [
+                                'can_view' => $authUser->can('Role_ViewAll') || $authUser->can('Role_View'),
+                                'can_edit' => $authUser->can('Role_Edit'),
+                                'can_delete' => $authUser->can('Role_Delete'),
+                                'can_restore' => $authUser->can('Role_Revoke'),
+                            ],
+                        ];
+                    })->values(),
+                    'pagination' => [
+                        'current_page' => $roles->currentPage(),
+                        'last_page' => $roles->lastPage(),
+                        'per_page' => $roles->perPage(),
+                        'total' => $roles->total(),
+                        'from' => $roles->firstItem(),
+                        'to' => $roles->lastItem(),
+                    ],
+                ],
+            ]);
         }
+
+        return view('admin.roles.index');
     }
 
-    public function editRole($roleId)
+    public function create()
     {
-        // Find the role by ID
-        $role = Role::find($roleId);
-
-        // Check if the role exists
-        if (!$role) {
-            return response()->json([
-                "status" => false,
-                'message' => 'Role not found!'
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        // Assigned permissions of the role (formatted)
-        $rolePermissions = $role->permissions->map(function ($permission) {
-            return [
-                'id' => $permission->id,
-                'name' => $permission->name,
-                'group' => Str::before($permission->name, '_')
-            ];
-        });
-
-        // Inject formatted permissions into role array
-        $roleData = $role->toArray();
-        $roleData['permissions'] = $rolePermissions;
-
-        // Get the role's permissions grouped by `group`
-        $permissions = Permission::all()
-            ->groupBy(function ($permission) {
-                return Str::before($permission->name, '_'); // Group key e.g. "User"
-            })
-            ->map(function ($group) {
-                return $group->values()->map(function ($permission) {
-                    return [
-                        'id' => $permission->id,
-                        'name' => $permission->name,
-                        'group' => Str::before($permission->name, '_')
-                    ];
-                });
-            });
-
-        // Return the role and its permissions grouped by `group`
-        return response()->json([
-            "status" => true,
-            "message" => 'Role fetched successfully!',
-            "data" => [
-                'role' => $roleData,
-                'get_all_permissions' => $permissions
-            ]
-        ], Response::HTTP_OK);
+        return view('admin.roles.create', $this->formData());
     }
 
-    public function updateRole(Request $request, $roleId)
+    public function store(Request $request)
     {
-        // Validate the request
-        $validator = [
-            'role_name' => 'required|string',
-            'permissions' => 'array', // should be an array of permission names
-        ];
+        $validated = $this->validateRole($request);
 
-        $request->validate($validator);
+        $role = Role::create([
+            'name' => $validated['name'],
+            'guard_name' => 'web',
+            'role_level' => $validated['role_level'],
+            'created_by' => Auth::id(),
+        ]);
 
-        $authId = Auth::id();
+        $role->syncPermissions($validated['permissions'] ?? []);
 
-        // Find the role by ID
-        $role = Role::find($roleId);
+        return redirect()->route('admin.roles')->with('success', 'Role created successfully.');
+    }
 
-        if (!$role) {
-            return response()->json([
-                "status" => false,
-                'message' => 'Role not found!'
-            ], Response::HTTP_NOT_FOUND);
+    public function show(int $id)
+    {
+        $role = Role::withTrashed()
+            ->with(['permissions', 'createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->withCount('users')
+            ->find($id);
+
+        if (!$role || SystemVisibility::isProtectedRole($role)) {
+            return redirect()->route('admin.roles')->with('error', 'Role not found.');
         }
 
-        // Check if the new role name already exists
-        $existsRole = Role::where('name', $request->role_name)
-            ->where('guard_name', 'sanctum')
-            ->where('id', '!=', $roleId) // Exclude the current role from the check
-            ->exists();
+        $permissionGroups = RolePermissionMatrix::groupedPermissions($role->permissions);
 
-        if ($existsRole) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Role already exists'
-            ], Response::HTTP_OK);
+        return view('admin.roles.show', compact('role', 'permissionGroups'));
+    }
+
+    public function edit(int $id)
+    {
+        $role = Role::with('permissions')->find($id);
+
+        if (!$role || SystemVisibility::isProtectedRole($role)) {
+            return redirect()->route('admin.roles')->with('error', 'Role not found.');
         }
 
-        // Update the role's name
-        $role->name = $request->role_name;
-        $role->updated_by = $authId;
+        return view('admin.roles.edit', array_merge($this->formData(), compact('role')));
+    }
+
+    public function update(Request $request, int $id)
+    {
+        $role = Role::with('permissions')->find($id);
+
+        if (!$role || SystemVisibility::isProtectedRole($role)) {
+            return redirect()->route('admin.roles')->with('error', 'Role not found.');
+        }
+
+        $validated = $this->validateRole($request, $role->id);
+
+        $role->update([
+            'name' => $validated['name'],
+            'role_level' => $validated['role_level'],
+            'updated_by' => Auth::id(),
+        ]);
+
+        $role->syncPermissions($validated['permissions'] ?? []);
+
+        return redirect()->route('admin.roles.show', $role->id)->with('success', 'Role updated successfully.');
+    }
+
+    public function destroy(int $id)
+    {
+        $role = Role::find($id);
+
+        if (!$role || SystemVisibility::isProtectedRole($role)) {
+            return back()->with('error', 'Role not found.');
+        }
+
+        if ($role->users()->exists()) {
+            return back()->with('error', 'Role cannot be deleted because it is assigned to one or more users.');
+        }
+
+        $role->deleted_by = Auth::id();
         $role->save();
-
-        // Re-assign based on permissionAll or permissions input
-        if ($request->has('permissionAll') && $request->permissionAll == 1) {
-            $allPermissions = Permission::pluck('name')->toArray();
-            $role->syncPermissions($allPermissions);
-        } elseif (!empty($request->permissions)) {
-            $role->syncPermissions($request->permissions);
-        } else {
-            // Remove all existing permissions
-            $role->syncPermissions([]);
-        }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Role updated successfully'
-        ], Response::HTTP_OK);
-    }
-
-    public function deleteRole($roleId)
-    {
-        // Find the role by ID
-        $role = Role::find($roleId);
-
-        // Check if the role exists
-        if ($role) {
-            if ($role->id == 1) {
-                return response()->json([
-                    "status" => false,
-                    'message' => 'The Super Admin role cannot be deleted.'
-                ], Response::HTTP_UNAUTHORIZED); // HTTP status 403 for forbidden action
-            }
-        } else {
-            return response()->json([
-                "status" => false,
-                'message' => 'Role not found!'
-            ], Response::HTTP_NOT_FOUND); // Return 404 Not Found if the role does not exist
-        }
-
-        if ($role->users()->exists()) { // This checks if any users are associated with the role
-            return response()->json([
-                "status" => false,
-                'message' => 'Role cannot be deleted because it is assigned to one or more users.'
-            ], Response::HTTP_UNAUTHORIZED); // Return 409 Conflict if the role is assigned
-        }
-        $authId = Auth::id();
-        $role->deleted_by = $authId;
-        $role->save();
-
-        // Delete the role (this will also detach the associated permissions)
         $role->delete();
 
-        return response()->json([
-            "status" => true,
-            'message' => 'Role deleted successfully!'
-        ], Response::HTTP_OK);
+        return redirect()->route('admin.roles')->with('success', 'Role deleted successfully.');
     }
 
-    public function revokeRole($id)
+    public function restore(int $id)
     {
-        // Find soft-deleted role
         $role = Role::withTrashed()->find($id);
 
-        if (!$role) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Role not found.'
-            ], Response::HTTP_NOT_FOUND);
+        if (!$role || SystemVisibility::isProtectedRole($role)) {
+            return back()->with('error', 'Role not found.');
         }
 
-        // Check if user is actually soft-deleted
         if (is_null($role->deleted_at)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Role is not deleted.'
-            ], Response::HTTP_BAD_REQUEST);
+            return back()->with('error', 'Role is not deleted.');
         }
 
-        // Restore the user
         $role->restore();
         $role->deleted_by = null;
         $role->save();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Role has been successfully restored.'
-        ], Response::HTTP_OK);
+        return redirect()->route('admin.roles')->with('success', 'Role restored successfully.');
+    }
+
+    private function formData(): array
+    {
+        $permissions = Permission::query()
+            ->whereNull('deleted_at')
+            ->orderBy('name')
+            ->get();
+
+        return [
+            'roleLevels' => collect(RolePermissionMatrix::levels())
+                ->except('superadmin')
+                ->all(),
+            'permissionGroups' => RolePermissionMatrix::groupedPermissions($permissions),
+        ];
+    }
+
+    private function validateRole(Request $request, ?int $roleId = null): array
+    {
+        $validated = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('roles', 'name')->ignore($roleId)->where(fn ($query) => $query->where('guard_name', 'web')),
+            ],
+            'role_level' => ['required', Rule::in(array_keys($this->formData()['roleLevels']))],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['string', Rule::exists('permissions', 'name')->where(fn ($query) => $query->where('guard_name', 'web'))],
+        ]);
+
+        $selectedPermissions = $validated['permissions'] ?? [];
+        $allowedPermissions = RolePermissionMatrix::allowedPermissionNames(
+            $validated['role_level'],
+            Permission::query()->whereNull('deleted_at')->pluck('name')
+        );
+
+        $invalidPermissions = collect($selectedPermissions)
+            ->reject(fn ($permissionName) => in_array($permissionName, $allowedPermissions, true))
+            ->values();
+
+        if ($invalidPermissions->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'permissions' => 'Selected permissions are not allowed for the chosen role level.',
+            ]);
+        }
+
+        return $validated;
+    }
+
+    private function exportRoles($rolesQuery, bool $isDeleted)
+    {
+        $roles = $rolesQuery->withCount([
+            'users as users_count' => function ($query) {
+                SystemVisibility::hideSuperAdminUsers($query);
+            },
+        ])->get();
+
+        $callback = function () use ($roles, $isDeleted) {
+            $file = fopen('php://output', 'w');
+
+            $headers = ['ID', 'Name', 'Role Level', 'Permissions Count', 'Users Count', 'Created At', 'Updated At'];
+
+            if ($isDeleted) {
+                $headers[] = 'Deleted At';
+            }
+
+            fputcsv($file, $headers);
+
+            foreach ($roles as $role) {
+                $row = [
+                    $role->id,
+                    $role->name,
+                    $role->role_level,
+                    $role->permissions->count(),
+                    $role->users_count ?? 0,
+                    optional($role->created_at)->format('Y-m-d H:i:s'),
+                    optional($role->updated_at)->format('Y-m-d H:i:s'),
+                ];
+
+                if ($isDeleted) {
+                    $row[] = optional($role->deleted_at)->format('Y-m-d H:i:s');
+                }
+
+                fputcsv($file, $row);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=roles.csv',
+        ]);
     }
 }
+

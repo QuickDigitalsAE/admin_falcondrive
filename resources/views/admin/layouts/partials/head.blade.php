@@ -2,11 +2,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config('app.name', 'FalconDrive Admin') }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
+                screens: {
+                    sm: '640px',
+                    md: '768px',
+                    lg: '1000px',
+                    xl: '1280px',
+                    '2xl': '1536px',
+                },
                 extend: {
                     boxShadow: {
                         material: '0 12px 30px rgba(15,23,42,.08), 0 2px 10px rgba(15,23,42,.06)',

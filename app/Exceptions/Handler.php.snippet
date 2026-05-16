@@ -1,0 +1,49 @@
+// Add inside your renderable/reportable handling if you want consistent API errors.
+
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+
+public function register(): void
+{
+    $this->renderable(function (ValidationException $e, $request) {
+        if ($request->is('api/*')) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed',
+                'data' => ['errors' => $e->errors()],
+            ], 422);
+        }
+    });
+
+    $this->renderable(function (AuthenticationException $e, $request) {
+        if ($request->is('api/*')) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthenticated',
+                'data' => new \stdClass(),
+            ], 401);
+        }
+    });
+
+    $this->renderable(function (ModelNotFoundException $e, $request) {
+        if ($request->is('api/*')) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Record not found',
+                'data' => new \stdClass(),
+            ], 404);
+        }
+    });
+
+    $this->renderable(function (HttpExceptionInterface $e, $request) {
+        if ($request->is('api/*')) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage() ?: 'HTTP error',
+                'data' => new \stdClass(),
+            ], $e->getStatusCode());
+        }
+    });
+}
