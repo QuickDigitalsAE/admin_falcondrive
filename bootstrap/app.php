@@ -22,8 +22,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Register middleware groups:
         $middleware->group('api', [
-            // 'check.domain',
-            'check.authorization',
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
