@@ -65,6 +65,14 @@
                                     <div class="rounded-2xl border border-[#eadfbe] bg-white p-4"><p class="text-xs uppercase tracking-[0.18em] text-slate-400">Monthly</p><p class="mt-1 font-semibold text-slate-800">{{ $car->price_monthly }}</p></div>
                                     <div class="rounded-2xl border border-[#eadfbe] bg-white p-4"><p class="text-xs uppercase tracking-[0.18em] text-slate-400">Stock</p><p class="mt-1 font-semibold text-slate-800">{{ $car->stock }}</p></div>
                                 </div>
+                                <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                                    <div class="rounded-2xl border border-[#eadfbe] bg-white p-4"><p class="text-xs uppercase tracking-[0.18em] text-slate-400">Full Insurance</p><p class="mt-1 font-semibold text-slate-800">{{ $car->full_insurance_amount ?: 'N/A' }}</p></div>
+                                    <div class="rounded-2xl border border-[#eadfbe] bg-white p-4"><p class="text-xs uppercase tracking-[0.18em] text-slate-400">Additional Driver</p><p class="mt-1 font-semibold text-slate-800">{{ $car->additional_driver_amount ?: 'N/A' }}</p></div>
+                                    <div class="rounded-2xl border border-[#eadfbe] bg-white p-4"><p class="text-xs uppercase tracking-[0.18em] text-slate-400">Baby Seat</p><p class="mt-1 font-semibold text-slate-800">{{ $car->baby_seat_amount ?: 'N/A' }}</p></div>
+                                    <div class="rounded-2xl border border-[#eadfbe] bg-white p-4"><p class="text-xs uppercase tracking-[0.18em] text-slate-400">Deposit Amount</p><p class="mt-1 font-semibold text-slate-800">{{ $car->deposit_amount ?: 'N/A' }}</p></div>
+                                    <div class="rounded-2xl border border-[#eadfbe] bg-white p-4"><p class="text-xs uppercase tracking-[0.18em] text-slate-400">Waiver Amount</p><p class="mt-1 font-semibold text-slate-800">{{ $car->waiver_amount ?: 'N/A' }}</p></div>
+                                    <div class="rounded-2xl border border-[#eadfbe] bg-white p-4"><p class="text-xs uppercase tracking-[0.18em] text-slate-400">Different City Dropoff Fee</p><p class="mt-1 font-semibold text-slate-800">{{ $car->different_city_dropoff_fee ?: 'N/A' }}</p></div>
+                                </div>
                             </div>
 
                             <div class="rounded-[24px] border border-[#eadfbe] bg-white p-5 shadow-sm">
