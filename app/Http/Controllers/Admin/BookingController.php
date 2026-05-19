@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\BookingRequest;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +33,8 @@ class BookingController extends Controller
                     ->orWhere('number', 'LIKE', "%{$search}%")
                     ->orWhere('email', 'LIKE', "%{$search}%")
                     ->orWhere('coupon_code', 'LIKE', "%{$search}%")
-                    ->orWhere('paid_id', 'LIKE', "%{$search}%");
+                    ->orWhere('paid_id', 'LIKE', "%{$search}%")
+                    ->orWhere('send_booking_id', 'LIKE', "%{$search}%");
             });
         }
 
@@ -53,13 +55,11 @@ class BookingController extends Controller
                     'name' => $booking->name,
                     'number' => $booking->number,
                     'email' => $booking->email,
-                    'start_date' => optional($booking->start_date)->format('Y-m-d'),
-                    'end_date' => optional($booking->end_date)->format('Y-m-d'),
-                    'start_time' => $booking->start_time,
-                    'end_time' => $booking->end_time,
                     'rental_type' => $booking->rental_type,
+                    'rental_price' => (string) $booking->rental_price,
                     'resident_tourist' => $booking->resident_tourist,
                     'payment_flow' => $booking->payment_flow,
+                    'total_amount' => (string) $booking->total_amount,
                     'paid_status' => $booking->paid_status,
                     'paid_via' => $booking->paid_via,
                     'created_at_human' => optional($booking->created_at)->format('d M Y, h:i A'),
@@ -162,7 +162,7 @@ class BookingController extends Controller
 
         return response()->stream(function () use ($records) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['ID', 'Name', 'Number', 'Email', 'Start Date', 'End Date', 'Rental Type', 'Payment Flow', 'Paid Status', 'Paid Via', 'Created At']);
+            fputcsv($file, ['ID', 'Name', 'Number', 'Email', 'Rental Type', 'Rental Price', 'Payment Flow', 'Total Amount', 'Paid Status', 'Paid Via', 'Created At']);
 
             foreach ($records as $record) {
                 fputcsv($file, [
@@ -170,10 +170,10 @@ class BookingController extends Controller
                     $record->name,
                     $record->number,
                     $record->email,
-                    optional($record->start_date)->format('Y-m-d'),
-                    optional($record->end_date)->format('Y-m-d'),
                     $record->rental_type,
+                    $record->rental_price,
                     $record->payment_flow,
+                    $record->total_amount,
                     $record->paid_status,
                     $record->paid_via,
                     optional($record->created_at)->format('Y-m-d H:i:s'),
@@ -186,39 +186,9 @@ class BookingController extends Controller
 
     private function validateBooking(Request $request): array
     {
-        return $request->validate([
-            'name' => ['required', 'string', 'max:191'],
-            'number' => ['required', 'string', 'max:191'],
-            'email' => ['nullable', 'email', 'max:191'],
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'start_time' => ['nullable', 'regex:/^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?$/'],
-            'end_time' => ['nullable', 'regex:/^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?$/'],
-            'rental_type' => ['nullable', 'in:daily,weekly,monthly'],
-            'resident_tourist' => ['nullable', 'in:resident,tourist'],
-            'full_insurance' => ['required', 'boolean'],
-            'additional_driver' => ['required', 'boolean'],
-            'baby_seat' => ['required', 'boolean'],
-            'deposit_waiver' => ['nullable', 'in:Deposit,Waiver'],
-            'delivery_address' => ['nullable', 'string'],
-            'delivery_area' => ['nullable', 'string', 'max:191'],
-            'pickup_address' => ['nullable', 'string'],
-            'pickup_area' => ['nullable', 'string', 'max:191'],
-            'delivery_price' => ['nullable', 'numeric', 'min:0'],
-            'pickup_price' => ['nullable', 'numeric', 'min:0'],
-            'coupon_code' => ['nullable', 'string', 'max:191'],
-            'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'payment_flow' => ['required', 'in:now,later'],
-            'paid_id' => ['nullable', 'string', 'max:191'],
-            'paid_date' => ['nullable', 'date'],
-            'paid_status' => ['nullable', 'string', 'max:191'],
-            'paid_via' => ['nullable', 'string', 'max:191'],
-            'contact_preference' => ['nullable', 'in:whatsapp,phone'],
-            'term_22_years' => ['required', 'boolean'],
-            'term_6_month_experience' => ['required', 'boolean'],
-            'description' => ['nullable', 'string'],
-            'notes' => ['nullable', 'string'],
-            'request_body' => ['nullable', 'string'],
-        ]);
+        $rules = (new BookingRequest())->rules();
+        unset($rules['website'], $rules['g-recaptcha-response']);
+
+        return $request->validate($rules);
     }
 }
