@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Controllers\APIs\CarController;
+use App\Models\DeliveryReturnLocation;
 use Illuminate\Http\Request;
 
 class CarResource extends BaseResource
@@ -79,6 +80,28 @@ class CarResource extends BaseResource
             $data['categories'] = CategoryResource::collection($this->whenLoaded('categories'));
             $data['locations'] = LocationResource::collection($this->whenLoaded('locations'));
             $data['driver_pages'] = CarWithDriverResource::collection($this->whenLoaded('driverPages'));
+            $data['delivery_locations'] = DeliveryReturnLocation::query()
+                ->where('type', 'Delivery location')
+                ->orderBy('city')
+                ->get(['id', 'city', 'price', 'type'])
+                ->map(fn (DeliveryReturnLocation $location) => [
+                    'id' => $location->id,
+                    'city' => $location->city,
+                    'price' => $location->price,
+                    'type' => $location->type,
+                ])
+                ->all();
+            $data['return_locations'] = DeliveryReturnLocation::query()
+                ->where('type', 'Return location')
+                ->orderBy('city')
+                ->get(['id', 'city', 'price', 'type'])
+                ->map(fn (DeliveryReturnLocation $location) => [
+                    'id' => $location->id,
+                    'city' => $location->city,
+                    'price' => $location->price,
+                    'type' => $location->type,
+                ])
+                ->all();
         }
 
         return $data;

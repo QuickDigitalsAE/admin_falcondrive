@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Delivery & Return Locations')
-@section('page_title', 'Delivery & Return Locations')
+@section('title', 'Delivery And Return Locations')
+@section('page_title', 'Delivery And Return Locations')
 
 @section('breadcrumbs')
     <nav class="flex flex-wrap items-center gap-2 text-[12px] text-slate-500"><a href="{{ route('admin.dashboard') }}" class="transition hover:text-[#9b7a28]"><i class="fas fa-house text-[11px]"></i><span class="ml-1">Dashboard</span></a><i class="fas fa-chevron-right text-[10px] text-slate-400"></i><span class="font-medium text-slate-700">Delivery & Return Locations</span></nav>
