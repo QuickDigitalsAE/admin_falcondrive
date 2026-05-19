@@ -144,7 +144,7 @@
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">VAT %:</span> {{ number_format((float) $booking->vat_percentage, 2) }}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">VAT Amount:</span> {!! $amountWithIcon($booking->vat_amount) !!}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Total:</span> {!! $amountWithIcon($booking->total_amount) !!}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Flow:</span> {{ $booking->payment_flow }}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Flow:</span> {{ $booking->payment_flow == 'now' ? 'Pay Now' : 'Pay Later' }}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Pay Now 20%:</span> {!! $amountWithIcon($booking->{'pay_now_20%_to_Reserve'}) !!}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Pay At Pickup 80%:</span> {!! $amountWithIcon($booking->{'pay_at_pickup_80%'}) !!}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Paid ID:</span> {{ $booking->paid_id ?? '-' }}</div>

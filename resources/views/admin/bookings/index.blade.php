@@ -166,7 +166,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="space-y-1">
-                                        <div class="text-xs text-slate-700">Flow: {{ $booking->payment_flow }}</div>
+                                        <div class="text-xs text-slate-700">Flow: {{ $booking->payment_flow == 'now' ? 'Pay Now' : 'Pay Later' }}</div>
                                         <div class="text-xs text-slate-500">
                                             Amount:
                                             <span class="inline-flex items-center gap-1 font-semibold text-slate-700">
