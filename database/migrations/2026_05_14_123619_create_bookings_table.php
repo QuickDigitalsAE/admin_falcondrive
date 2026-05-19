@@ -73,7 +73,7 @@ return new class extends Migration
 
             // Documentation & Logs
             $table->string('send_booking_id')->nullable();
-            $table->text('notes')->nullable();
+            $table->longText('notes')->nullable();
             $table->longText('speed_response')->nullable()->comment('Full API return response from Speed for debugging');
             
             $table->timestamps();
