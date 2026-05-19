@@ -62,12 +62,18 @@ class BookingController extends Controller
                     'total_amount' => (string) $booking->total_amount,
                     'paid_status' => $booking->paid_status,
                     'paid_via' => $booking->paid_via,
+                    'start_date' => optional($booking->start_date)->format('Y-m-d'),
+                    'end_date' => optional($booking->end_date)->format('Y-m-d'),
+                    'start_time' => $booking->start_time,
+                    'end_time' => $booking->end_time,
+                    'send_booking_id' => $booking->send_booking_id,
                     'created_at_human' => optional($booking->created_at)->format('d M Y, h:i A'),
                     'show_url' => route('admin.bookings.show', $booking->id),
                     'delete_url' => route('admin.bookings.delete', $booking->id),
                     'permissions' => [
                         'can_view' => $authUser->can('Booking_ViewAll') || $authUser->can('Booking_View'),
                         'can_delete' => $authUser->can('Booking_Delete'),
+                        'can_send_booking' => $authUser->can('Inquiry_SendBooking') || $authUser->can('Booking_SendBooking'),
                     ],
                 ];
             })->values();
@@ -106,7 +112,15 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $validated = $this->validateBooking($request);
-        Booking::create($validated);
+        $booking = Booking::create($validated);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Booking added successfully.',
+                'data' => $booking,
+            ]);
+        }
 
         return redirect()->route('admin.bookings')->with('success', 'Booking added successfully.');
     }
@@ -135,25 +149,75 @@ class BookingController extends Controller
     {
         $booking = Booking::find($id);
         if (!$booking) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => false, 'message' => 'Booking not found.'], 404);
+            }
+
             return back()->with('error', 'Booking not found.');
         }
 
         $validated = $this->validateBooking($request);
         $booking->update($validated);
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Booking updated successfully.',
+                'data' => $booking->fresh(),
+            ]);
+        }
+
         return redirect()->route('admin.bookings')->with('success', 'Booking updated successfully.');
     }
 
-    public function destroy(int $id)
+    public function destroy(Request $request, int $id)
     {
         $booking = Booking::find($id);
         if (!$booking) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => false, 'message' => 'Booking not found.'], 404);
+            }
+
             return back()->with('error', 'Booking not found.');
         }
 
         $booking->delete();
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Booking deleted successfully.',
+            ]);
+        }
+
         return redirect()->route('admin.bookings')->with('success', 'Booking deleted successfully.');
+    }
+
+
+    public function payload(int $id)
+    {
+        $booking = Booking::find($id);
+
+        if (!$booking) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Booking not found.',
+            ], 404);
+        }
+
+        $payload = $booking->speed_response ?? $booking->notes ?? null;
+
+        if (is_string($payload)) {
+            $decoded = json_decode($payload, true);
+            $payload = json_last_error() === JSON_ERROR_NONE ? $decoded : $payload;
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Booking payload fetched successfully.',
+            'payload' => $payload,
+            'send_booking_id' => $booking->send_booking_id,
+        ]);
     }
 
     private function exportBookings($query)

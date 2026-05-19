@@ -156,6 +156,7 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
         Route::post('/store', [BookingController::class, 'store'])->name('.store');
         Route::get('/show/{id}', [BookingController::class, 'show'])->name('.show');
         Route::get('/edit/{id}', [BookingController::class, 'edit'])->name('.edit');
+        Route::get('/{id}/payload', [BookingController::class, 'payload'])->name('.payload');
         Route::put('/update/{id}', [BookingController::class, 'update'])->name('.update');
         Route::delete('/delete/{id}', [BookingController::class, 'destroy'])->name('.delete');
     });
