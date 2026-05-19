@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\GlobalSearchController;
 use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\DeliveryReturnLocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -136,6 +137,17 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
         Route::put('/update/{id}', [HighlightController::class, 'update'])->name('.update');
         Route::delete('/delete/{id}', [HighlightController::class, 'destroy'])->name('.delete');
         Route::put('/restore/{id}', [HighlightController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('delivery-return-locations')->name('delivery-return-locations')->group(function () {
+        Route::get('/', [DeliveryReturnLocationController::class, 'index'])->name('');
+        Route::get('/create', [DeliveryReturnLocationController::class, 'create'])->name('.create');
+        Route::post('/store', [DeliveryReturnLocationController::class, 'store'])->name('.store');
+        Route::get('/show/{id}', [DeliveryReturnLocationController::class, 'show'])->name('.show');
+        Route::get('/edit/{id}', [DeliveryReturnLocationController::class, 'edit'])->name('.edit');
+        Route::put('/update/{id}', [DeliveryReturnLocationController::class, 'update'])->name('.update');
+        Route::delete('/delete/{id}', [DeliveryReturnLocationController::class, 'destroy'])->name('.delete');
+        Route::put('/restore/{id}', [DeliveryReturnLocationController::class, 'restore'])->name('.restore');
     });
 
     Route::prefix('inquiries')->name('inquiries')->group(function () {
