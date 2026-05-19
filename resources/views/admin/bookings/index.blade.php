@@ -800,7 +800,7 @@
 
                         <td class="px-6 py-4">
                             <div class="space-y-1">
-                                <div class="text-xs text-slate-700">Flow: ${escapeHtml(record.payment_flow || '-')}</div>
+                                <div class="text-xs text-slate-700">Flow: ${record.payment_flow === 'now' ? 'Pay Now' : 'Pay Later'}</div>
                                 <div class="text-xs text-slate-500">Amount: ${currencyHtml(record.total_amount || '0.00')}</div>
                                 <div class="text-xs text-slate-500">Status: ${escapeHtml(record.paid_status || '-')}</div>
                                 <div class="text-xs text-slate-500">Via: ${escapeHtml(record.paid_via || '-')}</div>
