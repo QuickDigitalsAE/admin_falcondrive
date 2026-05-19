@@ -17,6 +17,16 @@
 @endsection
 
 @section('content')
+    @php
+        $amountWithIcon = function ($value) {
+            return new \Illuminate\Support\HtmlString(
+                '<span class="inline-flex items-center gap-1 font-semibold text-slate-700">' .
+                '<img src="' . asset('images/durham.png') . '" alt="AED" class="inline-block h-[1em] w-[1em] object-contain align-[-0.12em]">' .
+                '<span>' . number_format((float) $value, 2) . '</span>' .
+                '</span>'
+            );
+        };
+    @endphp
     <div class="rounded-3xl border border-[#eee4ca] bg-white p-6 shadow-sm">
         <div class="grid grid-cols-1 gap-5 2xl:grid-cols-12">
             <div class="2xl:col-span-6 overflow-hidden rounded-[28px] border border-[#f1e7d0] bg-white p-0 shadow-[0_10px_40px_rgba(155,122,40,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_60px_rgba(155,122,40,0.14)]">
@@ -60,7 +70,7 @@
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">End:</span> {{ optional($booking->end_date)->format('Y-m-d') ?? '-' }} {{ $booking->end_time ?? '' }}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Type:</span> {{ $booking->rental_type ?? '-' }}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Duration:</span> {{ $booking->rental_duration ?? '-' }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Rental Price:</span> {{ number_format((float) $booking->rental_price, 2) }}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Rental Price:</span> {!! $amountWithIcon($booking->rental_price) !!}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Resident/Tourist:</span> {{ $booking->resident_tourist ?? '-' }}</div>
                 </div>
             </div>
@@ -79,10 +89,10 @@
                 </div>
             </div>
                 <div class="space-y-3 p-6 text-sm text-slate-700">
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Full Insurance:</span> {{ $booking->full_insurance ? 'Yes' : 'No' }} ({{ number_format((float) $booking->full_insurance_price, 2) }})</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Additional Driver:</span> {{ $booking->additional_driver ? 'Yes' : 'No' }} ({{ number_format((float) $booking->additional_driver_charges, 2) }})</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Baby Seat:</span> {{ $booking->baby_seat ? 'Yes' : 'No' }} ({{ number_format((float) $booking->baby_seat_price, 2) }})</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Deposit/Waiver:</span> {{ $booking->deposit_waiver ?? '-' }} ({{ number_format((float) $booking->deposit_waiver_price, 2) }})</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Full Insurance:</span> {{ $booking->full_insurance ? 'Yes' : 'No' }} ({!! $amountWithIcon($booking->full_insurance_price) !!})</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Additional Driver:</span> {{ $booking->additional_driver ? 'Yes' : 'No' }} ({!! $amountWithIcon($booking->additional_driver_charges) !!})</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Baby Seat:</span> {{ $booking->baby_seat ? 'Yes' : 'No' }} ({!! $amountWithIcon($booking->baby_seat_price) !!})</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Deposit/Waiver:</span> {{ $booking->deposit_waiver ?? '-' }} ({!! $amountWithIcon($booking->deposit_waiver_price) !!})</div>
                 </div>
             </div>
 
@@ -101,12 +111,12 @@
             </div>
                 <div class="space-y-3 p-6 text-sm text-slate-700">
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Delivery Location:</span> {{ $booking->delivery_location ?? '-' }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Delivery Price:</span> {{ number_format((float) $booking->delivery_location_price, 2) }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Different City Dropoff Fee:</span> {{ number_format((float) $booking->different_city_dropoff_fee, 2) }}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Delivery Price:</span> {!! $amountWithIcon($booking->delivery_location_price) !!}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Different City Dropoff Fee:</span> {!! $amountWithIcon($booking->different_city_dropoff_fee) !!}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Self Pickup Location:</span> {{ $booking->self_pickup_location ?? '-' }}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Self Pickup Address:</span> {{ $booking->self_pickup_address ?? '-' }}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Return Location:</span> {{ $booking->return_location ?? '-' }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Return Price:</span> {{ number_format((float) $booking->return_location_price, 2) }}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Return Price:</span> {!! $amountWithIcon($booking->return_location_price) !!}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Self Return Location:</span> {{ $booking->self_return_location ?? '-' }}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Self Return Address:</span> {{ $booking->self_return_address ?? '-' }}</div>
                 </div>
@@ -127,16 +137,16 @@
             </div>
                 <div class="space-y-3 p-6 text-sm text-slate-700">
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Coupon Code:</span> {{ $booking->coupon_code ?? '-' }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Coupon Amount:</span> {{ number_format((float) $booking->coupon_amount, 2) }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Pay Now Discount:</span> {{ number_format((float) $booking->pay_now_discount, 2) }}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Coupon Amount:</span> {!! $amountWithIcon($booking->coupon_amount) !!}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Pay Now Discount:</span> {!! $amountWithIcon($booking->pay_now_discount) !!}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Discount %:</span> {{ number_format((float) $booking->discount_percentage, 2) }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Subtotal:</span> {{ number_format((float) $booking->subtotal, 2) }}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Subtotal:</span> {!! $amountWithIcon($booking->subtotal) !!}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">VAT %:</span> {{ number_format((float) $booking->vat_percentage, 2) }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">VAT Amount:</span> {{ number_format((float) $booking->vat_amount, 2) }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Total:</span> {{ number_format((float) $booking->total_amount, 2) }}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">VAT Amount:</span> {!! $amountWithIcon($booking->vat_amount) !!}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Total:</span> {!! $amountWithIcon($booking->total_amount) !!}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Flow:</span> {{ $booking->payment_flow }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Pay Now 20%:</span> {{ number_format((float) $booking->{'pay_now_20%_to_Reserve'}, 2) }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Pay At Pickup 80%:</span> {{ number_format((float) $booking->{'pay_at_pickup_80%'}, 2) }}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Pay Now 20%:</span> {!! $amountWithIcon($booking->{'pay_now_20%_to_Reserve'}) !!}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Pay At Pickup 80%:</span> {!! $amountWithIcon($booking->{'pay_at_pickup_80%'}) !!}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Paid ID:</span> {{ $booking->paid_id ?? '-' }}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Paid Date:</span> {{ optional($booking->paid_date)->format('Y-m-d H:i:s') ?? '-' }}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Paid Status:</span> {{ $booking->paid_status ?? '-' }}</div>

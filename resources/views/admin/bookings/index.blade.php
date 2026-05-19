@@ -167,6 +167,13 @@
                                 <td class="px-6 py-4">
                                     <div class="space-y-1">
                                         <div class="text-xs text-slate-700">Flow: {{ $booking->payment_flow }}</div>
+                                        <div class="text-xs text-slate-500">
+                                            Amount:
+                                            <span class="inline-flex items-center gap-1 font-semibold text-slate-700">
+                                                <img src="{{ asset('images/durham.png') }}" alt="AED" class="inline-block h-[1em] w-[1em] object-contain align-[-0.12em]">
+                                                {{ number_format((float) $booking->total_amount, 2) }}
+                                            </span>
+                                        </div>
                                         <div class="text-xs text-slate-500">Status: {{ $booking->paid_status ?? '-' }}</div>
                                         <div class="text-xs text-slate-500">Via: {{ $booking->paid_via ?? '-' }}</div>
                                     </div>
@@ -534,6 +541,18 @@
                     .replaceAll("'", '&#039;');
             }
 
+
+            function currencyHtml(value) {
+                const amount = value === null || value === undefined || value === '' ? '0.00' : value;
+
+                return `
+                    <span class="inline-flex items-center gap-1 font-semibold text-slate-700">
+                        <img src="{{ asset('images/durham.png') }}" alt="AED" class="inline-block h-[1em] w-[1em] object-contain align-[-0.12em]">
+                        <span>${escapeHtml(amount)}</span>
+                    </span>
+                `;
+            }
+
             function csrfToken() {
                 return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || @json(csrf_token());
             }
@@ -782,7 +801,7 @@
                         <td class="px-6 py-4">
                             <div class="space-y-1">
                                 <div class="text-xs text-slate-700">Flow: ${escapeHtml(record.payment_flow || '-')}</div>
-                                <div class="text-xs text-slate-500">Amount: ${escapeHtml(record.total_amount || '0')}</div>
+                                <div class="text-xs text-slate-500">Amount: ${currencyHtml(record.total_amount || '0.00')}</div>
                                 <div class="text-xs text-slate-500">Status: ${escapeHtml(record.paid_status || '-')}</div>
                                 <div class="text-xs text-slate-500">Via: ${escapeHtml(record.paid_via || '-')}</div>
                             </div>

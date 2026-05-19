@@ -7,6 +7,8 @@ use App\Http\Requests\Api\BookingRequest;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Carbon;
 
 class BookingController extends Controller
 {
@@ -26,11 +28,20 @@ class BookingController extends Controller
         $isExport = $request->query('is_export');
         $isDeleted = (int) $request->query('is_deleted', 0);
         $supportsSoftDeletes = $this->bookingSupportsSoftDeletes();
+        $hasDeletedAtColumn = $this->bookingHasDeletedAtColumn();
 
         $query = Booking::query();
 
-        if ($supportsSoftDeletes && $isDeleted === 1) {
-            $query->onlyTrashed();
+        if ($supportsSoftDeletes) {
+            if ($isDeleted === 1) {
+                $query->onlyTrashed();
+            }
+        } elseif ($hasDeletedAtColumn) {
+            if ($isDeleted === 1) {
+                $query->whereNotNull('deleted_at');
+            } else {
+                $query->whereNull('deleted_at');
+            }
         }
 
         if ($search !== '') {
@@ -137,7 +148,7 @@ class BookingController extends Controller
 
     public function show(int $id)
     {
-        $booking = Booking::find($id);
+        $booking = $this->findBookingIncludingTrash($id);
         if (!$booking) {
             return redirect()->route('admin.bookings')->with('error', 'Booking not found.');
         }
@@ -183,6 +194,7 @@ class BookingController extends Controller
     public function destroy(Request $request, int $id)
     {
         $booking = Booking::find($id);
+
         if (!$booking) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['status' => false, 'message' => 'Booking not found.'], 404);
@@ -191,40 +203,61 @@ class BookingController extends Controller
             return back()->with('error', 'Booking not found.');
         }
 
-        $booking->delete();
+        if ($this->bookingSupportsSoftDeletes()) {
+            $booking->delete();
+        } elseif ($this->bookingHasDeletedAtColumn()) {
+            $booking->forceFill(['deleted_at' => Carbon::now()])->save();
+        } else {
+            $booking->delete();
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'status' => true,
-                'message' => 'Booking deleted successfully.',
+                'message' => 'Booking moved to trash successfully.',
             ]);
         }
 
-        return redirect()->route('admin.bookings')->with('success', 'Booking deleted successfully.');
+        return redirect()->route('admin.bookings')->with('success', 'Booking moved to trash successfully.');
     }
 
 
 
-    public function restore( int $id)
+    public function restore(int $id)
     {
-        if (!$this->bookingSupportsSoftDeletes()) {
+        if ($this->bookingSupportsSoftDeletes()) {
+            $booking = Booking::withTrashed()->find($id);
+
+            if (!$booking) {
+                return response()->json(['status' => false, 'message' => 'Booking not found.'], 404);
+            }
+
+            if (!$booking->trashed()) {
+                return response()->json(['status' => true, 'message' => 'Booking is already active.']);
+            }
+
+            $booking->restore();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Booking restored successfully.',
+            ]);
+        }
+
+        if (!$this->bookingHasDeletedAtColumn()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Trash is not enabled for bookings. Add SoftDeletes to the Booking model and deleted_at column first.',
+                'message' => 'Trash is not enabled for bookings. Add deleted_at column or SoftDeletes first.',
             ], 422);
         }
 
-        $booking = Booking::withTrashed()->find($id);
+        $booking = Booking::query()->where('id', $id)->whereNotNull('deleted_at')->first();
 
         if (!$booking) {
-            return response()->json(['status' => false, 'message' => 'Booking not found.'], 404);
+            return response()->json(['status' => false, 'message' => 'Booking not found in trash.'], 404);
         }
 
-        if (!$booking->trashed()) {
-            return response()->json(['status' => true, 'message' => 'Booking is already active.']);
-        }
-
-        $booking->restore();
+        $booking->forceFill(['deleted_at' => null])->save();
 
         return response()->json([
             'status' => true,
@@ -234,7 +267,7 @@ class BookingController extends Controller
 
     public function payload(int $id)
     {
-        $booking = Booking::find($id);
+        $booking = $this->findBookingIncludingTrash($id);
 
         if (!$booking) {
             return response()->json([
@@ -292,6 +325,21 @@ class BookingController extends Controller
         unset($rules['website'], $rules['g-recaptcha-response']);
 
         return $request->validate($rules);
+    }
+
+
+    private function bookingHasDeletedAtColumn(): bool
+    {
+        return Schema::hasColumn((new Booking())->getTable(), 'deleted_at');
+    }
+
+    private function findBookingIncludingTrash(int $id): ?Booking
+    {
+        if ($this->bookingSupportsSoftDeletes()) {
+            return Booking::withTrashed()->find($id);
+        }
+
+        return Booking::query()->find($id);
     }
 
     private function bookingSupportsSoftDeletes(): bool
