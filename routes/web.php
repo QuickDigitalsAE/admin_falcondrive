@@ -159,7 +159,7 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
         Route::get('/{id}/payload', [BookingController::class, 'payload'])->name('.payload');
         Route::put('/update/{id}', [BookingController::class, 'update'])->name('.update');
         Route::delete('/delete/{id}', [BookingController::class, 'destroy'])->name('.delete');
-        Route::put('/restore/{id}', [BookingController::class, 'restore'])->name('admin.bookings.restore');
+        Route::put('/restore/{id}', [BookingController::class, 'restore'])->name('.restore');
     });
 
     Route::prefix('cars')->name('cars')->group(function () {
