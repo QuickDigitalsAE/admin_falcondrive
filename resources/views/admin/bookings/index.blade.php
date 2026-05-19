@@ -69,6 +69,17 @@
                         </a>
                     @endcan
 
+                    @can('Booking_Delete')
+                        <button
+                            type="button"
+                            id="trashToggleBtn"
+                            class="inline-flex h-[42px] w-[42px] items-center justify-center rounded-xl border border-red-300 bg-red-50 text-red-700 shadow-sm transition hover:bg-red-100"
+                            title="View Trash"
+                        >
+                            <i class="fa-solid fa-recycle text-[14px]"></i>
+                        </button>
+                    @endcan
+
                     @can('Booking_ViewAll')
                         <a
                             id="exportCsvBtn"
@@ -494,6 +505,7 @@
             const searchForm = document.getElementById('bookingSearchForm');
             const searchInput = document.getElementById('searchInput');
             const resetBtn = document.getElementById('resetBtn');
+            const trashToggleBtn = document.getElementById('trashToggleBtn');
             const exportCsvBtn = document.getElementById('exportCsvBtn');
             const recordsTableBody = document.getElementById('recordsTableBody');
             const paginationWrapper = document.getElementById('paginationWrapper');
@@ -501,6 +513,7 @@
 
             let state = {
                 search: new URLSearchParams(window.location.search).get('search') || '',
+                is_deleted: new URLSearchParams(window.location.search).get('is_deleted') === '1' ? 1 : 0,
                 page: parseInt(new URLSearchParams(window.location.search).get('page') || '1', 10),
                 loading: false,
                 requestId: 0,
@@ -548,6 +561,32 @@
                 `;
             }
 
+            function updateTrashUI() {
+                if (!trashToggleBtn) return;
+
+                const icon = trashToggleBtn.querySelector('i');
+
+                if (Number(state.is_deleted) === 1) {
+                    trashToggleBtn.classList.remove('border-red-300', 'bg-red-50', 'text-red-700', 'hover:bg-red-100');
+                    trashToggleBtn.classList.add('border-green-300', 'bg-green-100', 'text-green-800', 'hover:bg-green-200');
+                    trashToggleBtn.setAttribute('title', 'Back to Active Bookings');
+
+                    if (icon) {
+                        icon.className = 'fa-solid fa-arrow-rotate-left text-[14px]';
+                    }
+
+                    return;
+                }
+
+                trashToggleBtn.classList.add('border-red-300', 'bg-red-50', 'text-red-700', 'hover:bg-red-100');
+                trashToggleBtn.classList.remove('border-green-300', 'bg-green-100', 'text-green-800', 'hover:bg-green-200');
+                trashToggleBtn.setAttribute('title', 'View Trash');
+
+                if (icon) {
+                    icon.className = 'fa-solid fa-recycle text-[14px]';
+                }
+            }
+
             function updateExportUrl() {
                 if (!exportCsvBtn) return;
 
@@ -555,6 +594,10 @@
 
                 if (state.search) {
                     params.set('search', state.search);
+                }
+
+                if (Number(state.is_deleted) === 1) {
+                    params.set('is_deleted', '1');
                 }
 
                 params.set('is_export', '1');
@@ -565,6 +608,7 @@
                 const url = new URL(window.location.href);
 
                 state.search ? url.searchParams.set('search', state.search) : url.searchParams.delete('search');
+                Number(state.is_deleted) === 1 ? url.searchParams.set('is_deleted', '1') : url.searchParams.delete('is_deleted');
                 state.page > 1 ? url.searchParams.set('page', state.page) : url.searchParams.delete('page');
 
                 window.history.replaceState({}, '', url.toString());
@@ -638,7 +682,7 @@
                     `);
                 }
 
-                if (permissions.can_send_booking) {
+                if (!record.deleted_at && permissions.can_send_booking) {
                     if (record.send_booking_id) {
                         buttons.push(`
                             <button
@@ -669,7 +713,7 @@
                     }
                 }
 
-                if (permissions.can_delete) {
+                if (!record.deleted_at && permissions.can_delete) {
                     buttons.push(`
                         <button
                             type="button"
@@ -677,6 +721,18 @@
                             data-url="${record.delete_url}"
                             title="Delete">
                             <i class="fa-solid fa-trash-can text-[13px]"></i>
+                        </button>
+                    `);
+                }
+
+                if (record.deleted_at && permissions.can_restore) {
+                    buttons.push(`
+                        <button
+                            type="button"
+                            class="restore-booking-btn inline-flex h-9 w-9 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-600 transition hover:bg-emerald-100"
+                            data-url="${record.restore_url}"
+                            title="Restore">
+                            <i class="fa-solid fa-recycle text-[13px]"></i>
                         </button>
                     `);
                 }
@@ -706,7 +762,10 @@
 
                         <td class="px-6 py-4">
                             <div class="space-y-1">
-                                <div class="text-sm font-semibold text-slate-800">${escapeHtml(record.name || '-')}</div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-sm font-semibold text-slate-800">${escapeHtml(record.name || '-')}</span>
+                                    ${record.deleted_at ? '<span class="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-600">Trashed</span>' : ''}
+                                </div>
                                 <div class="text-xs text-slate-500">${escapeHtml(record.number || '-')}</div>
                                 <div class="text-xs text-slate-500">${escapeHtml(record.email || '-')}</div>
                             </div>
@@ -744,12 +803,17 @@
 
                 const currentRequestId = state.requestId;
                 setLoading();
+                updateTrashUI();
                 updateExportUrl();
 
                 const params = new URLSearchParams();
 
                 if (state.search) {
                     params.set('search', state.search);
+                }
+
+                if (Number(state.is_deleted) === 1) {
+                    params.set('is_deleted', '1');
                 }
 
                 if (state.page > 1) {
@@ -851,6 +915,67 @@
                 }
             }
 
+
+            async function restoreBooking(url) {
+                if (!url) return;
+
+                const result = await Swal.fire({
+                    title: 'Restore Booking?',
+                    text: 'This booking will be moved back to active bookings.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Restore',
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true,
+                    focusCancel: true,
+                    confirmButtonColor: '#16a34a',
+                    cancelButtonColor: '#94a3b8',
+                    customClass: {
+                        popup: 'rounded-3xl',
+                        confirmButton: 'rounded-xl px-5 py-2',
+                        cancelButton: 'rounded-xl px-5 py-2',
+                    }
+                });
+
+                if (!result.isConfirmed) return;
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken(),
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ _method: 'PUT' })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.status) {
+                        throw new Error(data.message || 'Booking restore failed.');
+                    }
+
+                    Swal.fire({
+                        title: 'Restored',
+                        text: data.message || 'Booking restored successfully.',
+                        icon: 'success',
+                        timer: 1200,
+                        showConfirmButton: false,
+                    });
+
+                    fetchRecords();
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: error.message || 'Something went wrong.',
+                        icon: 'error',
+                        confirmButtonColor: '#c79a2b',
+                    });
+                }
+            }
+
             if (searchForm) {
                 searchForm.addEventListener('submit', function (event) {
                     event.preventDefault();
@@ -864,8 +989,18 @@
                 resetBtn.addEventListener('click', function (event) {
                     event.preventDefault();
                     state.search = '';
+                    state.is_deleted = 0;
                     state.page = 1;
                     if (searchInput) searchInput.value = '';
+                    fetchRecords();
+                });
+            }
+
+
+            if (trashToggleBtn) {
+                trashToggleBtn.addEventListener('click', function () {
+                    state.is_deleted = Number(state.is_deleted) === 1 ? 0 : 1;
+                    state.page = 1;
                     fetchRecords();
                 });
             }
@@ -912,6 +1047,13 @@
 
                 if (deleteBtn) {
                     deleteBooking(deleteBtn.dataset.url);
+                    return;
+                }
+
+                const restoreBtn = event.target.closest('.restore-booking-btn');
+
+                if (restoreBtn) {
+                    restoreBooking(restoreBtn.dataset.url);
                 }
             });
 

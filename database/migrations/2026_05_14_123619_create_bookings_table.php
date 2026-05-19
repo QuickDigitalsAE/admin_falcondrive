@@ -76,6 +76,7 @@ return new class extends Migration
             $table->longText('notes')->nullable();
             $table->longText('speed_response')->nullable()->comment('Full API return response from Speed for debugging');
             
+            $table->softDeletes();
             $table->timestamps();
         });
     }

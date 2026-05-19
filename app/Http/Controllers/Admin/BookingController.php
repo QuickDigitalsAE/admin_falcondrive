@@ -16,7 +16,7 @@ class BookingController extends Controller
         $this->middleware('permission:Booking_ViewAll|Booking_View', ['only' => ['show']]);
         $this->middleware('permission:Booking_Add', ['only' => ['create', 'store']]);
         $this->middleware('permission:Booking_Edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:Booking_Delete', ['only' => ['destroy']]);
+        $this->middleware('permission:Booking_Delete', ['only' => ['destroy', 'restore']]);
     }
 
     public function index(Request $request)
@@ -24,8 +24,14 @@ class BookingController extends Controller
         $perPage = $request->query('per_page', 10);
         $search = trim((string) $request->query('search', ''));
         $isExport = $request->query('is_export');
+        $isDeleted = (int) $request->query('is_deleted', 0);
+        $supportsSoftDeletes = $this->bookingSupportsSoftDeletes();
 
         $query = Booking::query();
+
+        if ($supportsSoftDeletes && $isDeleted === 1) {
+            $query->onlyTrashed();
+        }
 
         if ($search !== '') {
             $query->where(function ($subQuery) use ($search) {
@@ -67,12 +73,15 @@ class BookingController extends Controller
                     'start_time' => $booking->start_time,
                     'end_time' => $booking->end_time,
                     'send_booking_id' => $booking->send_booking_id,
+                    'deleted_at' => optional($booking->deleted_at)->format('Y-m-d H:i:s'),
                     'created_at_human' => optional($booking->created_at)->format('d M Y, h:i A'),
                     'show_url' => route('admin.bookings.show', $booking->id),
                     'delete_url' => route('admin.bookings.delete', $booking->id),
+                    'restore_url' => route('admin.bookings.restore', $booking->id),
                     'permissions' => [
                         'can_view' => $authUser->can('Booking_ViewAll') || $authUser->can('Booking_View'),
                         'can_delete' => $authUser->can('Booking_Delete'),
+                        'can_restore' => $authUser->can('Booking_Delete'),
                         'can_send_booking' => $authUser->can('Inquiry_SendBooking') || $authUser->can('Booking_SendBooking'),
                     ],
                 ];
@@ -92,7 +101,7 @@ class BookingController extends Controller
                         'to' => $records->lastItem(),
                         'has_more_pages' => $records->hasMorePages(),
                     ],
-                    'filters' => ['search' => $search],
+                    'filters' => ['search' => $search, 'is_deleted' => $isDeleted],
                 ],
             ]);
         }
@@ -101,6 +110,7 @@ class BookingController extends Controller
             'records' => $records,
             'search' => $search,
             'perPage' => $perPage,
+            'isDeleted' => $isDeleted,
         ]);
     }
 
@@ -194,6 +204,34 @@ class BookingController extends Controller
     }
 
 
+
+    public function restore( int $id)
+    {
+        if (!$this->bookingSupportsSoftDeletes()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Trash is not enabled for bookings. Add SoftDeletes to the Booking model and deleted_at column first.',
+            ], 422);
+        }
+
+        $booking = Booking::withTrashed()->find($id);
+
+        if (!$booking) {
+            return response()->json(['status' => false, 'message' => 'Booking not found.'], 404);
+        }
+
+        if (!$booking->trashed()) {
+            return response()->json(['status' => true, 'message' => 'Booking is already active.']);
+        }
+
+        $booking->restore();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Booking restored successfully.',
+        ]);
+    }
+
     public function payload(int $id)
     {
         $booking = Booking::find($id);
@@ -255,4 +293,14 @@ class BookingController extends Controller
 
         return $request->validate($rules);
     }
+
+    private function bookingSupportsSoftDeletes(): bool
+    {
+        return in_array(
+            \Illuminate\Database\Eloquent\SoftDeletes::class,
+            class_uses_recursive(Booking::class),
+            true
+        );
+    }
+
 }

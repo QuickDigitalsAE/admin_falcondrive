@@ -230,11 +230,11 @@
         </div>
 
         <div class="mt-6 flex flex-wrap gap-3">
-            @can('Booking_Edit')
+            <!-- @can('Booking_Edit')
                 <a href="{{ route('admin.bookings.edit', $booking->id) }}" class="inline-flex items-center justify-center rounded-2xl bg-[#d6ab3d] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c59626]">
                     <i class="fa-solid fa-pen-to-square mr-2 text-[13px]"></i>Edit
                 </a>
-            @endcan
+            @endcan -->
             <a href="{{ route('admin.bookings') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-6 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]">
                 <i class="fa-solid fa-arrow-left mr-2 text-[13px]"></i>Back
             </a>
