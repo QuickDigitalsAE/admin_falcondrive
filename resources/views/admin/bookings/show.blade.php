@@ -98,11 +98,63 @@
                 </div>
             </div>
         </div>
+        
+        @php
+            $notesData = json_decode($booking->notes, true);
+        @endphp
 
         <div class="mt-6 grid grid-cols-1 gap-6">
             <div class="rounded-2xl border border-[#f2ead4] bg-[#fffdf9] p-5">
-                <h3 class="mb-4 text-sm font-semibold text-slate-700">Notes</h3>
-                <div class="whitespace-pre-wrap text-sm text-slate-700">{{ $booking->notes ?: '-' }}</div>
+                <div class="mb-4 flex items-center justify-between gap-3">
+                    <h3 class="text-sm font-semibold text-slate-800">
+                        <i class="fa-regular fa-note-sticky mr-2 text-[#c59626]"></i>
+                        Notes
+                    </h3>
+                </div>
+
+                @if(is_array($notesData))
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        @foreach($notesData as $key => $value)
+                            @if(!is_array($value))
+                                <div class="rounded-xl border border-[#efe3c4] bg-white px-4 py-3 shadow-sm">
+                                    <div class="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#9b7a28]">
+                                        {{ ucwords(str_replace('_', ' ', $key)) }}
+                                    </div>
+                                    <div class="break-words text-sm font-medium text-slate-700">
+                                        {{ $value !== '' && $value !== null ? $value : '-' }}
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+
+                    @if(isset($notesData['form_fields']) && is_array($notesData['form_fields']))
+                        <div class="mt-5 rounded-2xl border border-[#eadfbe] bg-white p-4">
+                            <h4 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-700">
+                                Form Fields
+                            </h4>
+
+                            <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                                @foreach($notesData['form_fields'] as $key => $value)
+                                    @if(!is_array($value))
+                                        <div class="rounded-xl bg-[#fffaf0] px-4 py-3">
+                                            <div class="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#9b7a28]">
+                                                {{ ucwords(str_replace('_', ' ', $key)) }}
+                                            </div>
+                                            <div class="break-words text-sm text-slate-700">
+                                                {{ $value !== '' && $value !== null ? $value : '-' }}
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                @else
+                    <div class="max-h-[320px] overflow-auto rounded-xl border border-[#efe3c4] bg-white p-4 text-sm leading-6 text-slate-700">
+                        {{ $booking->notes ?: '-' }}
+                    </div>
+                @endif
             </div>
 
             <div class="rounded-2xl border border-[#f2ead4] bg-[#fffdf9] p-5">
