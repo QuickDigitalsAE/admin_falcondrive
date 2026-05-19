@@ -12,78 +12,33 @@
 @csrf
 
 <div class="grid grid-cols-1 gap-5 xl:grid-cols-3">
-    @foreach ([
-        ['id' => 'name_en', 'label' => 'Name EN', 'value' => old('name_en', $car?->name_en ?? '')],
-        ['id' => 'name_ar', 'label' => 'Name AR', 'value' => old('name_ar', $car?->name_ar ?? '')],
-        ['id' => 'slug', 'label' => 'Slug', 'value' => old('slug', $car?->slug ?? '')],
-        ['id' => 'model', 'label' => 'Model', 'value' => old('model', $car?->model ?? '')],
-        ['id' => 'price_daily', 'label' => 'Price Daily', 'value' => old('price_daily', $car?->price_daily ?? '')],
-        ['id' => 'price_weekly', 'label' => 'Price Weekly', 'value' => old('price_weekly', $car?->price_weekly ?? '')],
-        ['id' => 'price_monthly', 'label' => 'Price Monthly', 'value' => old('price_monthly', $car?->price_monthly ?? '')],
-        ['id' => 'engine', 'label' => 'Engine', 'value' => old('engine', $car?->engine ?? '')],
-        ['id' => 'seats', 'label' => 'Seats', 'value' => old('seats', $car?->seats ?? '')],
-        ['id' => 'doors', 'label' => 'Doors', 'value' => old('doors', $car?->doors ?? '')],
-        ['id' => 'deposit', 'label' => 'Deposit', 'value' => old('deposit', $car?->deposit ?? '')],
-        ['id' => 'luggage', 'label' => 'Luggage', 'value' => old('luggage', $car?->luggage ?? '')],
-        ['id' => 'cdw_daily', 'label' => 'CDW Daily', 'value' => old('cdw_daily', $car?->cdw_daily ?? '')],
-        ['id' => 'cdw_weekly', 'label' => 'CDW Weekly', 'value' => old('cdw_weekly', $car?->cdw_weekly ?? '')],
-        ['id' => 'cdw_monthly', 'label' => 'CDW Monthly', 'value' => old('cdw_monthly', $car?->cdw_monthly ?? '')],
-    ] as $field)
-        <div class="min-w-0">
-            <div class="space-y-2">
-                <div class="relative">
-                    <input id="{{ $field['id'] }}" type="text" name="{{ $field['id'] }}" value="{{ $field['value'] }}" placeholder="{{ $field['label'] }}"
-                        class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
-                    <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has($field['id']) ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">{{ $field['label'] }}</label>
-                </div>
-                @error($field['id'])<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
-            </div>
+    {{-- Basic Information --}}
+    <div class="xl:col-span-3">
+        <div class="mb-4">
+            <h3 class="text-sm font-bold uppercase tracking-[0.18em] text-[#9b7a28]">Basic Information</h3>
         </div>
 
-    @endforeach
-
-    @foreach ([
-        ['id' => 'cruise_control', 'label' => 'Cruise Control', 'value' => old('cruise_control', (int) ($car?->cruise_control ?? 0))],
-        ['id' => 'bluetooth', 'label' => 'Bluetooth', 'value' => old('bluetooth', (int) ($car?->bluetooth ?? 0))],
-        ['id' => 'automatic', 'label' => 'Automatic', 'value' => old('automatic', (int) ($car?->automatic ?? 0))],
-        ['id' => 'parking_sensor', 'label' => 'Parking Sensor', 'value' => old('parking_sensor', (int) ($car?->parking_sensor ?? 0))],
-        ['id' => 'navigation', 'label' => 'Navigation', 'value' => old('navigation', (int) ($car?->navigation ?? 0))],
-        ['id' => 'carplay', 'label' => 'CarPlay', 'value' => old('carplay', (int) ($car?->carplay ?? 0))],
-        ['id' => 'camera', 'label' => 'Camera', 'value' => old('camera', (int) ($car?->camera ?? 0))],
-        ['id' => 'featured', 'label' => 'Featured', 'value' => old('featured', (int) ($car?->featured ?? 0))],
-    ] as $field)
-        <div class="min-w-0">
-            <div class="space-y-2">
-                <div class="relative">
-                    <select id="{{ $field['id'] }}" name="{{ $field['id'] }}"
-                        class="peer w-full appearance-none rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 pr-11 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[58px]">
-                        <option value="0" {{ (string) $field['value'] === '0' ? 'selected' : '' }}>No</option>
-                        <option value="1" {{ (string) $field['value'] === '1' ? 'selected' : '' }}>Yes</option>
-                    </select>
-                    <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has($field['id']) ? 'text-red-500' : 'text-slate-500' }}">{{ $field['label'] }}</label>
-                    <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
-                </div>
-                @error($field['id'])<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
-            </div>
-        </div>
-
-        @if ($field['id'] === 'featured')
-            <div id="featuredSortingWrap" class="min-w-0 {{ old('featured', (int) ($car?->featured ?? 0)) ? '' : 'hidden' }}">
-                <div class="space-y-2">
-                    <div class="relative">
-                        <select id="featured_sorting" name="featured_sorting" data-current-featured-sorting="{{ old('featured_sorting', $car?->featured_sorting ?? '') }}"
-                            class="peer w-full appearance-none rounded-[18px] border {{ $errors->has('featured_sorting') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 pr-11 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[58px]">
-                            <option value="">Select Featured = Yes first</option>
-                        </select>
-                        <label for="featured_sorting" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('featured_sorting') ? 'text-red-500' : 'text-slate-500' }}">Featured Sort Order</label>
-                        <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+            @foreach ([
+                ['id' => 'name_en', 'label' => 'Name EN', 'value' => old('name_en', $car?->name_en ?? '')],
+                ['id' => 'name_ar', 'label' => 'Name AR', 'value' => old('name_ar', $car?->name_ar ?? '')],
+                ['id' => 'slug', 'label' => 'Slug', 'value' => old('slug', $car?->slug ?? '')],
+                ['id' => 'model', 'label' => 'Model', 'value' => old('model', $car?->model ?? '')],
+            ] as $field)
+                <div class="min-w-0">
+                    <div class="space-y-2">
+                        <div class="relative">
+                            <input id="{{ $field['id'] }}" type="text" name="{{ $field['id'] }}" value="{{ $field['value'] }}" placeholder="{{ $field['label'] }}"
+                                class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                            <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has($field['id']) ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">{{ $field['label'] }}</label>
+                        </div>
+                        @error($field['id'])<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
                     </div>
-                    @error('featured_sorting')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
                 </div>
-            </div>
-        @endif
-    @endforeach
-
+            @endforeach
+        </div>
+    </div>
+  
     <div class="min-w-0 xl:col-span-3 grid grid-cols-1 gap-5 xl:grid-cols-2">
         @foreach ([
             ['id' => 'seo_title_en', 'label' => 'SEO Title EN', 'value' => old('seo_title_en', $car?->seo_title_en ?? '')],
@@ -118,6 +73,105 @@
                 </div>
             </div>
         @endforeach
+    </div>
+
+    {{-- Prices - set after seo_brief_ar --}}
+    <div class="xl:col-span-3">
+        <div class="mb-4">
+            <h3 class="text-sm font-bold uppercase tracking-[0.18em] text-[#9b7a28]">Prices</h3>
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-3">
+            @foreach ([
+                ['id' => 'price_daily', 'label' => 'Price Daily', 'value' => old('price_daily', $car?->price_daily ?? '')],
+                ['id' => 'price_weekly', 'label' => 'Price Weekly', 'value' => old('price_weekly', $car?->price_weekly ?? '')],
+                ['id' => 'price_monthly', 'label' => 'Price Monthly', 'value' => old('price_monthly', $car?->price_monthly ?? '')],
+            ] as $field)
+                <div class="min-w-0">
+                    <div class="space-y-2">
+                        <div class="relative">
+                            <input id="{{ $field['id'] }}" type="text" name="{{ $field['id'] }}" value="{{ $field['value'] }}" placeholder="{{ $field['label'] }}"
+                                class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                            <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has($field['id']) ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">{{ $field['label'] }}</label>
+                        </div>
+                        @error($field['id'])<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- Features --}}
+    <div class="xl:col-span-3">
+        <div class="mb-4">
+            <h3 class="text-sm font-bold uppercase tracking-[0.18em] text-[#9b7a28]">Features</h3>
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-3">
+            @foreach ([
+                ['id' => 'engine', 'label' => 'Engine', 'value' => old('engine', $car?->engine ?? '')],
+                ['id' => 'seats', 'label' => 'Seats', 'value' => old('seats', $car?->seats ?? '')],
+                ['id' => 'doors', 'label' => 'Doors', 'value' => old('doors', $car?->doors ?? '')],
+                ['id' => 'deposit', 'label' => 'Deposit', 'value' => old('deposit', $car?->deposit ?? '')],
+                ['id' => 'luggage', 'label' => 'Luggage', 'value' => old('luggage', $car?->luggage ?? '')],
+                ['id' => 'cdw_daily', 'label' => 'CDW Daily', 'value' => old('cdw_daily', $car?->cdw_daily ?? '')],
+                ['id' => 'cdw_weekly', 'label' => 'CDW Weekly', 'value' => old('cdw_weekly', $car?->cdw_weekly ?? '')],
+                ['id' => 'cdw_monthly', 'label' => 'CDW Monthly', 'value' => old('cdw_monthly', $car?->cdw_monthly ?? '')],
+            ] as $field)
+                <div class="min-w-0">
+                    <div class="space-y-2">
+                        <div class="relative">
+                            <input id="{{ $field['id'] }}" type="text" name="{{ $field['id'] }}" value="{{ $field['value'] }}" placeholder="{{ $field['label'] }}"
+                                class="peer w-full min-w-0 rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                            <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has($field['id']) ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">{{ $field['label'] }}</label>
+                        </div>
+                        @error($field['id'])<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+            @endforeach
+
+            @foreach ([
+                ['id' => 'cruise_control', 'label' => 'Cruise Control', 'value' => old('cruise_control', (int) ($car?->cruise_control ?? 0))],
+                ['id' => 'bluetooth', 'label' => 'Bluetooth', 'value' => old('bluetooth', (int) ($car?->bluetooth ?? 0))],
+                ['id' => 'automatic', 'label' => 'Automatic', 'value' => old('automatic', (int) ($car?->automatic ?? 0))],
+                ['id' => 'parking_sensor', 'label' => 'Parking Sensor', 'value' => old('parking_sensor', (int) ($car?->parking_sensor ?? 0))],
+                ['id' => 'navigation', 'label' => 'Navigation', 'value' => old('navigation', (int) ($car?->navigation ?? 0))],
+                ['id' => 'carplay', 'label' => 'CarPlay', 'value' => old('carplay', (int) ($car?->carplay ?? 0))],
+                ['id' => 'camera', 'label' => 'Camera', 'value' => old('camera', (int) ($car?->camera ?? 0))],
+                ['id' => 'featured', 'label' => 'Featured', 'value' => old('featured', (int) ($car?->featured ?? 0))],
+            ] as $field)
+                <div class="min-w-0">
+                    <div class="space-y-2">
+                        <div class="relative">
+                            <select id="{{ $field['id'] }}" name="{{ $field['id'] }}"
+                                class="peer w-full appearance-none rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 pr-11 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                                <option value="0" {{ (string) $field['value'] === '0' ? 'selected' : '' }}>No</option>
+                                <option value="1" {{ (string) $field['value'] === '1' ? 'selected' : '' }}>Yes</option>
+                            </select>
+                            <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has($field['id']) ? 'text-red-500' : 'text-slate-500' }}">{{ $field['label'] }}</label>
+                            <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                        </div>
+                        @error($field['id'])<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+
+                @if ($field['id'] === 'featured')
+                    <div id="featuredSortingWrap" class="min-w-0 {{ old('featured', (int) ($car?->featured ?? 0)) ? '' : 'hidden' }}">
+                        <div class="space-y-2">
+                            <div class="relative">
+                                <select id="featured_sorting" name="featured_sorting" data-current-featured-sorting="{{ old('featured_sorting', $car?->featured_sorting ?? '') }}"
+                                    class="peer w-full appearance-none rounded-[18px] border {{ $errors->has('featured_sorting') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 pr-11 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                                    <option value="">Select Featured = Yes first</option>
+                                </select>
+                                <label for="featured_sorting" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('featured_sorting') ? 'text-red-500' : 'text-slate-500' }}">Featured Sort Order</label>
+                                <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                            </div>
+                            @error('featured_sorting')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        </div>
     </div>
 
     <div class="xl:col-span-3 grid grid-cols-1 gap-5 xl:grid-cols-2">
