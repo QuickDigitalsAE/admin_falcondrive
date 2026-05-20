@@ -4,14 +4,22 @@ namespace App\Http\Controllers\APIs;
 
 use App\Http\Requests\Api\BookingRequest;
 use App\Http\Resources\BookingResource;
+use App\Mail\BookingConfirmationMail;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class BookingController extends BaseApiController
 {
+    private const ADMIN_RECIPIENTS = [
+        'tahreem@falcondrive.ae',
+        'sales@falcondrive.ae',
+        'abbas@quickdigitals.ae',
+    ];
+
     protected string $modelClass = Booking::class;
     protected string $resourceClass = BookingResource::class;
     protected string $storeRequestClass = BookingRequest::class;
@@ -33,12 +41,30 @@ class BookingController extends BaseApiController
             $request->validate($formRequest->rules());
             $data = $formRequest->sanitize($request);
             $record = Booking::create($data);
+            $this->sendBookingEmails($record);
 
             return $this->successResponse($this->storeMessage, BookingResource::make($record)->resolve(), 201);
         } catch (ValidationException $e) {
             return $this->errorResponse('Validation failed', ['errors' => $e->errors()], 422);
         } catch (Throwable $e) {
             return $this->errorResponse($e->getMessage(), ['exception' => class_basename($e)], 500);
+        }
+    }
+
+    private function sendBookingEmails(Booking $record): void
+    {
+        if (!empty($record->email)) {
+            try {
+                Mail::to($record->email)->send(new BookingConfirmationMail($record, 'client'));
+            } catch (Throwable $mailException) {
+                report($mailException);
+            }
+        }
+
+        try {
+            Mail::to(self::ADMIN_RECIPIENTS)->send(new BookingConfirmationMail($record, 'admin'));
+        } catch (Throwable $mailException) {
+            report($mailException);
         }
     }
 
