@@ -372,7 +372,7 @@ class InquiryController extends BaseApiController
                 "email" => $request->email,
                 "gender" => (int) $request->gender,
                 "nationality" => $request->nationality,
-                "dateOfBirth" => $request->dateOfBirth,
+                "dateOfBirth" => \Carbon\Carbon::parse($request->dateOfBirth)->format('Y-m-d'),
                 "mobileNo" => $request->mobileNo,
                 "locationId" => (int) $request->locationId,
                 "address" => [
