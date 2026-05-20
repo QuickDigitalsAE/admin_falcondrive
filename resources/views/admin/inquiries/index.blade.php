@@ -177,6 +177,14 @@
                                     <input type="text" name="mobileNo" id="mobileNo" placeholder="Mobile" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
                                 </div>
                                 <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nationality</label>
+                                    <input type="text" name="nationality" id="nationality" placeholder="Nationality" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Date of Birth</label>
+                                    <input type="date" name="dateOfBirth" id="dateOfBirth" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                </div>
+                                <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">City</label>
                                     <input type="text" name="city" id="city" placeholder="City" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
                                 </div>
@@ -1569,6 +1577,8 @@
                             document.getElementById('firstName').value = pickCustomerValue(customer, ['firstName', 'FirstName']) || pickCustomerValue(customer.customer, ['firstName', 'FirstName']);
                             document.getElementById('lastName').value = pickCustomerValue(customer, ['lastName', 'LastName']) || pickCustomerValue(customer.customer, ['lastName', 'LastName']);
                             document.getElementById('mobileNo').value = pickCustomerValue(customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']) || pickCustomerValue(customer.customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']);
+                            document.getElementById('nationality').value = pickCustomerValue(customer, ['nationality', 'Nationality']) || pickCustomerValue(customer.customer, ['nationality', 'Nationality']);
+                            document.getElementById('dateOfBirth').value = pickCustomerValue(customer, ['dateOfBirth', 'DateOfBirth']) || pickCustomerValue(customer.customer, ['dateOfBirth', 'DateOfBirth']);
                             document.getElementById('city').value = pickCustomerValue(address, ['city', 'City']);
                             document.getElementById('country').value = pickCustomerValue(address, ['country', 'Country']);
                             document.getElementById('street').value = pickCustomerValue(address, ['street', 'Street', 'addressLine1', 'AddressLine1']);
@@ -1752,6 +1762,9 @@
                     lastName: $('#lastName').val(),
                     email: $('#customerEmail').val(),
                     mobileNo: $('#mobileNo').val(),
+                    gender: 1,
+                    nationality: $('#nationality').val(),
+                    dateOfBirth: $('#dateOfBirth').val(),
                     locationId: 1,
                     street: $('#street').val(),
                     city: $('#city').val(),
