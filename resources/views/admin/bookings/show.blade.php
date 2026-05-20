@@ -98,27 +98,100 @@
 
             <div class="2xl:col-span-6 overflow-hidden rounded-[28px] border border-[#f1e7d0] bg-white p-0 shadow-[0_10px_40px_rgba(155,122,40,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_60px_rgba(155,122,40,0.14)]">
                 <div class="border-b border-[#f5ead2] bg-gradient-to-r from-[#fffaf0] to-[#fff] px-6 py-5">
-                <div class="flex items-center gap-4">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#9b7a28] text-white shadow-lg shadow-[#9b7a28]/20">
-                        <i class="fa-solid fa-layer-group text-sm"></i>
-                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#9b7a28] text-white shadow-lg shadow-[#9b7a28]/20">
+                            <i class="fa-solid fa-layer-group text-sm"></i>
+                        </div>
 
-                    <div>
-                        <h3 class="text-base font-bold text-slate-800">Locations</h3>
-                        <p class="mt-1 text-xs text-slate-500">Modern responsive booking information panel</p>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800">Locations</h3>
+                            <p class="mt-1 text-xs text-slate-500">Modern responsive booking information panel</p>
+                        </div>
                     </div>
                 </div>
-            </div>
                 <div class="space-y-3 p-6 text-sm text-slate-700">
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Delivery Location:</span> {{ $booking->delivery_location ?? '-' }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Delivery Price:</span> {!! $amountWithIcon($booking->delivery_location_price) !!}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Different City Dropoff Fee:</span> {!! $amountWithIcon($booking->different_city_dropoff_fee) !!}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Self Pickup Location:</span> {{ $booking->self_pickup_location ?? '-' }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Self Pickup Address:</span> {{ $booking->self_pickup_address ?? '-' }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Return Location:</span> {{ $booking->return_location ?? '-' }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Return Price:</span> {!! $amountWithIcon($booking->return_location_price) !!}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Self Return Location:</span> {{ $booking->self_return_location ?? '-' }}</div>
-                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Self Return Address:</span> {{ $booking->self_return_address ?? '-' }}</div>
+
+                    @if(!empty($booking->delivery_location))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Delivery Location:
+                            </span>
+                            {{ $booking->delivery_location }}
+                        </div>
+                    @endif
+
+                    @if(!empty($booking->delivery_location_price))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Delivery Price:
+                            </span>
+                            {!! $amountWithIcon($booking->delivery_location_price) !!}
+                        </div>
+                    @endif
+
+                    <!-- @if(!empty($booking->different_city_dropoff_fee))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Different City Dropoff Fee:
+                            </span>
+                            {!! $amountWithIcon($booking->different_city_dropoff_fee) !!}
+                        </div>
+                    @endif -->
+
+                    @if(!empty($booking->self_pickup_location))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Self Pickup Location:
+                            </span>
+                            {{ $booking->self_pickup_location }}
+                        </div>
+                    @endif
+
+                    @if(!empty($booking->self_pickup_address))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Self Pickup Address:
+                            </span>
+                            {{ $booking->self_pickup_address }}
+                        </div>
+                    @endif
+
+                    @if(!empty($booking->return_location))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Return Location:
+                            </span>
+                            {{ $booking->return_location }}
+                        </div>
+                    @endif
+
+                    @if(!empty($booking->return_location_price))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Return Price:
+                            </span>
+                            {!! $amountWithIcon($booking->return_location_price) !!}
+                        </div>
+                    @endif
+
+                    @if(!empty($booking->self_return_location))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Self Return Location:
+                            </span>
+                            {{ $booking->self_return_location }}
+                        </div>
+                    @endif
+
+                    @if(!empty($booking->self_return_address))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Self Return Address:
+                            </span>
+                            {{ $booking->self_return_address }}
+                        </div>
+                    @endif
+
                 </div>
             </div>
 

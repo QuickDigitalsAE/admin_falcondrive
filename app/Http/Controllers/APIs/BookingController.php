@@ -65,6 +65,15 @@ class BookingController extends BaseApiController
             default => null,
         };
 
+        $deliveryZone = $this->nullIfPlaceholder($request->input('fd_delivery_zone'));
+        $returnZone = $this->nullIfPlaceholder($request->input('fd_return_zone'));
+
+        $deliveryLocation = $this->nullIfPlaceholder($request->input('delivery_location', $deliveryZone));
+        $returnLocation = $this->nullIfPlaceholder($request->input('return_location', $returnZone));
+
+        $fallbackPickup = $this->nullIfPlaceholder($request->input('fd_pickup'));
+        $fallbackReturnPickup = $this->nullIfPlaceholder($request->input('fd_return_pickup'));
+
         return [
             'name' => $this->stringOrNull($request->input('name', $request->input('full_name', data_get($contact, 'full_name')))),
             'number' => $request->input('number', $normalizedNumber),
@@ -85,15 +94,23 @@ class BookingController extends BaseApiController
             'baby_seat_price' => $this->decimalOrNull($request->input('baby_seat_price', data_get($pricing, 'baby_seat_price'))),
             'deposit_waiver' => $request->input('deposit_waiver', $this->mapDepositWaiver($request->input('deposit_waiver_enabled'))),
             'deposit_waiver_price' => $this->decimalOrNull($request->input('deposit_waiver_price', data_get($pricing, 'deposit_waiver_price'))),
-            'delivery_location' => $this->nullIfPlaceholder($request->input('delivery_location')),
+            'delivery_location' => $deliveryLocation,
             'delivery_location_price' => $this->decimalOrNull($request->input('delivery_location_price', data_get($pricing, 'delivery_location_price'))),
             'different_city_dropoff_fee' => $this->decimalOrNull($request->input('different_city_dropoff_fee', data_get($pricing, 'different_city_dropoff_fee'))),
-            'self_pickup_location' => $this->nullIfPlaceholder($request->input('self_pickup_location', $request->input('pickup_branch'))),
-            'self_pickup_address' => $this->nullIfPlaceholder($request->input('self_pickup_address', $request->input('pickup_branch'))),
-            'return_location' => $this->nullIfPlaceholder($request->input('return_location')),
+            'self_pickup_location' => $deliveryLocation === null
+                ? $this->nullIfPlaceholder($request->input('self_pickup_location', $fallbackPickup ?? $request->input('pickup_branch')))
+                : $this->nullIfPlaceholder($request->input('self_pickup_location', $request->input('pickup_branch'))),
+            'self_pickup_address' => $deliveryLocation === null
+                ? $this->nullIfPlaceholder($request->input('self_pickup_address', $fallbackPickup ?? $request->input('pickup_branch')))
+                : $this->nullIfPlaceholder($request->input('self_pickup_address', $request->input('pickup_branch'))),
+            'return_location' => $returnLocation,
             'return_location_price' => $this->decimalOrNull($request->input('return_location_price', data_get($pricing, 'return_location_price'))),
-            'self_return_location' => $this->nullIfPlaceholder($request->input('self_return_location', $request->input('dropoff_branch'))),
-            'self_return_address' => $this->nullIfPlaceholder($request->input('self_return_address', $request->input('dropoff_branch'))),
+            'self_return_location' => $returnLocation === null
+                ? $this->nullIfPlaceholder($request->input('self_return_location', $fallbackReturnPickup ?? $request->input('dropoff_branch')))
+                : $this->nullIfPlaceholder($request->input('self_return_location', $request->input('dropoff_branch'))),
+            'self_return_address' => $returnLocation === null
+                ? $this->nullIfPlaceholder($request->input('self_return_address', $fallbackReturnPickup ?? $request->input('dropoff_branch')))
+                : $this->nullIfPlaceholder($request->input('self_return_address', $request->input('dropoff_branch'))),
             'coupon_code' => $this->stringOrNull($request->input('coupon_code', $request->input('promo_code'))),
             'coupon_amount' => $this->decimalOrNull($request->input('coupon_amount', data_get($pricing, 'coupon_amount'))),
             'pay_now_discount' => $this->decimalOrNull($request->input('pay_now_discount', data_get($pricing, 'pay_now_discount'))),
