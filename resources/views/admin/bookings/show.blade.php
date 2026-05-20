@@ -120,7 +120,7 @@
                         </div>
                     @endif
 
-                    @if(!empty($booking->delivery_location_price))
+                    @if(!empty($booking->delivery_location_price) && $booking->delivery_location_price > 0)
                         <div>
                             <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
                                 Delivery Price:
@@ -165,7 +165,7 @@
                         </div>
                     @endif
 
-                    @if(!empty($booking->return_location_price))
+                    @if(!empty($booking->return_location_price) && $booking->return_location_price > 0)
                         <div>
                             <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
                                 Return Price:
