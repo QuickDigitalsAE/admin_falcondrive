@@ -35,7 +35,6 @@
             'Discount Type' => ucfirst($promoCode->discount_type),
             'Discount Value' => $promoCode->discount_type === 'percentage' ? $promoCode->discount_value . '%' : 'AED ' . number_format((float) $promoCode->discount_value, 2),
             'Minimum Amount' => 'AED ' . number_format((float) $promoCode->minimum_amount, 2),
-            'Usage' => $promoCode->used_count . ' / ' . ($promoCode->usage_limit ?: 'Unlimited'),
             'Start Date' => optional($promoCode->start_date)->format('Y-m-d') ?: '-',
             'Expiry Date' => optional($promoCode->expiry_date)->format('Y-m-d') ?: '-',
             'Status' => $promoCode->status ? 'Active' : 'Inactive',

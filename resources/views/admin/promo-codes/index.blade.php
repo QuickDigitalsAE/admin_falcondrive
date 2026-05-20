@@ -207,7 +207,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 </td>
                 <td class="px-6 py-4">
-                    <p class="text-sm text-slate-700">${escapeHtml(r.used_count || 0)} / ${escapeHtml(r.usage_limit || 'Unlimited')}</p>
                     <p class="text-xs text-slate-500">${escapeHtml(r.start_date || '-')} to ${escapeHtml(r.expiry_date || '-')}</p>
                 </td>
                 <td class="px-6 py-4">

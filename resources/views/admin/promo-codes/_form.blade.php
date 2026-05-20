@@ -37,7 +37,6 @@
     @foreach ([
         ['id' => 'discount_value', 'label' => 'Discount Value', 'value' => old('discount_value', $promoCode?->discount_value ?? '')],
         ['id' => 'minimum_amount', 'label' => 'Minimum Amount', 'value' => old('minimum_amount', $promoCode?->minimum_amount ?? 0)],
-        ['id' => 'usage_limit', 'label' => 'Usage Limit', 'value' => old('usage_limit', $promoCode?->usage_limit ?? '')],
         ['id' => 'start_date', 'label' => 'Start Date', 'value' => old('start_date', optional($promoCode?->start_date)->format('Y-m-d')), 'type' => 'date'],
         ['id' => 'expiry_date', 'label' => 'Expiry Date', 'value' => old('expiry_date', optional($promoCode?->expiry_date)->format('Y-m-d')), 'type' => 'date'],
     ] as $field)

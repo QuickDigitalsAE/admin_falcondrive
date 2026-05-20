@@ -18,7 +18,6 @@ class PromoCode extends Model
         'discount_value',
         'minimum_amount',
         'usage_limit',
-        'used_count',
         'start_date',
         'expiry_date',
         'status',
@@ -30,7 +29,6 @@ class PromoCode extends Model
     protected $casts = [
         'discount_value' => 'decimal:2',
         'minimum_amount' => 'decimal:2',
-        'usage_limit' => 'integer',
         'used_count' => 'integer',
         'status' => 'integer',
         'start_date' => 'date',
@@ -58,9 +56,6 @@ class PromoCode extends Model
             return [false, 'This promo code has expired.'];
         }
 
-        if ($this->usage_limit !== null && $this->used_count >= $this->usage_limit) {
-            return [false, 'This promo code usage limit has been reached.'];
-        }
 
         if ($amount < (float) $this->minimum_amount) {
             return [false, 'Minimum amount required is AED ' . number_format((float) $this->minimum_amount, 2) . '.'];

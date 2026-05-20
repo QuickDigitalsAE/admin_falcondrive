@@ -227,7 +227,6 @@ class PromoCodeController extends Controller
                     $record->discount_type,
                     $record->discount_value,
                     $record->minimum_amount,
-                    $record->usage_limit,
                     $record->used_count,
                     optional($record->start_date)->format('Y-m-d'),
                     optional($record->expiry_date)->format('Y-m-d'),

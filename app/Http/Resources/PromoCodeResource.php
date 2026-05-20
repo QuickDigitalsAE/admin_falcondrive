@@ -16,8 +16,6 @@ class PromoCodeResource extends JsonResource
             'discount_type' => $this->discount_type,
             'discount_value' => (float) $this->discount_value,
             'minimum_amount' => (float) $this->minimum_amount,
-            'usage_limit' => $this->usage_limit,
-            'used_count' => $this->used_count,
             'start_date' => optional($this->start_date)->format('Y-m-d'),
             'expiry_date' => optional($this->expiry_date)->format('Y-m-d'),
             'status' => (int) $this->status,
