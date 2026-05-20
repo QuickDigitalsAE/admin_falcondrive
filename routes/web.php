@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\DeliveryReturnLocationController;
+use App\Http\Controllers\Admin\PromoCodeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -148,6 +149,17 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
         Route::put('/update/{id}', [DeliveryReturnLocationController::class, 'update'])->name('.update');
         Route::delete('/delete/{id}', [DeliveryReturnLocationController::class, 'destroy'])->name('.delete');
         Route::put('/restore/{id}', [DeliveryReturnLocationController::class, 'restore'])->name('.restore');
+    });
+
+    Route::prefix('promo-codes')->name('promo-codes')->group(function () {
+        Route::get('/', [PromoCodeController::class, 'index'])->name('');
+        Route::get('/create', [PromoCodeController::class, 'create'])->name('.create');
+        Route::post('/store', [PromoCodeController::class, 'store'])->name('.store');
+        Route::get('/show/{id}', [PromoCodeController::class, 'show'])->name('.show');
+        Route::get('/edit/{id}', [PromoCodeController::class, 'edit'])->name('.edit');
+        Route::put('/update/{id}', [PromoCodeController::class, 'update'])->name('.update');
+        Route::delete('/delete/{id}', [PromoCodeController::class, 'destroy'])->name('.delete');
+        Route::put('/restore/{id}', [PromoCodeController::class, 'restore'])->name('.restore');
     });
 
     Route::prefix('inquiries')->name('inquiries')->group(function () {

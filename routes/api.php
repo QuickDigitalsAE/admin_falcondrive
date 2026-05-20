@@ -20,7 +20,7 @@ use App\Http\Controllers\APIs\LocationController;
 use App\Http\Controllers\APIs\PromotionController;
 use App\Http\Controllers\APIs\SettingController;
 use App\Http\Controllers\APIs\TestimonialController;
-
+use App\Http\Controllers\Admin\PromoCodeController;
 
 Route::prefix('speed')->group(function () {
     Route::get('/getVehicles', [InquiryController::class, 'getVehicles']);
@@ -61,5 +61,5 @@ Route::prefix('website')->group(function () {
     Route::get('/testimonials', [TestimonialController::class, 'publicIndex']);
     Route::post('/inquiries', [InquiryController::class, 'storePublic'])->middleware('throttle:5,1');
     Route::post('/bookings', [BookingController::class, 'storePublic'])->middleware('throttle:5,1');
-
+    Route::post('/promo-codes/apply', [PromoCodeController::class, 'apply'])->name('api.promo-codes.apply');
 });

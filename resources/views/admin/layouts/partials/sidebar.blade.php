@@ -213,6 +213,16 @@
                 </a>
             @endcan
 
+            @can('Promo_Code_Menu')
+                <a href="{{ route('admin.promo-codes') }}"
+                    class="sidebar-link flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.promo-codes') || request()->routeIs('admin.promo-codes.*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0c1d35] {{ request()->routeIs('admin.promo-codes') || request()->routeIs('admin.promo-codes.*') ? 'text-[#f8dd7c]' : 'text-slate-200' }}">
+                        <i class="fas fa-ticket text-[11px]"></i>
+                    </span>
+                    <span class="truncate sidebar-text">Promo Codes</span>
+                </a>
+            @endcan
+
             @can('Setting_Menu')
                 <a href="{{ route('admin.settings') }}"
                     class="sidebar-link flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.settings') || request()->routeIs('admin.settings.*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
