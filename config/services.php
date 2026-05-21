@@ -39,4 +39,8 @@ return [
         'secret' => env('RECAPTCHA_SECRET_KEY'),
     ],
 
+    'lead_webhook' => [
+        'url' => env('LEAD_WEBHOOK_URL'),
+    ],
+
 ];

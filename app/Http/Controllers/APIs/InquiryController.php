@@ -44,6 +44,8 @@ class InquiryController extends BaseApiController
             $this->guardAgainstSpam($request, $data);
             $record = Inquiry::create($data);
 
+            $this->sendLeadWebhook($record); // CRM / Lead Webhook Integration
+
             $this->sendInquiryEmails($record);
             AdminNotificationService::notifyInquiry($record, 'created');
 
@@ -52,6 +54,30 @@ class InquiryController extends BaseApiController
             return $this->errorResponse('Validation failed', ['errors' => $e->errors()], 422);
         } catch (Throwable $e) {
             return $this->errorResponse($e->getMessage(), ['exception' => class_basename($e)], 500);
+        }
+    }
+
+    private function sendLeadWebhook(Inquiry $record): void
+    {
+        try {
+            $webhookUrl = config('services.lead_webhook.url');
+
+            if (blank($webhookUrl)) {
+                return;
+            }
+
+            Http::timeout(10)
+                ->acceptJson()
+                ->asJson()
+                ->post($webhookUrl, [
+                    'Name' => $record->name,
+                    'Phone' => $record->number,
+                    'Email' => $record->email,
+                    'Interested Car' => $record->car_name,
+                ]);
+
+        } catch (Throwable $webhookException) {
+            report($webhookException);
         }
     }
 
