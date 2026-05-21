@@ -35,49 +35,120 @@ class InquiryController extends BaseApiController
     protected string $updateMessage = 'Inquiry updated successfully';
     protected string $deleteMessage = 'Inquiry deleted successfully';
 
+    // public function storePublic(Request $request)
+    // {
+    //     try {
+    //         $formRequest = new InquiryRequest();
+    //         $request->validate($formRequest->rules());
+    //         $data = $formRequest->sanitize($request);
+    //         $this->guardAgainstSpam($request, $data);
+    //         $record = Inquiry::create($data);
+
+    //         $this->sendLeadWebhook($record); // CRM / Lead Webhook Integration
+
+    //         $this->sendInquiryEmails($record);
+    //         AdminNotificationService::notifyInquiry($record, 'created');
+
+    //         return $this->successResponse($this->storeMessage, InquiryResource::make($record)->resolve(), 201);
+    //     } catch (ValidationException $e) {
+    //         return $this->errorResponse('Validation failed', ['errors' => $e->errors()], 422);
+    //     } catch (Throwable $e) {
+    //         return $this->errorResponse($e->getMessage(), ['exception' => class_basename($e)], 500);
+    //     }
+    // }
+
     public function storePublic(Request $request)
     {
         try {
+
             $formRequest = new InquiryRequest();
+
             $request->validate($formRequest->rules());
+
             $data = $formRequest->sanitize($request);
+
             $this->guardAgainstSpam($request, $data);
+
             $record = Inquiry::create($data);
 
-            $this->sendLeadWebhook($record); // CRM / Lead Webhook Integration
+            // Lead Webhook
+            $webhookResponse = $this->sendLeadWebhook($record);
 
+            // Emails
             $this->sendInquiryEmails($record);
+
+            // Admin Notification
             AdminNotificationService::notifyInquiry($record, 'created');
 
-            return $this->successResponse($this->storeMessage, InquiryResource::make($record)->resolve(), 201);
+            return $this->successResponse(
+                $this->storeMessage,
+                [
+                    'inquiry' => InquiryResource::make($record)->resolve(),
+                    'webhook' => $webhookResponse,
+                ],
+                201
+            );
+
         } catch (ValidationException $e) {
-            return $this->errorResponse('Validation failed', ['errors' => $e->errors()], 422);
+
+            return $this->errorResponse(
+                'Validation failed',
+                ['errors' => $e->errors()],
+                422
+            );
+
         } catch (Throwable $e) {
-            return $this->errorResponse($e->getMessage(), ['exception' => class_basename($e)], 500);
+
+            return $this->errorResponse(
+                $e->getMessage(),
+                ['exception' => class_basename($e)],
+                500
+            );
         }
     }
 
-    private function sendLeadWebhook(Inquiry $record): void
+    private function sendLeadWebhook(Inquiry $record): array
     {
         try {
+
             $webhookUrl = config('services.lead_webhook.url');
 
             if (blank($webhookUrl)) {
-                return;
+                return [
+                    'status' => false,
+                    'message' => 'Webhook URL not configured',
+                ];
             }
 
-            Http::timeout(10)
+            $payload = [
+                'Name' => $record->name,
+                'Phone' => $record->number,
+                'Email' => $record->email,
+                'Interested Car' => $record->car_name,
+            ];
+
+            $response = Http::timeout(15)
                 ->acceptJson()
                 ->asJson()
-                ->post($webhookUrl, [
-                    'Name' => $record->name,
-                    'Phone' => $record->number,
-                    'Email' => $record->email,
-                    'Interested Car' => $record->car_name,
-                ]);
+                ->post($webhookUrl, $payload);
+
+            return [
+                'status' => $response->successful(),
+                'status_code' => $response->status(),
+                'webhook_url' => $webhookUrl,
+                'payload' => $payload,
+                'response' => $response->json() ?: $response->body(),
+            ];
 
         } catch (Throwable $webhookException) {
+
             report($webhookException);
+
+            return [
+                'status' => false,
+                'message' => $webhookException->getMessage(),
+                'webhook_url' => config('services.lead_webhook.url'),
+            ];
         }
     }
 
