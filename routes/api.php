@@ -60,6 +60,8 @@ Route::prefix('website')->group(function () {
     Route::get('/settings', [SettingController::class, 'publicIndex']);
     Route::get('/testimonials', [TestimonialController::class, 'publicIndex']);
     Route::post('/inquiries', [InquiryController::class, 'storePublic'])->middleware('throttle:5,1');
+
     Route::post('/bookings', [BookingController::class, 'storePublic'])->middleware('throttle:5,1');
+    
     Route::post('/promo-codes/apply', [PromoCodeController::class, 'apply'])->name('api.promo-codes.apply');
 });
