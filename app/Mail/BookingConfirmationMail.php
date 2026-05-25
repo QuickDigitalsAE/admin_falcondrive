@@ -95,8 +95,8 @@ class BookingConfirmationMail extends Mailable
             ]),
             $this->makeSection('Payment Details', [
                 $this->makeField('Payment Flow', $this->humanizeText($this->booking->payment_flow)),
-                $this->makeMoneyField('Pay Now 20% To Reserve', $this->booking->{'pay_now_20%_to_Reserve'}),
-                $this->makeMoneyField('Pay At Pickup 80%', $this->booking->{'pay_at_pickup_80%'}),
+                $this->makePaymentFlowMoneyField('Pay Now 20% To Reserve', $this->booking->{'pay_now_20%_to_Reserve'}),
+                $this->makePaymentFlowMoneyField('Pay At Pickup 80%', $this->booking->{'pay_at_pickup_80%'}),
                 $this->makeField('Paid ID', $this->booking->paid_id),
                 $this->makeField('Paid Date', $this->formatDateTime($this->booking->paid_date)),
                 $this->makeField('Paid Status', $this->booking->paid_status),
@@ -145,6 +145,25 @@ class BookingConfirmationMail extends Mailable
         return [
             'label' => $label,
             'value' => $this->formatMoney($value),
+            'is_currency' => true,
+        ];
+    }
+
+    private function makePaymentFlowMoneyField(string $label, mixed $value): array
+    {
+        $paymentFlow = strtolower((string) $this->booking->payment_flow);
+
+        if ($paymentFlow === 'later') {
+            return [
+                'label' => $label,
+                'value' => $this->formatMoney(0),
+                'is_currency' => true,
+            ];
+        }
+
+        return [
+            'label' => $label,
+            'value' => $this->formatMoney($value ?? 0),
             'is_currency' => true,
         ];
     }
