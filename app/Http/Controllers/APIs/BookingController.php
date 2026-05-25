@@ -123,7 +123,7 @@ class BookingController extends BaseApiController
             'deposit_waiver' => $request->input('deposit_waiver', $this->mapDepositWaiver($request->input('deposit_waiver_enabled'))),
             'deposit_waiver_price' => $this->decimalOrNull($request->input('deposit_waiver_price', data_get($pricing, 'deposit_waiver_price'))),
             'delivery_location' => $deliveryLocation,
-            'delivery_custom_address' => $deliveryLocation === 'other' ? $deliveryCustomAddress : null,
+            'delivery_custom_address' => $deliveryLocation !== null ? $deliveryCustomAddress : null,
             'delivery_location_price' => $this->decimalOrNull($request->input('delivery_location_price', data_get($pricing, 'delivery_location_price'))),
             'different_city_dropoff_fee' => $this->decimalOrNull($request->input('different_city_dropoff_fee', data_get($pricing, 'different_city_dropoff_fee'))),
             'self_pickup_location' => $deliveryLocation === null
@@ -133,7 +133,7 @@ class BookingController extends BaseApiController
                 ? $this->nullIfPlaceholder($request->input('self_pickup_address', $fallbackPickup ?? $request->input('pickup_branch')))
                 : $this->nullIfPlaceholder($request->input('self_pickup_address', $request->input('pickup_branch'))),
             'return_location' => $returnLocation,
-            'return_custom_address' => $returnLocation === 'other' ? $returnCustomAddress : null,
+            'return_custom_address' => $returnLocation !== null ? $returnCustomAddress : null,
             'return_location_price' => $this->decimalOrNull($request->input('return_location_price', data_get($pricing, 'return_location_price'))),
             'self_return_location' => $returnLocation === null
                 ? $this->nullIfPlaceholder($request->input('self_return_location', $fallbackReturnPickup ?? $request->input('dropoff_branch')))
