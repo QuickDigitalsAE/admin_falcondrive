@@ -67,11 +67,13 @@ class BookingConfirmationMail extends Mailable
             ]),
             $this->makeSection('Pickup Details', [
                 $this->makeField('Delivery Location', $this->booking->delivery_location),
+                $this->makeField('Delivery Custom Address', $this->booking->delivery_custom_address),
                 $this->makeField('Self Pickup Location', $this->booking->self_pickup_location),
                 $this->makeField('Self Pickup Address', $this->booking->self_pickup_address),
             ]),
             $this->makeSection('Return Details', [
                 $this->makeField('Return Location', $this->booking->return_location),
+                $this->makeField('Return Custom Address', $this->booking->return_custom_address),
                 $this->makeField('Self Return Location', $this->booking->self_return_location),
                 $this->makeField('Self Return Address', $this->booking->self_return_address),
             ]),

@@ -120,6 +120,15 @@
                         </div>
                     @endif
 
+                    @if(!empty($booking->delivery_custom_address))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Delivery Custom Address:
+                            </span>
+                            {{ $booking->delivery_custom_address }}
+                        </div>
+                    @endif
+
                     @if(!empty($booking->delivery_location_price) && $booking->delivery_location_price > 0)
                         <div>
                             <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
@@ -162,6 +171,15 @@
                                 Return Location:
                             </span>
                             {{ $booking->return_location }}
+                        </div>
+                    @endif
+
+                    @if(!empty($booking->return_custom_address))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Return Custom Address:
+                            </span>
+                            {{ $booking->return_custom_address }}
                         </div>
                     @endif
 

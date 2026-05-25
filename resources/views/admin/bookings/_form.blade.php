@@ -39,8 +39,10 @@
 
     $textareas = [
         ['id' => 'delivery_location', 'label' => 'Delivery Location', 'value' => old('delivery_location', $booking->delivery_location ?? '')],
+        ['id' => 'delivery_custom_address', 'label' => 'Delivery Custom Address', 'value' => old('delivery_custom_address', $booking->delivery_custom_address ?? '')],
         ['id' => 'self_pickup_location', 'label' => 'Self Pickup Location', 'value' => old('self_pickup_location', $booking->self_pickup_location ?? '')],
         ['id' => 'return_location', 'label' => 'Return Location', 'value' => old('return_location', $booking->return_location ?? '')],
+        ['id' => 'return_custom_address', 'label' => 'Return Custom Address', 'value' => old('return_custom_address', $booking->return_custom_address ?? '')],
         ['id' => 'self_return_location', 'label' => 'Self Return Location', 'value' => old('self_return_location', $booking->self_return_location ?? '')],
         ['id' => 'notes', 'label' => 'Notes', 'value' => old('notes', $booking->notes ?? '')],
         ['id' => 'speed_response', 'label' => 'Speed Response', 'value' => old('speed_response', $booking->speed_response ?? '')],
