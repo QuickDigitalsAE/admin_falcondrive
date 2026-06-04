@@ -13,8 +13,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
-use Throwable;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class InquiryController extends BaseApiController
 {
