@@ -1427,13 +1427,13 @@
                         email: email
                     },
                     success: function (response) {
-                        if (response.success && response.result) {
+                        // if (response.success && response.result) {
                             formData.set('customerId', response.result.customerId || response.result.id || '');
                             proceedBooking(formData, bookingId);
                             return;
-                        }
+                        // }
 
-                        createCustomerAndProceed(formData, bookingId);
+                        // createCustomerAndProceed(formData, bookingId);
                     },
                     error: function (xhr) {
                         const message = xhr.responseJSON?.error || xhr.responseJSON?.message || 'Customer check failed';
