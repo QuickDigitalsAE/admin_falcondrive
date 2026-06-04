@@ -1339,6 +1339,10 @@
                 calculateFinalAmount();
             });
 
+            $(document).on('input change', '#firstName, #lastName, #mobileNo, #nationality, #dateOfBirth, #city, #country, #street, #state', function () {
+                $(this).removeClass('border-red-500 ring-2 ring-red-200');
+            });
+
             $('#sendForm').on('submit', function (event) {
                 event.preventDefault();
 
@@ -1346,6 +1350,13 @@
                 const inquiryId = $('#inquiry_id').val(); // booking id is passed in this field for booking page
                 const email = $('#customerEmail').val();
                 const submitBtn = $('#sendBookingSubmitBtn');
+                const customerValidation = validateCustomerDetails();
+
+                if (!customerValidation.valid) {
+                    showToast(`Customer Details required: ${customerValidation.missing.join(', ')}`, 'warning');
+                    resetSubmitButton();
+                    return;
+                }
 
                 submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
 
@@ -1792,14 +1803,52 @@
         }
 
         function showToast(message, type = 'success') {
-            const bg = type === 'success' ? 'bg-green-600' : 'bg-red-600';
-            const toast = $(`<div class="fixed top-5 right-5 z-[9999] ${bg} text-white px-5 py-3 rounded-xl shadow-lg">${message}</div>`);
+            const variants = {
+                success: 'bg-emerald-600 text-white shadow-emerald-200/80',
+                error: 'bg-red-600 text-white shadow-red-200/80',
+                warning: 'bg-[#fff7e3] text-[#7d6220] border border-[#e7cf8a] shadow-[#eadfbe]/90'
+            };
+            const classes = variants[type] || variants.success;
+            const toast = $(`<div class="fixed top-5 right-5 z-[9999] max-w-md ${classes} px-5 py-3 rounded-xl shadow-lg">${message}</div>`);
             $('body').append(toast);
             setTimeout(() => {
                 toast.fadeOut(300, function () {
                     $(this).remove();
                 });
             }, 3000);
+        }
+
+        function validateCustomerDetails() {
+            const requiredFields = [
+                { id: 'firstName', label: 'First Name' },
+                { id: 'lastName', label: 'Last Name' },
+                { id: 'mobileNo', label: 'Mobile No' },
+                { id: 'nationality', label: 'Nationality' },
+                { id: 'dateOfBirth', label: 'Date of Birth' },
+                { id: 'city', label: 'City' },
+                { id: 'country', label: 'Country' },
+                { id: 'street', label: 'Street' },
+                { id: 'state', label: 'State' }
+            ];
+
+            const missing = [];
+
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                const value = input ? String(input.value || '').trim() : '';
+
+                if (!value) {
+                    missing.push(field.label);
+                    $(input).addClass('border-red-500 ring-2 ring-red-200');
+                } else {
+                    $(input).removeClass('border-red-500 ring-2 ring-red-200');
+                }
+            });
+
+            return {
+                valid: missing.length === 0,
+                missing
+            };
         }
 
         function resetSubmitButton() {
