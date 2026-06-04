@@ -220,7 +220,7 @@
                 <div class="overflow-y-auto flex-1 p-6 space-y-8">
                     <form id="sendForm">
                         @csrf
-                        <input type="hidden" name="inquiry_id" id="inquiry_id">
+                        <input type="hidden" name="booking_id" id="booking_id">
                         <input type="hidden" name="customerId" id="customerId">
 
                         <div class="bg-gray-50/50 border border-gray-100 rounded-2xl p-5">
@@ -1406,7 +1406,7 @@
                 event.preventDefault();
 
                 const formData = new FormData(this);
-                const inquiryId = $('#inquiry_id').val(); // booking id is passed in this field for booking page
+                const bookingId = $('#booking_id').val(); // booking id is passed in this field for booking page
                 const email = $('#customerEmail').val();
                 const submitBtn = $('#sendBookingSubmitBtn');
                 const formValidation = validateSendForm();
@@ -1429,11 +1429,11 @@
                     success: function (response) {
                         if (response.success && response.result) {
                             formData.set('customerId', response.result.customerId || response.result.id || '');
-                            proceedBooking(formData, inquiryId);
+                            proceedBooking(formData, bookingId);
                             return;
                         }
 
-                        createCustomerAndProceed(formData, inquiryId);
+                        createCustomerAndProceed(formData, bookingId);
                     },
                     error: function (xhr) {
                         const message = xhr.responseJSON?.error || xhr.responseJSON?.message || 'Customer check failed';
@@ -1801,7 +1801,7 @@
             document.getElementById('customerFields').classList.remove('hidden');
         }
 
-        function prepareSendModal(el, inquiryId, email, bookingName = '', bookingNumber = '', bookingNotes = '') {
+        function prepareSendModal(el, bookingId, email, bookingName = '', bookingNumber = '', bookingNotes = '') {
             startBtnLoader(el);
             const emailField = document.getElementById('customerEmail');
             emailField.value = email || '';
@@ -1820,12 +1820,12 @@
                 }
 
                 stopBtnLoader(el);
-                openSendModal(inquiryId);
+                openSendModal(bookingId);
             });
         }
 
         function openSendModal(id) {
-            document.getElementById('inquiry_id').value = id;
+            document.getElementById('booking_id').value = id;
             const modal = document.getElementById('sendModal');
             const modalBody = modal.querySelector('.overflow-y-auto.flex-1');
             modal.classList.remove('hidden');
@@ -2083,7 +2083,7 @@
                 });
         }
 
-        function proceedBooking(formData, inquiryId) {
+        function proceedBooking(formData, bookingId) {
             const charges = [];
 
             $('.charge-card').each(function () {
@@ -2108,7 +2108,7 @@
             });
 
             formData.set('charges_json', JSON.stringify(charges));
-            formData.set('inquiry_id', inquiryId);
+            formData.set('booking_id', bookingId);
             syncCustomerFieldsToFormData(formData);
 
             $.ajax({
@@ -2126,7 +2126,7 @@
                     }
 
                     if (res.result) {
-                        window.latestPayload[inquiryId] = {
+                        window.latestPayload[bookingId] = {
                             booking: res.result,
                             send_booking_id: res.result.id || null
                         };
@@ -2135,14 +2135,14 @@
                     showToast('Booking sent successfully.', 'success');
                     closeSendModal();
 
-                    const sendBtn = document.getElementById(`sendBtn-${inquiryId}`);
+                    const sendBtn = document.getElementById(`sendBtn-${bookingId}`);
                     if (sendBtn) {
                         sendBtn.outerHTML = `
                             <button
                                 type="button"
-                                id="speedBtn-${inquiryId}"
+                                id="speedBtn-${bookingId}"
                                 class="speed-view-btn inline-flex h-9 w-9 items-center justify-center rounded-lg border border-purple-200 bg-purple-50 text-purple-600 transition hover:bg-purple-100"
-                                data-id="${inquiryId}"
+                                data-id="${bookingId}"
                                 title="Speed">
                                 <span class="icon-box flex items-center justify-center">
                                     <i class="fa-solid fa-bolt text-[13px]"></i>
@@ -2163,7 +2163,7 @@
             });
         }
 
-        function createCustomerAndProceed(formData, inquiryId) {
+        function createCustomerAndProceed(formData, bookingId) {
             $.ajax({
                 url: @json(route('create.customer')),
                 method: 'POST',
@@ -2186,7 +2186,7 @@
                 success: function (res) {
                     if (res.success && res.result) {
                         formData.set('customerId', res.result.id);
-                        proceedBooking(formData, inquiryId);
+                        proceedBooking(formData, bookingId);
                         return;
                     }
 
@@ -2291,11 +2291,11 @@
             `;
         }
 
-        function openSpeedViewModal(inquiryId) {
-            if (window.latestPayload[inquiryId]?.booking) {
-                renderSpeedView(window.latestPayload[inquiryId]);
+        function openSpeedViewModal(bookingId) {
+            if (window.latestPayload[bookingId]?.booking) {
+                renderSpeedView(window.latestPayload[bookingId]);
             } else {
-                fetch(@json(route('admin.bookings.payload', ['id' => '__ID__'])).replace('__ID__', inquiryId), {
+                fetch(@json(route('admin.bookings.payload', ['id' => '__ID__'])).replace('__ID__', bookingId), {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json'
@@ -2308,12 +2308,12 @@
                             return;
                         }
 
-                        window.latestPayload[inquiryId] = {
+                        window.latestPayload[bookingId] = {
                             booking: res.payload,
                             send_booking_id: res.send_booking_id || null
                         };
 
-                        renderSpeedView(window.latestPayload[inquiryId]);
+                        renderSpeedView(window.latestPayload[bookingId]);
                     })
                     .catch(() => {
                         showToast('Failed to load booking data', 'error');

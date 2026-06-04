@@ -612,38 +612,38 @@
                     `);
                 }
 
-                if (!record.deleted_at && permissions.can_send_booking) {
-                    if (record.send_booking_id) {
-                        buttons.push(`
-                            <button
-                                type="button"
-                                id="speedBtn-${record.id}"
-                                class="speed-view-btn inline-flex h-9 w-9 items-center justify-center rounded-lg border border-purple-200 bg-purple-50 text-purple-600 transition hover:bg-purple-100"
-                                data-id="${record.id}"
-                                title="Speed">
-                                <span class="icon-box flex items-center justify-center">
-                                    <i class="fa-solid fa-bolt text-[13px]"></i>
-                                </span>
-                                <span class="btn-text hidden">Speed</span>
-                            </button>
-                        `);
-                    } else {
-                        buttons.push(`
-                            <button
-                                type="button"
-                                id="sendBtn-${record.id}"
-                                class="send-booking-btn inline-flex h-9 w-9 items-center justify-center rounded-lg border border-green-200 bg-green-50 text-green-600 transition hover:bg-green-100"
-                                data-id="${record.id}"
-                                data-email="${escapeHtml(record.email || '')}"
-                                title="Send">
-                                <span class="icon-box flex items-center justify-center">
-                                    <i class="fa-solid fa-paper-plane text-[13px]"></i>
-                                </span>
-                                <span class="btn-text hidden">Send</span>
-                            </button>
-                        `);
-                    }
-                }
+                // if (!record.deleted_at && permissions.can_send_booking) {
+                //     if (record.send_booking_id) {
+                //         buttons.push(`
+                //             <button
+                //                 type="button"
+                //                 id="speedBtn-${record.id}"
+                //                 class="speed-view-btn inline-flex h-9 w-9 items-center justify-center rounded-lg border border-purple-200 bg-purple-50 text-purple-600 transition hover:bg-purple-100"
+                //                 data-id="${record.id}"
+                //                 title="Speed">
+                //                 <span class="icon-box flex items-center justify-center">
+                //                     <i class="fa-solid fa-bolt text-[13px]"></i>
+                //                 </span>
+                //                 <span class="btn-text hidden">Speed</span>
+                //             </button>
+                //         `);
+                //     } else {
+                //         buttons.push(`
+                //             <button
+                //                 type="button"
+                //                 id="sendBtn-${record.id}"
+                //                 class="send-booking-btn inline-flex h-9 w-9 items-center justify-center rounded-lg border border-green-200 bg-green-50 text-green-600 transition hover:bg-green-100"
+                //                 data-id="${record.id}"
+                //                 data-email="${escapeHtml(record.email || '')}"
+                //                 title="Send">
+                //                 <span class="icon-box flex items-center justify-center">
+                //                     <i class="fa-solid fa-paper-plane text-[13px]"></i>
+                //                 </span>
+                //                 <span class="btn-text hidden">Send</span>
+                //             </button>
+                //         `);
+                //     }
+                // }
 
                 if (record.deleted_at && permissions.can_restore) {
                     buttons.push(`

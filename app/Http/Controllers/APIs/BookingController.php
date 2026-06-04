@@ -272,4 +272,430 @@ class BookingController extends BaseApiController
 
         return json_encode($notes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
+
+
+    public function getCustomerDetailByEmailOrMobileNo(Request $request)
+    {
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'error' => $validator->errors()->first(),
+                'result' => null
+            ], 400);
+        }
+
+        try {
+            $code = env('APP_CODE');
+            $email = $request->email;
+
+            $url = "https://speedbookingportalapi.azurewebsites.net/api/GetCustomerDetailByEmailOrMobileNo?code=" . urlencode($code);
+
+            $response = Http::withHeaders([
+                'ApiKey' => env('API_Key'),
+                'Accept' => 'application/json'
+            ])->post($url, [
+                'Email' => $email
+            ]);
+
+            // API fail
+            if (!$response->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'API request failed',
+                    'result' => $response->body()
+                ], $response->status());
+            }
+
+            $data = $response->json();
+
+            // Empty response
+            if (empty($data)) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'No data found',
+                    'result' => null
+                ]);
+            }
+
+            // 🔥 FIX: unwrap external API response
+            $finalResult = $data['result'] ?? null;
+
+            return response()->json([
+                'success' => $data['success'] ?? true,
+                'error' => $data['error'] ?? null,
+                'result' => $finalResult
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'result' => null
+            ], 500);
+        }
+    }
+
+    public function getVehicles()
+    {
+        $code = env('APP_CODE');
+        $url = "https://speedbookingportalapi.azurewebsites.net/api/GetVehicles";
+
+        $page = 1;
+        $allItems = [];
+
+        do {
+
+            $payload = [
+                'PageNumber' => $page,
+            ];
+
+            $response = Http::withHeaders([
+                'ApiKey' => env('API_Key'),
+                'Content-Type' => 'application/json'
+            ])->post($url . '?code=' . $code, $payload);
+
+            $data = $response->json();
+
+            $items = $data['result']['items'] ?? [];
+
+            // merge items
+            $allItems = array_merge($allItems, $items);
+
+            $page++;
+
+        } while (!empty($items)); // jab tak items milte rahen
+
+        return [
+            'totalCount' => count($allItems),
+            'items' => $allItems
+        ];
+    }
+
+    public function GetVehicleGroups()
+    {
+        $code = env('APP_CODE');
+        $url = "https://speedbookingportalapi.azurewebsites.net/api/GetVehicleGroups";
+
+        $page = 1;
+        $allItems = [];
+
+        do {
+
+            $payload = [
+                'PageNumber' => $page,
+            ];
+
+            $response = Http::withHeaders([
+                'ApiKey' => env('API_Key'),
+                'Content-Type' => 'application/json'
+            ])->post($url.'?code='.$code, $payload);
+
+            $data = $response->json();
+
+            $items = $data['result']['items'] ?? [];
+
+            // merge items
+            $allItems = array_merge($allItems, $items);
+
+            $page++;
+
+        } while (!empty($items)); // jab tak items milte rahen
+
+        return [
+            'totalCount' => count($allItems),
+            'items' => $allItems
+        ];
+    }
+
+    public function GetLocations()
+    {
+        $code = env('APP_CODE');
+        $url = "https://speedbookingportalapi.azurewebsites.net/api/GetLocations";
+
+        $page = 1;
+        $allItems = [];
+
+        do {
+            $payload = [
+                'PageNumber' => $page,
+            ];
+
+            $response = Http::withHeaders([
+                'ApiKey' => env('API_Key'),
+                'Content-Type' => 'application/json'
+            ])->post($url . '?code=' . $code, $payload);
+
+            $data = $response->json();
+
+            $items = $data['result'] ?? [];
+
+            $allItems = array_merge($allItems, $items);
+
+            $hasNext = $data['hasNext'] ?? false; // safe check
+            $page++;
+
+        } while ($hasNext);
+
+        return [
+            'totalCount' => count($allItems),
+            'items' => $allItems
+        ];
+    }
+
+    public function GetChargesSettings()
+    {
+        $code = env('APP_CODE');
+        $url = "https://speedbookingportalapi.azurewebsites.net/api/GetChargesSettings";
+
+        $page = 1;
+        $allItems = [];
+
+        do {
+
+            $payload = [
+                'Module' => $page,
+            ];
+
+            $response = Http::withHeaders([
+                'ApiKey' => env('API_Key'),
+                'Content-Type' => 'application/json'
+            ])->post($url.'?code='.$code, $payload);
+
+            $data = $response->json();
+
+            $items = $data['result']['items'] ?? [];
+
+            // merge items
+            $allItems = array_merge($allItems, $items);
+
+            $page++;
+
+        } while (!empty($items)); // jab tak items milte rahen
+
+        return [
+            'totalCount' => count($allItems),
+            'items' => $allItems
+        ];
+    }
+
+    public function createCustomer(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'firstName' => 'required|string',
+            'lastName' => 'required|string',
+            'email' => 'required|email',
+            'gender' => 'required|integer',
+            'nationality' => 'required|string',
+            "dateOfBirth" => 'required|date',
+            'mobileNo' => 'required|string',
+            'locationId' => 'required|integer',
+            'street' => 'required|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'country' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'error' => $validator->errors()->first(),
+                'result' => null
+            ], 400);
+        }
+
+        try {
+            $code = env('APP_CODE');
+
+            $url = "https://speedbookingportalapi.azurewebsites.net/api/CreateCustomer?code=" . urlencode($code);
+
+            $payload = [
+                "firstName" => $request->firstName,
+                "lastName" => $request->lastName,
+                "email" => $request->email,
+                "gender" => (int) $request->gender,
+                "nationality" => $request->nationality,
+                "dateOfBirth" => \Carbon\Carbon::parse($request->dateOfBirth)->format('Y-m-d'),
+                "mobileNo" => $request->mobileNo,
+                "locationId" => (int) $request->locationId,
+                "address" => [
+                    "street" => $request->street,
+                    "city" => $request->city,
+                    "state" => $request->state,
+                    "postalCode" => $request->postalCode,
+                    "country" => $request->country
+                ]
+            ];
+
+            $response = Http::withHeaders([
+                'ApiKey' => env('API_Key'),
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ])->post($url, $payload);
+
+            // API fail
+            if (!$response->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'API request failed',
+                    'result' => $response->body()
+                ], $response->status());
+            }
+
+            $data = $response->json();
+
+            return response()->json([
+                'success' => $data['success'] ?? true,
+                'error' => $data['error'] ?? null,
+                'result' => $data['result'] ?? $data
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'result' => null
+            ], 500);
+        }
+    }
+
+    public function createBooking(Request $request)
+    {
+        $code = env('APP_CODE');
+        $url = "https://speedbookingportalapi.azurewebsites.net/api/CreateBooking";
+
+        $booking = Booking::find($request->booking_id);
+
+        if (!$booking) {
+            return response()->json([
+                'success' => false,
+                'error' => 'booking not found'
+            ]);
+        }
+
+        $startDate = Carbon::parse($booking->start_date)->toISOString();
+        $endDate = Carbon::parse($booking->end_date)->toISOString();
+
+        // Charges array (agar dynamic hai)
+        $charges = json_decode($request->charges_json, true) ?? [];
+
+        $payload = [
+            "booking" => [
+                "tariffGroupId" => (int)$request->tariffGroupId,
+                "startDate" => $startDate,
+                "endDate" => $endDate,
+
+                "bookingStatus" => (int)$request->bookingStatus,
+                "advance" => (float)$request->advance,
+                "locationId" => (int)$request->locationId,
+                "notes" => $request->notes,
+
+                "vehicle" => [
+                    "tariffGroupId" => (int)$request->tariffGroupId,
+                    "plateNo" => $request->plateNo,
+                    "tariffGroup" => [
+                        "Id" => (int)$request->tariffGroupId,
+                        "AcrissCategory" => null,
+                        "AcrissFuelAc" => null,
+                        "AcrissType" => null,
+                        "AcrissTransDrive" => null,
+                        "Title" => $request->vehicleTitle,
+                        "SubTitle" => "4 doors, 5 seats",
+                        "PassengerCapacity" => 5,
+                        "LargeBagsCapacity" => 2,
+                        "SmallBagsCapacity" => 2,
+                        "SkipBookingGatewayPayment" => false,
+                        "DisplayImage" => null,
+                        "VehicleGroupId" => null
+                    ]
+                ],
+
+                "taxPercent" => (float)$request->taxPercent,
+                "charges" => $charges,
+
+                "discount" => (float)$request->discount,
+                "tax" => (float)$request->chargesTax,
+                "totalCharges" => (float)$request->totalCharges,
+
+                "bookingType" => (int)$request->bookingType,
+                "customerId" => (int)$request->customerId,
+
+                "customer" => [
+                    "firstName" => $request->firstName,
+                    "lastName" => $request->lastName,
+                    "email" => $request->customerEmail,
+                    "mobileNo" => $request->mobileNo,
+                    "locationId" => 1,
+                    "address" => [
+                        "street" => $request->street,
+                        "city" => $request->city,
+                        "state" => $request->state,
+                        "postalCode" => $request->postalCode,
+                        "country" => $request->country
+                    ]
+                ],
+
+                "BillingDetail" => [
+                    "Notes" => $request->billingNotes,
+                    "CreditCard" => [
+                        "ContactCardsId" => 0,
+                        "CardNoLastDigits" => $request->cardLastFourDigits,
+                        "CardHolderName" => $request->nameOnCard,
+                        "TransactionNo" => $request->transactionNo,
+                        "ExpiryDate" => $request->cardExpiry,
+                        "CommissionPercentage" => (float)$request->commissionPercentage,
+                        "ContactCard" => [
+                            "Type" => 1,
+                            "CardNo" => $request->cardNumber,
+                            "CardNoLastFourDigits" => $request->cardLastFourDigits,
+                            "Expiry" => $request->cardExpiry,
+                            "Cvv" => $request->cvv,
+                            "NameOnCard" => $request->nameOnCard,
+                            "BankName" => $request->bankName,
+                            "IsDefault" =>  true,
+                            "ContactId" => (int)$request->customerId,
+                            "Contact" => null,
+                            "ExternalSource" => 0
+                        ]
+                    ]
+                ],
+
+                "amount" => (float)$request->amount,
+                "skipBookingGatewayPayment" => false,
+                "currency" => "AED"
+            ]
+        ];
+
+        $response = Http::withHeaders([
+            'ApiKey' => env('API_Key'),
+            'Content-Type' => 'application/json'
+        ])->post($url . '?code=' . $code, $payload);
+
+        $responseData = $response->json();
+
+        // SUCCESS CASE
+        if ($response->successful() && ($responseData['success'] ?? false)) {
+
+            // booking id extract (adjust if structure different)
+            $bookingId = $responseData['result']['id'] ?? null;
+
+            // Save in DB
+            $booking->update([
+                'send_booking_id' => $bookingId,
+                'speed_response' => json_encode($responseData['result'])
+            ]);
+
+        }
+
+
+        return response()->json([
+            'success' => $responseData['success'] ?? true,
+            'error' => $responseData['error'] ?? null,
+            'result' => $responseData['result'] ?? null
+        ]);
+    }
 }

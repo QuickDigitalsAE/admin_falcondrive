@@ -23,13 +23,13 @@ use App\Http\Controllers\APIs\TestimonialController;
 use App\Http\Controllers\Admin\PromoCodeController;
 
 Route::prefix('speed')->group(function () {
-    Route::get('/getVehicles', [InquiryController::class, 'getVehicles']);
-    Route::get('/getVehicleGroups', [InquiryController::class, 'GetVehicleGroups']);
-    Route::get('/getLocations', [InquiryController::class, 'GetLocations']);
-    Route::get('/getChargesSettings', [InquiryController::class, 'GetChargesSettings']);
-    Route::post('/getCustomerDetailByEmailOrMobileNo', [InquiryController::class, 'GetCustomerDetailByEmailOrMobileNo'])->name('get.customer.by.email');
-    Route::post('/send-booking', [InquiryController::class, 'createBooking'])->name('send.booking');
-    Route::post('/create-customer', [InquiryController::class, 'createCustomer'])->name('create.customer');
+    Route::get('/getVehicles', [BookingController::class, 'getVehicles']);
+    Route::get('/getVehicleGroups', [BookingController::class, 'GetVehicleGroups']);
+    Route::get('/getLocations', [BookingController::class, 'GetLocations']);
+    Route::get('/getChargesSettings', [BookingController::class, 'GetChargesSettings']);
+    Route::post('/getCustomerDetailByEmailOrMobileNo', [BookingController::class, 'GetCustomerDetailByEmailOrMobileNo'])->name('get.customer.by.email');
+    Route::post('/send-booking', [BookingController::class, 'createBooking'])->name('send.booking');
+    Route::post('/create-customer', [BookingController::class, 'createCustomer'])->name('create.customer');
 });
 
 Route::prefix('website')->group(function () {
