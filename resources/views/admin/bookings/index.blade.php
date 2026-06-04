@@ -203,7 +203,7 @@
             </div>
         </div>
 
-        <div id="sendModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm overflow-y-auto p-4">
+        <div id="sendModal" class="fixed inset-0 z-50 hidden items-start justify-center bg-slate-900/60 backdrop-blur-sm overflow-y-auto p-4 pt-6">
             <div class="bg-white rounded-3xl w-full max-w-6xl flex flex-col max-h-[90vh] shadow-2xl relative">
                 <div class="flex justify-between items-center p-6 border-b border-gray-100 flex-shrink-0">
                     <div class="flex items-center gap-3">
@@ -233,8 +233,66 @@
                                 <div class="relative">
                                     <input type="email" name="customerEmail" id="customerEmail" class="w-full border border-gray-300 rounded-xl p-3 pl-4 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" placeholder="customer@example.com" oninput="searchCustomer(this.value)">
                                 </div>
-                                <span id="emailError" class="text-red-500 text-xs mt-1 block hidden"></span>
                             </div>
+
+                            @php
+                                $speedCountries = [
+                                    'Burundi', 'Cabo Verde', 'Cambodia', 'Cameroon', 'Canada', 'Central African Republic (CAR)',
+                                    'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Democratic Republic of the Congo',
+                                    'Republic of the Congo', 'Costa Rica', "Cote d'Ivoire", 'Croatia', 'Cuba', 'Cyprus',
+                                    'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador',
+                                    'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Fiji',
+                                    'Finland', 'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece',
+                                    'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras',
+                                    'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel',
+                                    'Italy', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kosovo',
+                                    'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya',
+                                    'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macedonia', 'Madagascar', 'Malawi',
+                                    'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius',
+                                    'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco',
+                                    'Mozambique', 'Myanmar (Burma)', 'Namibia', 'Nauru', 'Nepal', 'Netherlands',
+                                    'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea', 'Norway', 'Oman',
+                                    'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru',
+                                    'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda',
+                                    'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa',
+                                    'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia',
+                                    'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands',
+                                    'Somalia', 'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan',
+                                    'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan',
+                                    'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago',
+                                    'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine',
+                                    'United Arab Emirates (UAE)', 'United Kingdom (UK)', 'United States of America (USA)',
+                                    'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City (Holy See)', 'Venezuela',
+                                    'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe', 'Afghanistan', 'Albania', 'Algeria',
+                                    'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia',
+                                    'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus',
+                                    'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina',
+                                    'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'burundi', 'Kambodscha',
+                                    'Kamerun', 'Kanada', 'Zentralafrikanische Republik (CAR)', 'Tschad', 'Kolumbien',
+                                    'komoren', 'Demokratische Republik Kongo', 'Republik Kongo', 'Elfenbeinküste',
+                                    'Kroatien', 'Kuba', 'Zypern', 'Tschechien', 'Dänemark', 'Dschibuti',
+                                    'Dominikanische Republik', 'Ägypten', 'Äquatorialguinea', 'Estland', 'Äthiopien',
+                                    'Fidschi', 'Finnland', 'Frankreich', 'Gabun', 'Deutschland', 'Griechenland',
+                                    'grenada', 'Ungarn', 'Island', 'Indien', 'Ich rannte', 'Irland', 'Italien',
+                                    'Jamaika', 'Jordanien', 'Kasachstan', 'Kenia', 'Kirgisistan', 'Lettland',
+                                    'Libanon', 'Libyen', 'Litauen', 'Luxemburg', 'Mazedonien', 'Madagaskar',
+                                    'Malediven', 'mali', 'Marshallinseln', 'Mauretanien', 'Mexiko', 'Mikronesien',
+                                    'Moldawien', 'Mongolei', 'Marokko', 'Mosambik', 'Niederlande', 'Neuseeland',
+                                    'Nord Korea', 'Palästina', 'Papua-Neuguinea', 'Philippinen', 'Polen', 'Katar',
+                                    'Rumänien', 'Russland', 'ruanda', 'St. Kitts und Nevis',
+                                    'St. Vincent und die Grenadinen', 'Saudi Arabien', 'Serbien', 'Seychellen',
+                                    'Singapur', 'Slowakei', 'Slowenien', 'Salomon-Inseln', 'Südafrika',
+                                    'Südkorea', 'Südsudan', 'Spanien', 'sudan', 'Surinam', 'Swasiland', 'Schweden',
+                                    'Schweiz', 'Syrien', 'Tadschikistan', 'Tansania', 'Gehen', 'tonga', 'Tunesien',
+                                    'Truthahn', 'tuvalu', 'Vereinigte Arabische Emirate (UAE)',
+                                    'Vereinigtes Königreich (UK)', 'Vereinigte Staaten von Amerika (USA)',
+                                    'Usbekistan', 'Vatikanstadt (Heiliger Stuhl)', 'Jemen', 'Sambia', 'Simbabwe',
+                                    'Albanien', 'Algerien', 'angola', 'Antigua und Barbuda', 'Argentinien',
+                                    'Armenien', 'Australien', 'Österreich', 'Aserbaidschan', 'Bangladesch',
+                                    'Weißrussland', 'Belgien', 'benin', 'Bolivien', 'Bosnien und Herzegowina',
+                                    'Brasilien', 'Hong-Kong',
+                                ];
+                            @endphp
 
                             <div id="customerFields" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden">
                                 <div>
@@ -258,12 +316,17 @@
                                     <input type="date" name="dateOfBirth" id="dateOfBirth" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">City</label>
-                                    <input type="text" name="city" id="city" placeholder="City" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Country</label>
+                                    <select name="country" id="country" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
+                                        <option value="">Select Country</option>
+                                        @foreach ($speedCountries as $speedCountry)
+                                            <option value="{{ $speedCountry }}">{{ $speedCountry }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Country</label>
-                                    <input type="text" name="country" id="country" placeholder="Country" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">City</label>
+                                    <input type="text" name="city" id="city" placeholder="City" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Street</label>
@@ -303,7 +366,6 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Status</label>
                                 <select id="bookingStatus" name="bookingStatus" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
-                                    <option value="0">Select Status</option>
                                     <option value="1">New</option>
                                     <option value="2">Confirmed</option>
                                     <option value="3">Cancelled</option>
@@ -315,7 +377,6 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Type</label>
                                 <select id="bookingType" name="bookingType" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
-                                    <option value="0">Select Type</option>
                                     <option value="1">TradeLicense</option>
                                     <option value="2">Passport</option>
                                     <option value="3">NationalId</option>
@@ -386,43 +447,16 @@
 
                         <div class="mt-8 bg-gray-50/70 border border-gray-200 rounded-2xl p-5">
                             <div class="flex items-center justify-between mb-5">
-                                <h3 class="text-lg font-bold text-gray-800">Billing Details</h3>
+                                <h3 class="text-lg font-bold text-gray-800">Card & Billing Details</h3>
                             </div>
-
-                            <div class="mb-5">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Billing Notes</label>
-                                <textarea name="billingNotes" rows="2" placeholder="Enter billing notes..." class="w-full border border-gray-300 rounded-xl p-3 outline-none"></textarea>
-                            </div>
-
-                            <div class="bg-white border border-gray-200 rounded-xl p-4 mb-5">
-                                <h4 class="text-sm font-semibold text-gray-700 mb-3">Credit Card Info</h4>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="text-xs font-medium text-gray-600">Card Last Digits</label>
-                                        <input type="text" name="cardLastDigits" placeholder="1234" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs font-medium text-gray-600">Transaction No</label>
-                                        <input type="text" name="transactionNo" placeholder="TXN12345" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs font-medium text-gray-600">Expiry Date</label>
-                                        <input type="date" name="expiryDate" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs font-medium text-gray-600">Commission %</label>
-                                        <input type="number" name="commissionPercentage" placeholder="0" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="bg-white border border-gray-200 rounded-xl p-4">
-                                <h4 class="text-sm font-semibold text-gray-700 mb-3">Card Details</h4>
+                                
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Card Number</label>
                                         <input type="text" name="cardNumber" placeholder="1234 5678 9012 3456" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
+                                    
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Last 4 Digits</label>
                                         <input type="text" name="cardLastFourDigits" placeholder="1234" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
@@ -443,13 +477,28 @@
                                         <label class="text-xs font-medium text-gray-600">Expiry</label>
                                         <input type="date" name="cardExpiry" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
+                                    <div>
+                                        <label class="text-xs font-medium text-gray-600">Transaction No</label>
+                                        <input type="text" name="transactionNo" placeholder="TXN12345" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-medium text-gray-600">Commission %</label>
+                                        <input type="number" name="commissionPercentage" placeholder="0" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                    </div>
+                                </div>
+                                <div class="mt-5">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Billing Notes</label>
+                                    <textarea name="billingNotes" rows="2" placeholder="Enter billing notes..." class="w-full border border-gray-300 rounded-xl p-3 outline-none"></textarea>
                                 </div>
                             </div>
+                            
+
+                            
                         </div>
 
                         <div class="mt-6">
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Notes & Terms</label>
-                            <textarea name="notes" rows="3" placeholder="Add custom terms or booking adjustments here..." class="w-full border border-gray-300 rounded-xl p-3 outline-none"></textarea>
+                            <textarea name="notes" rows="6" placeholder="Booking notes will appear here..." class="w-full border border-gray-300 rounded-xl p-3 bg-gray-100 text-gray-700 outline-none cursor-not-allowed" readonly></textarea>
                         </div>
                     </form>
                 </div>
@@ -731,6 +780,9 @@
                                 class="send-booking-btn inline-flex h-9 w-9 items-center justify-center rounded-lg border border-green-200 bg-green-50 text-green-600 transition hover:bg-green-100"
                                 data-id="${record.id}"
                                 data-email="${escapeHtml(record.email || '')}"
+                                data-name="${escapeHtml(record.name || '')}"
+                                data-number="${escapeHtml(record.number || '')}"
+                                data-notes="${escapeHtml(record.notes || '')}"
                                 title="Send Booking">
                                 <span class="icon-box flex items-center justify-center">
                                     <i class="fa-solid fa-paper-plane text-[13px]"></i>
@@ -1055,7 +1107,10 @@
                         window.prepareSendModal(
                             sendBookingBtn,
                             Number(sendBookingBtn.dataset.id),
-                            sendBookingBtn.dataset.email || ''
+                            sendBookingBtn.dataset.email || '',
+                            sendBookingBtn.dataset.name || '',
+                            sendBookingBtn.dataset.number || '',
+                            sendBookingBtn.dataset.notes || ''
                         );
                     }
                     return;
@@ -1343,6 +1398,10 @@
                 $(this).removeClass('border-red-500 ring-2 ring-red-200');
             });
 
+            $(document).on('keydown paste drop cut input', '#sendForm textarea[name="notes"]', function (event) {
+                event.preventDefault();
+            });
+
             $('#sendForm').on('submit', function (event) {
                 event.preventDefault();
 
@@ -1414,14 +1473,18 @@
             const chargeTypeId = $(this).val();
             const filtered = chargesSettings.filter(item => String(item.chargesTypeId) === String(chargeTypeId));
 
-            let rateOptions = '<option value="">Rate Type</option>';
+            let rateOptions = '';
             filtered.forEach(item => {
                 if (item.rateType) {
                     rateOptions += `<option value="${item.rateType.id}">${item.rateType.name}</option>`;
                 }
             });
 
-            card.find('.rateType').html(rateOptions).trigger('change');
+            card.find('.rateType').html(rateOptions);
+            if (filtered.length > 0) {
+                card.find('.rateType').prop('selectedIndex', 0);
+            }
+            card.find('.rateType').trigger('change');
 
             if (filtered.length > 0) {
                 const item = filtered[0];
@@ -1474,15 +1537,12 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">Charge Type</label>
                             <select class="chargeType border border-gray-300 p-2.5 rounded-xl w-full text-sm">
-                                <option value="">Select Charge Type</option>
                                 ${getChargeTypeOptions()}
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">Rate Type</label>
                             <select class="rateType border border-gray-300 p-2.5 rounded-xl w-full text-sm">
-                                <option value="">Select Rate Type</option>
-                                ${getRateTypeOptions()}
                             </select>
                         </div>
                         <div>
@@ -1513,14 +1573,26 @@
             `;
 
             $('#chargesWrapper').append(html);
+            const newCard = $('#chargesWrapper .charge-card').last();
             applySelect2();
+            newCard.find('.chargeType').prop('selectedIndex', 0).trigger('change');
         }
 
         function applySelect2() {
-            $('.chargeType, .rateType, #vehicleSelect, #vehicleGroupSelect, #locationSelect, #bookingStatus, #bookingType').select2({
-                placeholder: 'Select option...',
-                width: '100%',
-                dropdownParent: $('#sendModal')
+            const selectors = '.chargeType, .rateType, #vehicleSelect, #vehicleGroupSelect, #locationSelect, #bookingStatus, #bookingType, #country';
+
+            $(selectors).each(function () {
+                const $select = $(this);
+
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    $select.select2('destroy');
+                }
+
+                $select.select2({
+                    placeholder: $select.is('#country') ? 'Select Country' : 'Select option...',
+                    width: '100%',
+                    dropdownParent: $('#sendModal')
+                });
             });
         }
 
@@ -1574,7 +1646,7 @@
             fetch(@json(url('/api/speed/getVehicles')))
                 .then(res => res.json())
                 .then(res => {
-                    select.empty().append('<option value="">Select Vehicle</option>');
+                    select.empty();
                     vehiclesList = res.items || [];
 
                     vehiclesList.forEach(vehicle => {
@@ -1583,7 +1655,10 @@
                         select.append(option);
                     });
 
-                    select.prop('disabled', false).trigger('change');
+                    select.prop('disabled', false);
+                    if (vehiclesList.length > 0) {
+                        select.prop('selectedIndex', 0).trigger('change');
+                    }
                     applySelect2();
                 })
                 .catch(() => {
@@ -1598,12 +1673,16 @@
             fetch(@json(url('/api/speed/getVehicleGroups')))
                 .then(res => res.json())
                 .then(res => {
-                    select.empty().append('<option value="">Select Vehicle Group</option>');
-                    (res.items || []).forEach(item => {
+                    const items = res.items || [];
+                    select.empty();
+                    items.forEach(item => {
                         select.append(new Option(item.title || item.name, item.id, false, false));
                     });
 
-                    select.prop('disabled', false).trigger('change');
+                    select.prop('disabled', false);
+                    if (items.length > 0) {
+                        select.prop('selectedIndex', 0).trigger('change');
+                    }
                     applySelect2();
                 })
                 .catch(() => {
@@ -1618,12 +1697,16 @@
             fetch(@json(url('/api/speed/getLocations')))
                 .then(res => res.json())
                 .then(res => {
-                    select.empty().append('<option value="">Select Location</option>');
-                    (res.items || []).forEach(item => {
+                    const items = res.items || [];
+                    select.empty();
+                    items.forEach(item => {
                         select.append(new Option(item.name || item.locationName, item.id, false, false));
                     });
 
-                    select.prop('disabled', false).trigger('change');
+                    select.prop('disabled', false);
+                    if (items.length > 0) {
+                        select.prop('selectedIndex', 0).trigger('change');
+                    }
                     applySelect2();
                 })
                 .catch(() => {
@@ -1631,13 +1714,111 @@
                 });
         }
 
-        function prepareSendModal(el, inquiryId, email) {
+        function splitCustomerName(fullName) {
+            const parts = String(fullName || '')
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean);
+
+            return {
+                firstName: parts[0] || '',
+                lastName: parts.slice(1).join(' ')
+            };
+        }
+
+        function formatBookingNotes(value, depth = 0) {
+            if (value === null || value === undefined || value === '') {
+                return '';
+            }
+
+            if (typeof value === 'string') {
+                const trimmed = value.trim();
+
+                if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+                    try {
+                        return formatBookingNotes(JSON.parse(trimmed), depth);
+                    } catch (error) {
+                        return trimmed;
+                    }
+                }
+
+                return trimmed;
+            }
+
+            if (Array.isArray(value)) {
+                return value
+                    .map((item, index) => {
+                        const formatted = formatBookingNotes(item, depth + 1);
+                        const prefix = `${'  '.repeat(depth)}${Array.isArray(item) || (item && typeof item === 'object') ? `Item ${index + 1}` : '- '}`;
+
+                        if (Array.isArray(item) || (item && typeof item === 'object')) {
+                            return `${prefix}\n${formatted}`;
+                        }
+
+                        return `${prefix}${formatted}`;
+                    })
+                    .join('\n');
+            }
+
+            if (typeof value === 'object') {
+                return Object.entries(value)
+                    .map(([key, item]) => {
+                        const label = key
+                            .replace(/_/g, ' ')
+                            .replace(/([a-z])([A-Z])/g, '$1 $2')
+                            .replace(/\b\w/g, char => char.toUpperCase());
+                        const formatted = formatBookingNotes(item, depth + 1);
+                        const indent = '  '.repeat(depth);
+
+                        if (Array.isArray(item) || (item && typeof item === 'object')) {
+                            return `${indent}${label}:\n${formatted}`;
+                        }
+
+                        return `${indent}${label}: ${formatted}`;
+                    })
+                    .join('\n');
+            }
+
+            return String(value);
+        }
+
+        function setBookingNotesField(notes) {
+            const notesField = document.querySelector('#sendForm textarea[name="notes"]');
+            if (!notesField) {
+                return;
+            }
+
+            const formattedNotes = formatBookingNotes(notes);
+            notesField.value = formattedNotes || '';
+        }
+
+        function prefillBookingCustomerFields(name, number) {
+            const splitName = splitCustomerName(name);
+
+            document.getElementById('firstName').value = splitName.firstName;
+            document.getElementById('lastName').value = splitName.lastName;
+            document.getElementById('mobileNo').value = number || '';
+            document.getElementById('customerFields').classList.remove('hidden');
+        }
+
+        function prepareSendModal(el, inquiryId, email, bookingName = '', bookingNumber = '', bookingNotes = '') {
             startBtnLoader(el);
             const emailField = document.getElementById('customerEmail');
             emailField.value = email || '';
             emailField.setAttribute('readonly', true);
+            prefillBookingCustomerFields(bookingName, bookingNumber);
+            setBookingNotesField(bookingNotes);
 
             searchCustomer(email, function () {
+                if (!document.getElementById('firstName').value.trim() && !document.getElementById('lastName').value.trim()) {
+                    prefillBookingCustomerFields(bookingName, bookingNumber);
+                }
+
+                if (!document.getElementById('mobileNo').value.trim()) {
+                    document.getElementById('mobileNo').value = bookingNumber || '';
+                    document.getElementById('customerFields').classList.remove('hidden');
+                }
+
                 stopBtnLoader(el);
                 openSendModal(inquiryId);
             });
@@ -1646,9 +1827,14 @@
         function openSendModal(id) {
             document.getElementById('inquiry_id').value = id;
             const modal = document.getElementById('sendModal');
+            const modalBody = modal.querySelector('.overflow-y-auto.flex-1');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             document.body.classList.add('overflow-hidden');
+            modal.scrollTop = 0;
+            if (modalBody) {
+                modalBody.scrollTop = 0;
+            }
         }
 
         function closeSendModal() {
@@ -1665,15 +1851,20 @@
             $('#chargesWrapper').html('');
             $('#customerId, #vehicleId, #tariffGroupId, #plateNo, #vehicleTitle').val('');
             $('#customerFields').addClass('hidden');
-            $('#emailError').addClass('hidden').text('');
-            $('#sendForm select').each(function () {
-                $(this).val('').trigger('change');
-            });
-            $('#bookingStatus').val('0').trigger('change');
-            $('#bookingType').val('0').trigger('change');
+            resetDefaultSelects();
             $('#customerEmail').removeAttr('readonly');
             addChargeRow();
             resetSubmitButton();
+        }
+
+        function resetDefaultSelects() {
+            $('#country').val('').trigger('change');
+            ['#vehicleSelect', '#vehicleGroupSelect', '#locationSelect', '#bookingStatus', '#bookingType'].forEach(selector => {
+                const $select = $(selector);
+                if ($select.find('option').length > 0) {
+                    $select.prop('selectedIndex', 0).trigger('change');
+                }
+            });
         }
 
         function startBtnLoader(el) {
@@ -1713,13 +1904,10 @@
         function searchCustomer(value, callback) {
             clearTimeout(debounceTimer);
 
-            const emailErrorEl = document.getElementById('emailError');
             const customerFieldsEl = document.getElementById('customerFields');
 
             if (!value || value.length < 3) {
                 customerFieldsEl.classList.add('hidden');
-                emailErrorEl.textContent = '';
-                emailErrorEl.classList.add('hidden');
                 if (callback) callback();
                 return;
             }
@@ -1747,30 +1935,20 @@
                             document.getElementById('nationality').value = pickCustomerValue(customer, ['nationality', 'Nationality']) || pickCustomerValue(customer.customer, ['nationality', 'Nationality']);
                             document.getElementById('dateOfBirth').value = pickCustomerValue(customer, ['dateOfBirth', 'DateOfBirth']) || pickCustomerValue(customer.customer, ['dateOfBirth', 'DateOfBirth']);
                             document.getElementById('city').value = pickCustomerValue(address, ['city', 'City']);
-                            document.getElementById('country').value = pickCustomerValue(address, ['country', 'Country']);
+                            $('#country').val(pickCustomerValue(address, ['country', 'Country'])).trigger('change');
                             document.getElementById('street').value = pickCustomerValue(address, ['street', 'Street', 'addressLine1', 'AddressLine1']);
                             document.getElementById('state').value = pickCustomerValue(address, ['state', 'State']);
                             document.getElementById('postalCode').value = pickCustomerValue(address, ['postalCode', 'PostalCode', 'zipCode', 'ZipCode']);
 
                             showCustomerFieldsReadonly();
-                            emailErrorEl.textContent = '';
-                            emailErrorEl.classList.add('hidden');
                         } else {
                             makeCustomerFieldsEditable();
-                            emailErrorEl.textContent = res.error || '';
-                            if (res.error) {
-                                emailErrorEl.classList.remove('hidden');
-                            } else {
-                                emailErrorEl.classList.add('hidden');
-                            }
                         }
 
                         if (callback) callback();
                     })
                     .catch(() => {
                         customerFieldsEl.classList.add('hidden');
-                        emailErrorEl.textContent = 'Something went wrong';
-                        emailErrorEl.classList.remove('hidden');
                         if (callback) callback();
                     });
             }, 500);
@@ -1783,6 +1961,7 @@
                 el.setAttribute('readonly', true);
                 el.classList.add('bg-gray-100');
             });
+            document.getElementById('country').classList.remove('bg-gray-100');
             document.getElementById('state').removeAttribute('readonly');
             document.getElementById('postalCode').removeAttribute('readonly');
             document.getElementById('state').classList.remove('bg-gray-100');
@@ -1800,6 +1979,8 @@
                     el.value = '';
                 }
             });
+            $('#country').val('').trigger('change');
+            document.getElementById('country').classList.remove('bg-gray-100');
         }
 
         function showToast(message, type = 'success') {
@@ -1831,17 +2012,16 @@
                 { id: 'state', label: 'State' },
                 { id: 'vehicleSelect', label: 'Vehicle' },
                 { id: 'vehicleGroupSelect', label: 'Vehicle Group' },
-                { id: 'bookingStatus', label: 'Booking Status', invalidValues: ['0'] },
-                { id: 'bookingType', label: 'Booking Type', invalidValues: ['0'] },
+                { id: 'bookingStatus', label: 'Booking Status' },
+                { id: 'bookingType', label: 'Booking Type' },
                 { id: 'locationSelect', label: 'Location' },
-                { name: 'cardLastDigits', label: 'Card Last Digits' },
-                { name: 'expiryDate', label: 'Expiry Date' },
+                { name: 'transactionNo', label: 'Transaction No' },
                 { name: 'cardNumber', label: 'Card Number' },
                 { name: 'cardLastFourDigits', label: 'Last 4 Digits' },
                 { name: 'cvv', label: 'CVV' },
                 { name: 'nameOnCard', label: 'Name on Card' },
                 { name: 'bankName', label: 'Bank Name' },
-                { name: 'cardExpiry', label: 'Card Expiry' }
+                { name: 'cardExpiry', label: 'Expiry' }
             ];
 
             const missing = [];

@@ -593,10 +593,10 @@ class InquiryController extends BaseApiController
                     "Notes" => $request->billingNotes,
                     "CreditCard" => [
                         "ContactCardsId" => 0,
-                        "CardNoLastDigits" => $request->cardLastDigits,
-                        "CardHolderName" => null,
+                        "CardNoLastDigits" => $request->cardLastFourDigits,
+                        "CardHolderName" => $request->nameOnCard,
                         "TransactionNo" => $request->transactionNo,
-                        "ExpiryDate" => $request->expiryDate,
+                        "ExpiryDate" => $request->cardExpiry,
                         "CommissionPercentage" => (float)$request->commissionPercentage,
                         "ContactCard" => [
                             "Type" => 1,

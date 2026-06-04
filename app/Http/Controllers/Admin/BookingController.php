@@ -79,6 +79,7 @@ class BookingController extends Controller
                     'total_amount' => (string) $booking->total_amount,
                     'paid_status' => $booking->paid_status,
                     'paid_via' => $booking->paid_via,
+                    'notes' => $booking->notes,
                     'start_date' => optional($booking->start_date)->format('Y-m-d'),
                     'end_date' => optional($booking->end_date)->format('Y-m-d'),
                     'start_time' => $booking->start_time,
