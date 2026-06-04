@@ -785,6 +785,12 @@
                                 data-name="${escapeHtml(record.name || '')}"
                                 data-number="${escapeHtml(record.number || '')}"
                                 data-notes="${escapeHtml(record.notes || '')}"
+                                data-advance="${escapeHtml(record.advance || '')}"
+                                data-tax-percent="${escapeHtml(record.tax_percent || '')}"
+                                data-discount="${escapeHtml(record.discount || '')}"
+                                data-charges-tax="${escapeHtml(record.charges_tax || '')}"
+                                data-total-charges="${escapeHtml(record.total_charges || '')}"
+                                data-amount="${escapeHtml(record.total_amount || '')}"
                                 title="Send Booking">
                                 <span class="icon-box flex items-center justify-center">
                                     <i class="fa-solid fa-paper-plane text-[13px]"></i>
@@ -1112,7 +1118,15 @@
                             sendBookingBtn.dataset.email || '',
                             sendBookingBtn.dataset.name || '',
                             sendBookingBtn.dataset.number || '',
-                            sendBookingBtn.dataset.notes || ''
+                            sendBookingBtn.dataset.notes || '',
+                            {
+                                advance: sendBookingBtn.dataset.advance || '',
+                                taxPercent: sendBookingBtn.dataset.taxPercent || '',
+                                discount: sendBookingBtn.dataset.discount || '',
+                                chargesTax: sendBookingBtn.dataset.chargesTax || '',
+                                totalCharges: sendBookingBtn.dataset.totalCharges || '',
+                                amount: sendBookingBtn.dataset.amount || ''
+                            }
                         );
                     }
                     return;
@@ -1791,13 +1805,32 @@
             document.getElementById('customerFields').classList.remove('hidden');
         }
 
-        function prepareSendModal(el, bookingId, email, bookingName = '', bookingNumber = '', bookingNotes = '') {
+        function setBookingFinancialFields(values = {}) {
+            const fieldMap = {
+                advance: values.advance,
+                taxPercent: values.taxPercent,
+                discount: values.discount,
+                chargesTax: values.chargesTax,
+                totalCharges: values.totalCharges,
+                amount: values.amount
+            };
+
+            Object.entries(fieldMap).forEach(([name, value]) => {
+                const field = document.querySelector(`#sendForm [name="${name}"]`);
+                if (field) {
+                    field.value = value ?? '';
+                }
+            });
+        }
+
+        function prepareSendModal(el, bookingId, email, bookingName = '', bookingNumber = '', bookingNotes = '', bookingFinancials = {}) {
             startBtnLoader(el);
             const emailField = document.getElementById('customerEmail');
             emailField.value = email || '';
             emailField.setAttribute('readonly', true);
             prefillBookingCustomerFields(bookingName, bookingNumber);
             setBookingNotesField(bookingNotes);
+            setBookingFinancialFields(bookingFinancials);
 
             searchCustomer(email, function () {
                 if (!document.getElementById('firstName').value.trim() && !document.getElementById('lastName').value.trim()) {
