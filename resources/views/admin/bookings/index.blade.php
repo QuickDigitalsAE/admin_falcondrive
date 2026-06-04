@@ -366,6 +366,7 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Status</label>
                                 <select id="bookingStatus" name="bookingStatus" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                    <option value="0">Select Status</option>
                                     <option value="1">New</option>
                                     <option value="2">Confirmed</option>
                                     <option value="3">Cancelled</option>
@@ -377,6 +378,7 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Type</label>
                                 <select id="bookingType" name="bookingType" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                    <option value="0">Select Type</option>
                                     <option value="1">TradeLicense</option>
                                     <option value="2">Passport</option>
                                     <option value="3">NationalId</option>
@@ -1473,18 +1475,14 @@
             const chargeTypeId = $(this).val();
             const filtered = chargesSettings.filter(item => String(item.chargesTypeId) === String(chargeTypeId));
 
-            let rateOptions = '';
+            let rateOptions = '<option value="">Rate Type</option>';
             filtered.forEach(item => {
                 if (item.rateType) {
                     rateOptions += `<option value="${item.rateType.id}">${item.rateType.name}</option>`;
                 }
             });
 
-            card.find('.rateType').html(rateOptions);
-            if (filtered.length > 0) {
-                card.find('.rateType').prop('selectedIndex', 0);
-            }
-            card.find('.rateType').trigger('change');
+            card.find('.rateType').html(rateOptions).trigger('change');
 
             if (filtered.length > 0) {
                 const item = filtered[0];
@@ -1537,12 +1535,15 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">Charge Type</label>
                             <select class="chargeType border border-gray-300 p-2.5 rounded-xl w-full text-sm">
+                                <option value="">Select Charge Type</option>
                                 ${getChargeTypeOptions()}
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">Rate Type</label>
                             <select class="rateType border border-gray-300 p-2.5 rounded-xl w-full text-sm">
+                                <option value="">Select Rate Type</option>
+                                ${getRateTypeOptions()}
                             </select>
                         </div>
                         <div>
@@ -1573,9 +1574,7 @@
             `;
 
             $('#chargesWrapper').append(html);
-            const newCard = $('#chargesWrapper .charge-card').last();
             applySelect2();
-            newCard.find('.chargeType').prop('selectedIndex', 0).trigger('change');
         }
 
         function applySelect2() {
@@ -1646,7 +1645,7 @@
             fetch(@json(url('/api/speed/getVehicles')))
                 .then(res => res.json())
                 .then(res => {
-                    select.empty();
+                    select.empty().append('<option value="">Select Vehicle</option>');
                     vehiclesList = res.items || [];
 
                     vehiclesList.forEach(vehicle => {
@@ -1655,10 +1654,7 @@
                         select.append(option);
                     });
 
-                    select.prop('disabled', false);
-                    if (vehiclesList.length > 0) {
-                        select.prop('selectedIndex', 0).trigger('change');
-                    }
+                    select.prop('disabled', false).trigger('change');
                     applySelect2();
                 })
                 .catch(() => {
@@ -1673,16 +1669,13 @@
             fetch(@json(url('/api/speed/getVehicleGroups')))
                 .then(res => res.json())
                 .then(res => {
+                    select.empty().append('<option value="">Select Vehicle Group</option>');
                     const items = res.items || [];
-                    select.empty();
                     items.forEach(item => {
                         select.append(new Option(item.title || item.name, item.id, false, false));
                     });
 
-                    select.prop('disabled', false);
-                    if (items.length > 0) {
-                        select.prop('selectedIndex', 0).trigger('change');
-                    }
+                    select.prop('disabled', false).trigger('change');
                     applySelect2();
                 })
                 .catch(() => {
@@ -1697,16 +1690,13 @@
             fetch(@json(url('/api/speed/getLocations')))
                 .then(res => res.json())
                 .then(res => {
+                    select.empty().append('<option value="">Select Location</option>');
                     const items = res.items || [];
-                    select.empty();
                     items.forEach(item => {
                         select.append(new Option(item.name || item.locationName, item.id, false, false));
                     });
 
-                    select.prop('disabled', false);
-                    if (items.length > 0) {
-                        select.prop('selectedIndex', 0).trigger('change');
-                    }
+                    select.prop('disabled', false).trigger('change');
                     applySelect2();
                 })
                 .catch(() => {
@@ -1859,12 +1849,11 @@
 
         function resetDefaultSelects() {
             $('#country').val('').trigger('change');
-            ['#vehicleSelect', '#vehicleGroupSelect', '#locationSelect', '#bookingStatus', '#bookingType'].forEach(selector => {
-                const $select = $(selector);
-                if ($select.find('option').length > 0) {
-                    $select.prop('selectedIndex', 0).trigger('change');
-                }
+            $('#sendForm select').each(function () {
+                $(this).val('').trigger('change');
             });
+            $('#bookingStatus').val('0').trigger('change');
+            $('#bookingType').val('0').trigger('change');
         }
 
         function startBtnLoader(el) {
@@ -2012,8 +2001,8 @@
                 { id: 'state', label: 'State' },
                 { id: 'vehicleSelect', label: 'Vehicle' },
                 { id: 'vehicleGroupSelect', label: 'Vehicle Group' },
-                { id: 'bookingStatus', label: 'Booking Status' },
-                { id: 'bookingType', label: 'Booking Type' },
+                { id: 'bookingStatus', label: 'Booking Status', invalidValues: ['0'] },
+                { id: 'bookingType', label: 'Booking Type', invalidValues: ['0'] },
                 { id: 'locationSelect', label: 'Location' }
             ];
 
