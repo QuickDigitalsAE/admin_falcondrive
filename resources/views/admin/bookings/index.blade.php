@@ -406,11 +406,11 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Advance</label>
-                                    <input type="number" name="advance" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                    <input type="number" step="any" name="advance" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tax %</label>
-                                    <input type="number" name="taxPercent" placeholder="5" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                    <input type="number" step="any" name="taxPercent" placeholder="5" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                 </div>
                             </div>
                         </div>
@@ -431,19 +431,19 @@
                         <div class="mt-8 bg-gray-50 border border-gray-200 rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Discount</label>
-                                <input type="number" name="discount" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 bg-white outline-none">
+                                <input type="number" step="any" name="discount" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 bg-white outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Flat Tax</label>
-                                <input type="number" name="chargesTax" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 bg-white outline-none">
+                                <input type="number" step="any" name="chargesTax" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 bg-white outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Total Extra Charges</label>
-                                <input type="number" name="totalCharges" readonly class="w-full bg-gray-100 border border-gray-200 font-semibold text-gray-800 rounded-xl p-3 cursor-not-allowed outline-none">
+                                <input type="number" step="any" name="totalCharges" readonly class="w-full bg-gray-100 border border-gray-200 font-semibold text-gray-800 rounded-xl p-3 cursor-not-allowed outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Grand Total Amount</label>
-                                <input type="number" name="amount" readonly class="w-full bg-blue-50 font-bold text-blue-700 border border-blue-200 rounded-xl p-3 cursor-not-allowed outline-none">
+                                <input type="number" step="any" name="amount" readonly class="w-full bg-blue-50 font-bold text-blue-700 border border-blue-200 rounded-xl p-3 cursor-not-allowed outline-none">
                             </div>
                         </div>
 
@@ -485,7 +485,7 @@
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Commission %</label>
-                                        <input type="number" name="commissionPercentage" placeholder="0" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                        <input type="number" step="any" name="commissionPercentage" placeholder="0" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
                                 </div>
                                 <div class="mt-5">
@@ -1418,6 +1418,8 @@
                 event.preventDefault();
             });
 
+            applyDecimalSteps();
+
             $('#sendForm').on('submit', function (event) {
                 event.preventDefault();
 
@@ -1541,6 +1543,12 @@
                 });
         }
 
+        function applyDecimalSteps(container = document) {
+            container.querySelectorAll('#sendForm input[type="number"], .charge-card input[type="number"]').forEach((input) => {
+                input.setAttribute('step', 'any');
+            });
+        }
+
         function addChargeRow() {
             const html = `
                 <div class="charge-card border border-gray-200 rounded-2xl p-5 mb-4 bg-white shadow-sm relative transition-all hover:shadow-md">
@@ -1562,15 +1570,15 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">Rate</label>
-                            <input type="number" class="rate border border-gray-300 p-2.5 rounded-xl w-full text-sm outline-none" placeholder="Rate">
+                            <input type="number" step="any" class="rate border border-gray-300 p-2.5 rounded-xl w-full text-sm outline-none" placeholder="Rate">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">Units</label>
-                            <input type="number" class="units border border-gray-300 p-2.5 rounded-xl w-full text-sm outline-none" placeholder="Qty">
+                            <input type="number" step="any" class="units border border-gray-300 p-2.5 rounded-xl w-full text-sm outline-none" placeholder="Qty">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">Total</label>
-                            <input type="number" class="total border border-gray-200 p-2.5 rounded-xl bg-gray-100 text-gray-700 font-semibold w-full text-sm cursor-not-allowed outline-none" readonly placeholder="Calculated total">
+                            <input type="number" step="any" class="total border border-gray-200 p-2.5 rounded-xl bg-gray-100 text-gray-700 font-semibold w-full text-sm cursor-not-allowed outline-none" readonly placeholder="Calculated total">
                         </div>
                     </div>
                     <div class="mt-4">
@@ -1588,6 +1596,7 @@
             `;
 
             $('#chargesWrapper').append(html);
+            applyDecimalSteps(document.getElementById('chargesWrapper'));
             applySelect2();
         }
 
