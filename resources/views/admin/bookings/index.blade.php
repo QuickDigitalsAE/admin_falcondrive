@@ -1427,13 +1427,13 @@
                         email: email
                     },
                     success: function (response) {
-                        // if (response.success && response.result) {
-                            formData.set('customerId', 219097);
+                        if (response.success && response.result) {
+                            formData.set('customerId', response.result.customerId || response.result.id || '');
                             proceedBooking(formData, bookingId);
                             return;
-                        // }
+                        }
 
-                        // createCustomerAndProceed(formData, bookingId);
+                        createCustomerAndProceed(formData, bookingId);
                     },
                     error: function (xhr) {
                         const message = xhr.responseJSON?.error || xhr.responseJSON?.message || 'Customer check failed';
@@ -2014,14 +2014,7 @@
                 { id: 'vehicleGroupSelect', label: 'Vehicle Group' },
                 { id: 'bookingStatus', label: 'Booking Status' },
                 { id: 'bookingType', label: 'Booking Type' },
-                { id: 'locationSelect', label: 'Location' },
-                { name: 'cardNumber', label: 'Card Number' },
-                { name: 'transactionNo', label: 'Transaction No' },
-                { name: 'cardLastFourDigits', label: 'Last 4 Digits' },
-                { name: 'cvv', label: 'CVV' },
-                { name: 'nameOnCard', label: 'Name on Card' },
-                { name: 'bankName', label: 'Bank Name' },
-                { name: 'cardExpiry', label: 'Expiry' }
+                { id: 'locationSelect', label: 'Location' }
             ];
 
             const missing = [];
