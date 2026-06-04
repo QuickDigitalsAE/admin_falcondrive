@@ -1428,7 +1428,7 @@
                     },
                     success: function (response) {
                         // if (response.success && response.result) {
-                            formData.set('customerId', response.result.customerId || response.result.id || '');
+                            formData.set('customerId', 219097);
                             proceedBooking(formData, bookingId);
                             return;
                         // }
