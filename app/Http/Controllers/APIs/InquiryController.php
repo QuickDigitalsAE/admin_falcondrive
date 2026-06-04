@@ -446,7 +446,6 @@ class InquiryController extends BaseApiController
             'street' => 'required|string',
             'city' => 'required|string',
             'state' => 'required|string',
-            'postalCode' => 'required|string',
             'country' => 'required|string',
         ]);
 
