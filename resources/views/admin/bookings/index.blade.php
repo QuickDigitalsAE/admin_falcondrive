@@ -1645,11 +1645,15 @@
         }
 
         function calculateTotalCharges() {
-            let total = 0;
+            const totalChargesField = $('input[name="totalCharges"]');
+            const baseSubtotal = parseFloat(totalChargesField.data('baseSubtotal')) || 0;
+            let total = baseSubtotal;
+
             $('.charge-card').each(function () {
                 total += parseFloat($(this).find('.total').val()) || 0;
             });
-            $('input[name="totalCharges"]').val(total);
+
+            totalChargesField.val(Math.round(total * 100) / 100);
             calculateFinalAmount();
         }
 
@@ -1830,6 +1834,10 @@
                     field.value = value ?? '';
                 }
             });
+
+            $('input[name="totalCharges"]').data('baseSubtotal', parseFloat(values.totalCharges) || 0);
+            $('input[name="amount"]').data('baseAmount', parseFloat(values.amount) || 0);
+            calculateTotalCharges();
         }
 
         function prepareSendModal(el, bookingId, email, bookingName = '', bookingNumber = '', bookingNotes = '', bookingFinancials = {}) {
@@ -1891,6 +1899,8 @@
 
         function resetDefaultSelects() {
             $('#country').val('').trigger('change');
+            $('input[name="totalCharges"]').data('baseSubtotal', 0);
+            $('input[name="amount"]').data('baseAmount', 0);
             $('#sendForm select').each(function () {
                 $(this).val('').trigger('change');
             });
