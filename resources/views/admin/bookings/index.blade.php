@@ -283,7 +283,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Vehicle</label>
-                                <select name="vehicle" id="vehicleSelect" required class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                <select name="vehicle" id="vehicleSelect" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                     <option value="">Loading vehicles...</option>
                                 </select>
                             </div>
@@ -295,14 +295,14 @@
 
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Vehicle Group</label>
-                                <select id="vehicleGroupSelect" name="vehicleGroupId" required class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                <select id="vehicleGroupSelect" name="vehicleGroupId" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                     <option value="">Loading...</option>
                                 </select>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Status</label>
-                                <select id="bookingStatus" name="bookingStatus" required class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                <select id="bookingStatus" name="bookingStatus" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                     <option value="0">Select Status</option>
                                     <option value="1">New</option>
                                     <option value="2">Confirmed</option>
@@ -314,7 +314,7 @@
 
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Type</label>
-                                <select id="bookingType" name="bookingType" required class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                <select id="bookingType" name="bookingType" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                     <option value="0">Select Type</option>
                                     <option value="1">TradeLicense</option>
                                     <option value="2">Passport</option>
@@ -335,7 +335,7 @@
 
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Location</label>
-                                <select id="locationSelect" name="locationId" required class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                <select id="locationSelect" name="locationId" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                     <option value="">Loading...</option>
                                 </select>
                             </div>
@@ -399,7 +399,7 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Card Last Digits</label>
-                                        <input type="text" name="cardLastDigits" required placeholder="1234" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                        <input type="text" name="cardLastDigits" placeholder="1234" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Transaction No</label>
@@ -407,7 +407,7 @@
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Expiry Date</label>
-                                        <input type="date" name="expiryDate" required class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                        <input type="date" name="expiryDate" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Commission %</label>
@@ -421,27 +421,27 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Card Number</label>
-                                        <input type="text" name="cardNumber" required placeholder="1234 5678 9012 3456" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                        <input type="text" name="cardNumber" placeholder="1234 5678 9012 3456" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Last 4 Digits</label>
-                                        <input type="text" name="cardLastFourDigits" required placeholder="1234" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                        <input type="text" name="cardLastFourDigits" placeholder="1234" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">CVV</label>
-                                        <input type="password" name="cvv" required placeholder="***" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                        <input type="password" name="cvv" placeholder="***" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Name on Card</label>
-                                        <input type="text" name="nameOnCard" required placeholder="Enter name as on card" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                        <input type="text" name="nameOnCard" placeholder="Enter name as on card" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Bank Name</label>
-                                        <input type="text" name="bankName" required placeholder="ABC Bank" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                        <input type="text" name="bankName" placeholder="ABC Bank" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Expiry</label>
-                                        <input type="date" name="cardExpiry" required class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                        <input type="date" name="cardExpiry" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
                                 </div>
                             </div>
@@ -1339,7 +1339,7 @@
                 calculateFinalAmount();
             });
 
-            $(document).on('input change', '#firstName, #lastName, #mobileNo, #nationality, #dateOfBirth, #city, #country, #street, #state', function () {
+            $(document).on('input change', '#sendForm input, #sendForm select, #sendForm textarea', function () {
                 $(this).removeClass('border-red-500 ring-2 ring-red-200');
             });
 
@@ -1350,10 +1350,10 @@
                 const inquiryId = $('#inquiry_id').val(); // booking id is passed in this field for booking page
                 const email = $('#customerEmail').val();
                 const submitBtn = $('#sendBookingSubmitBtn');
-                const customerValidation = validateCustomerDetails();
+                const formValidation = validateSendForm();
 
-                if (!customerValidation.valid) {
-                    showToast(`Customer Details required: ${customerValidation.missing.join(', ')}`, 'warning');
+                if (!formValidation.valid) {
+                    showToast(`Please fill required fields: ${formValidation.missing.join(', ')}`, 'warning');
                     resetSubmitButton();
                     return;
                 }
@@ -1818,7 +1818,7 @@
             }, 3000);
         }
 
-        function validateCustomerDetails() {
+        function validateSendForm() {
             const requiredFields = [
                 { id: 'firstName', label: 'First Name' },
                 { id: 'lastName', label: 'Last Name' },
@@ -1828,18 +1828,37 @@
                 { id: 'city', label: 'City' },
                 { id: 'country', label: 'Country' },
                 { id: 'street', label: 'Street' },
-                { id: 'state', label: 'State' }
+                { id: 'state', label: 'State' },
+                { id: 'vehicleSelect', label: 'Vehicle' },
+                { id: 'vehicleGroupSelect', label: 'Vehicle Group' },
+                { id: 'bookingStatus', label: 'Booking Status', invalidValues: ['0'] },
+                { id: 'bookingType', label: 'Booking Type', invalidValues: ['0'] },
+                { id: 'locationSelect', label: 'Location' },
+                { name: 'cardLastDigits', label: 'Card Last Digits' },
+                { name: 'expiryDate', label: 'Expiry Date' },
+                { name: 'cardNumber', label: 'Card Number' },
+                { name: 'cardLastFourDigits', label: 'Last 4 Digits' },
+                { name: 'cvv', label: 'CVV' },
+                { name: 'nameOnCard', label: 'Name on Card' },
+                { name: 'bankName', label: 'Bank Name' },
+                { name: 'cardExpiry', label: 'Card Expiry' }
             ];
 
             const missing = [];
 
             requiredFields.forEach(field => {
-                const input = document.getElementById(field.id);
+                const input = field.id
+                    ? document.getElementById(field.id)
+                    : document.querySelector(`#sendForm [name="${field.name}"]`);
                 const value = input ? String(input.value || '').trim() : '';
+                const invalidValues = field.invalidValues || [''];
+                const isInvalid = !input || invalidValues.includes(value);
 
-                if (!value) {
+                if (isInvalid) {
                     missing.push(field.label);
-                    $(input).addClass('border-red-500 ring-2 ring-red-200');
+                    if (input) {
+                        $(input).addClass('border-red-500 ring-2 ring-red-200');
+                    }
                 } else {
                     $(input).removeClass('border-red-500 ring-2 ring-red-200');
                 }
