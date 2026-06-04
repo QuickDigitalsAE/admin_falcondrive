@@ -8,6 +8,7 @@ use App\Mail\BookingConfirmationMail;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Throwable;
