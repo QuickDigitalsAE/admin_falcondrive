@@ -1974,12 +1974,14 @@
                             document.getElementById('lastName').value = pickCustomerValue(customer, ['lastName', 'LastName']) || pickCustomerValue(customer.customer, ['lastName', 'LastName']);
                             document.getElementById('mobileNo').value = pickCustomerValue(customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']) || pickCustomerValue(customer.customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']);
                             document.getElementById('nationality').value = pickCustomerValue(customer, ['nationality', 'Nationality']) || pickCustomerValue(customer.customer, ['nationality', 'Nationality']);
-                            document.getElementById('dateOfBirth').value = pickCustomerValue(customer, ['dateOfBirth', 'DateOfBirth']) || pickCustomerValue(customer.customer, ['dateOfBirth', 'DateOfBirth']);
+                            document.getElementById('dateOfBirth').value = normalizeDateTimeLocal(
+                                pickCustomerValue(customer, ['dateOfBirth', 'DateOfBirth']) || pickCustomerValue(customer.customer, ['dateOfBirth', 'DateOfBirth'])
+                            );
                             document.getElementById('city').value = pickCustomerValue(address, ['city', 'City']);
                             $('#country').val(pickCustomerValue(address, ['country', 'Country'])).trigger('change');
                             document.getElementById('street').value = pickCustomerValue(address, ['street', 'Street', 'addressLine1', 'AddressLine1']);
                             document.getElementById('state').value = pickCustomerValue(address, ['state', 'State']);
-                            document.getElementById('postalCode').value = pickCustomerValue(address, ['zipCode', 'ZipCode']);
+                            document.getElementById('postalCode').value = pickCustomerValue(address, ['zipCode', 'ZipCode', 'postalCode', 'PostalCode']);
 
                             showCustomerFieldsReadonly();
                         } else {
@@ -1997,16 +1999,31 @@
 
         function showCustomerFieldsReadonly() {
             const fields = document.querySelectorAll('#customerFields input');
+            const alwaysEditableFields = new Set(['state', 'postalCode']);
             document.getElementById('customerFields').classList.remove('hidden');
+
             fields.forEach(el => {
-                el.setAttribute('readonly', true);
-                el.classList.add('bg-gray-100');
+                const hasValue = String(el.value || '').trim() !== '';
+                const shouldBeReadonly = hasValue && !alwaysEditableFields.has(el.id);
+
+                if (shouldBeReadonly) {
+                    el.setAttribute('readonly', true);
+                    el.classList.add('bg-gray-100');
+                    return;
+                }
+
+                el.removeAttribute('readonly');
+                el.classList.remove('bg-gray-100');
             });
-            document.getElementById('country').classList.remove('bg-gray-100');
-            document.getElementById('state').removeAttribute('readonly');
-            document.getElementById('postalCode').removeAttribute('readonly');
-            document.getElementById('state').classList.remove('bg-gray-100');
-            document.getElementById('postalCode').classList.remove('bg-gray-100');
+
+            const countryField = document.getElementById('country');
+            const hasCountry = String(countryField.value || '').trim() !== '';
+
+            if (hasCountry) {
+                countryField.classList.add('bg-gray-100');
+            } else {
+                countryField.classList.remove('bg-gray-100');
+            }
         }
 
         function makeCustomerFieldsEditable() {
@@ -2101,6 +2118,36 @@
             }
 
             return '';
+        }
+
+        function normalizeDateTimeLocal(value) {
+            if (!value) {
+                return '';
+            }
+
+            const text = String(value).trim();
+            if (!text) {
+                return '';
+            }
+
+            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(text)) {
+                return text;
+            }
+
+            const normalized = text.replace(' ', 'T');
+            const date = new Date(normalized);
+
+            if (Number.isNaN(date.getTime())) {
+                return '';
+            }
+
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
         function customerAddress(customer) {
