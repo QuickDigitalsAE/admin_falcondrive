@@ -313,7 +313,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Date of Birth</label>
-                                    <input type="date" name="dateOfBirth" id="dateOfBirth" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                    <input type="datetime-local" name="dateOfBirth" id="dateOfBirth" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Country</label>
@@ -2207,14 +2207,14 @@
                     lastName: $('#lastName').val(),
                     email: $('#customerEmail').val(),
                     mobileNo: $('#mobileNo').val(),
-                    gender: 1,
                     nationality: $('#nationality').val(),
                     dateOfBirth: $('#dateOfBirth').val(),
+                    gender: 1,
                     locationId: 1,
                     street: $('#street').val(),
                     city: $('#city').val(),
                     state: $('#state').val(),
-                    postalCode: $('#postalCode').val(),
+                    postCode: $('#postalCode').val(),
                     country: $('#country').val()
                 },
                 success: function (res) {
