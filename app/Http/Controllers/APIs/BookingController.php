@@ -567,7 +567,6 @@ class BookingController extends BaseApiController
 
     public function createBooking(Request $request)
     {
-        return response()->json($request->all());
         $code = env('APP_CODE');
         $url = "https://speedbookingportalapi.azurewebsites.net/api/CreateBooking";
 
@@ -637,11 +636,11 @@ class BookingController extends BaseApiController
                         "street" => $request->street,
                         "city" => $request->city,
                         "state" => $request->state,
-                        "postalCode" => $request->postalCode,
+                        "zipCode" => $request->postalCode,
                         "country" => $request->country
                     ]
                 ],
-
+                "BillingDetailId" => 1,
                 "BillingDetail" => [
                     "Notes" => $request->billingNotes,
                     "CreditCard" => [
@@ -655,7 +654,7 @@ class BookingController extends BaseApiController
                             "Type" => 1,
                             "CardNo" => $request->cardNumber,
                             "CardNoLastFourDigits" => $request->cardLastFourDigits,
-                            "Expiry" => $request->cardExpiry,
+                            "Expiry" => \Carbon\Carbon::parse($request->cardExpiry)->format('Y-m-d\TH:i:s'),
                             "Cvv" => $request->cvv,
                             "NameOnCard" => $request->nameOnCard,
                             "BankName" => $request->bankName,
