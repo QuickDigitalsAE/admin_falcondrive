@@ -521,15 +521,14 @@ class BookingController extends BaseApiController
                 "email" => $request->email,
                 "mobileNo" => $request->mobileNo,
                 "nationality" => $request->nationality,
-                "dateOfBirth" => "1999-09-10T00:00:00",
+                "dateOfBirth" => \Carbon\Carbon::parse($request->dateOfBirth)->format('Y-m-d\TH:i:s'),
                 "gender" => (int) $request->gender,
-                
                 "locationId" => (int) $request->locationId,
                 "address" => [
                     "street" => $request->street,
                     "city" => $request->city,
                     "state" => $request->state,
-                    "postCode" => $request->postalCode,
+                    "zipCode" => $request->postalCode,
                     "country" => $request->country
                 ]
             ];

@@ -1979,7 +1979,7 @@
                             $('#country').val(pickCustomerValue(address, ['country', 'Country'])).trigger('change');
                             document.getElementById('street').value = pickCustomerValue(address, ['street', 'Street', 'addressLine1', 'AddressLine1']);
                             document.getElementById('state').value = pickCustomerValue(address, ['state', 'State']);
-                            document.getElementById('postalCode').value = pickCustomerValue(address, ['postalCode', 'PostalCode', 'zipCode', 'ZipCode']);
+                            document.getElementById('postalCode').value = pickCustomerValue(address, ['zipCode', 'ZipCode']);
 
                             showCustomerFieldsReadonly();
                         } else {
