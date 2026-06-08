@@ -2446,6 +2446,20 @@
 
             document.getElementById('billingInfo').innerHTML = `
                 <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Card Details</div>
+                    <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        <div><b>Type:</b> ${contactCard.type || contactCard.Type || '-'}</div>
+                        <div><b>Card No:</b> ${contactCard.cardNo || contactCard.CardNo || '-'}</div>
+                        <div><b>Last 4 Digits:</b> ${contactCard.cardNoLastFourDigits || contactCard.CardNoLastFourDigits || creditCard.cardNoLastDigits || creditCard.CardNoLastDigits || '-'}</div>
+                        <div><b>Expiry:</b> ${contactCard.expiry || contactCard.Expiry || creditCard.expiryDate || creditCard.ExpiryDate || '-'}</div>
+                        <div><b>CVV:</b> ${contactCard.cvv || contactCard.Cvv || '-'}</div>
+                        <div><b>Bank:</b> ${contactCard.bankName || contactCard.BankName || '-'}</div>
+                        <div><b>Default:</b> ${(contactCard.isDefault || contactCard.IsDefault) ? 'Yes' : 'No'}</div>
+                        <div><b>Contact ID:</b> ${contactCard.contactId || contactCard.ContactId || '-'}</div>
+                        <div><b>External Source:</b> ${contactCard.externalSource || contactCard.ExternalSource || '-'}</div>
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div class="min-w-0 flex-1">
                             <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Billing Summary</div>
@@ -2464,26 +2478,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="w-full rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 lg:max-w-xs">
-                            <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">Billing Notes</div>
-                            <div class="mt-1 text-sm leading-6 text-slate-700">${billing.notes || billing.Notes || '-'}</div>
-                        </div>
                     </div>
                 </div>
-                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Card Details</div>
-                    <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                        <div><b>Type:</b> ${contactCard.type || contactCard.Type || '-'}</div>
-                        <div><b>Card No:</b> ${contactCard.cardNo || contactCard.CardNo || '-'}</div>
-                        <div><b>Last 4 Digits:</b> ${contactCard.cardNoLastFourDigits || contactCard.CardNoLastFourDigits || creditCard.cardNoLastDigits || creditCard.CardNoLastDigits || '-'}</div>
-                        <div><b>Expiry:</b> ${contactCard.expiry || contactCard.Expiry || creditCard.expiryDate || creditCard.ExpiryDate || '-'}</div>
-                        <div><b>CVV:</b> ${contactCard.cvv || contactCard.Cvv || '-'}</div>
-                        <div><b>Bank:</b> ${contactCard.bankName || contactCard.BankName || '-'}</div>
-                        <div><b>Default:</b> ${(contactCard.isDefault || contactCard.IsDefault) ? 'Yes' : 'No'}</div>
-                        <div><b>Contact ID:</b> ${contactCard.contactId || contactCard.ContactId || '-'}</div>
-                        <div><b>External Source:</b> ${contactCard.externalSource || contactCard.ExternalSource || '-'}</div>
-                    </div>
-                </div>
+                <div class="mb-2"><b>Billing Notes:</b> ${billing.notes || billing.Notes || '-'}</div>
             `;
         }
 
