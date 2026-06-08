@@ -30,6 +30,7 @@ Route::prefix('speed')->group(function () {
     Route::post('/getCustomerDetailByEmailOrMobileNo', [BookingController::class, 'GetCustomerDetailByEmailOrMobileNo'])->name('get.customer.by.email');
     Route::post('/send-booking', [BookingController::class, 'createBooking'])->name('send.booking');
     Route::post('/create-customer', [BookingController::class, 'createCustomer'])->name('create.customer');
+    Route::post('/update-customer', [BookingController::class, 'updateCustomer'])->name('update.customer');
 });
 
 Route::prefix('website')->group(function () {

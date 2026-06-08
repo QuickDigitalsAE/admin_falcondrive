@@ -297,23 +297,31 @@
                             <div id="customerFields" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden">
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">First Name</label>
-                                    <input type="text" name="firstName" id="firstName" placeholder="First Name" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                    <input type="text" name="firstName" id="firstName" placeholder="First Name" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Last Name</label>
-                                    <input type="text" name="lastName" id="lastName" placeholder="Last Name" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                    <input type="text" name="lastName" id="lastName" placeholder="Last Name" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Mobile No</label>
-                                    <input type="text" name="mobileNo" id="mobileNo" placeholder="Mobile" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                    <input type="text" name="mobileNo" id="mobileNo" placeholder="Mobile" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nationality</label>
-                                    <input type="text" name="nationality" id="nationality" placeholder="Nationality" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                    <input type="text" name="nationality" id="nationality" placeholder="Nationality" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Gender</label>
+                                    <select name="gender" id="gender" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
+                                        <option value="">Select Gender</option>
+                                        <option value="1">Male</option>
+                                        <option value="2">Female</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Date of Birth</label>
-                                    <input type="datetime-local" name="dateOfBirth" id="dateOfBirth" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                    <input type="datetime-local" name="dateOfBirth" id="dateOfBirth" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Country</label>
@@ -326,11 +334,11 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">City</label>
-                                    <input type="text" name="city" id="city" placeholder="City" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                    <input type="text" name="city" id="city" placeholder="City" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Street</label>
-                                    <input type="text" name="street" id="street" placeholder="Street" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none" readonly>
+                                    <input type="text" name="street" id="street" placeholder="Street" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">State</label>
@@ -1844,7 +1852,6 @@
             startBtnLoader(el);
             const emailField = document.getElementById('customerEmail');
             emailField.value = email || '';
-            emailField.setAttribute('readonly', true);
             prefillBookingCustomerFields(bookingName, bookingNumber);
             setBookingNotesField(bookingNotes);
             setBookingFinancialFields(bookingFinancials);
@@ -1892,7 +1899,6 @@
             $('#customerId, #vehicleId, #tariffGroupId, #plateNo, #vehicleTitle').val('');
             $('#customerFields').addClass('hidden');
             resetDefaultSelects();
-            $('#customerEmail').removeAttr('readonly');
             addChargeRow();
             resetSubmitButton();
         }
@@ -1974,6 +1980,7 @@
                             document.getElementById('lastName').value = pickCustomerValue(customer, ['lastName', 'LastName']) || pickCustomerValue(customer.customer, ['lastName', 'LastName']);
                             document.getElementById('mobileNo').value = pickCustomerValue(customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']) || pickCustomerValue(customer.customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']);
                             document.getElementById('nationality').value = pickCustomerValue(customer, ['nationality', 'Nationality']) || pickCustomerValue(customer.customer, ['nationality', 'Nationality']);
+                            document.getElementById('gender').value = pickCustomerValue(customer, ['gender', 'Gender']) || pickCustomerValue(customer.customer, ['gender', 'Gender']);
                             document.getElementById('dateOfBirth').value = normalizeDateTimeLocal(
                                 pickCustomerValue(customer, ['dateOfBirth', 'DateOfBirth']) || pickCustomerValue(customer.customer, ['dateOfBirth', 'DateOfBirth'])
                             );
@@ -1999,31 +2006,15 @@
 
         function showCustomerFieldsReadonly() {
             const fields = document.querySelectorAll('#customerFields input');
-            const alwaysEditableFields = new Set(['state', 'postalCode']);
             document.getElementById('customerFields').classList.remove('hidden');
 
             fields.forEach(el => {
-                const hasValue = String(el.value || '').trim() !== '';
-                const shouldBeReadonly = hasValue && !alwaysEditableFields.has(el.id);
-
-                if (shouldBeReadonly) {
-                    el.setAttribute('readonly', true);
-                    el.classList.add('bg-gray-100');
-                    return;
-                }
-
                 el.removeAttribute('readonly');
                 el.classList.remove('bg-gray-100');
             });
 
             const countryField = document.getElementById('country');
-            const hasCountry = String(countryField.value || '').trim() !== '';
-
-            if (hasCountry) {
-                countryField.classList.add('bg-gray-100');
-            } else {
-                countryField.classList.remove('bg-gray-100');
-            }
+            countryField.classList.remove('bg-gray-100');
         }
 
         function makeCustomerFieldsEditable() {
@@ -2037,6 +2028,7 @@
                     el.value = '';
                 }
             });
+            $('#gender').val('');
             $('#country').val('').trigger('change');
             document.getElementById('country').classList.remove('bg-gray-100');
         }
@@ -2063,6 +2055,7 @@
                 { id: 'lastName', label: 'Last Name' },
                 { id: 'mobileNo', label: 'Mobile No' },
                 { id: 'nationality', label: 'Nationality' },
+                { id: 'gender', label: 'Gender' },
                 { id: 'dateOfBirth', label: 'Date of Birth' },
                 { id: 'city', label: 'City' },
                 { id: 'country', label: 'Country' },
@@ -2155,7 +2148,7 @@
         }
 
         function syncCustomerFieldsToFormData(formData) {
-            ['customerId', 'customerEmail', 'firstName', 'lastName', 'mobileNo', 'street', 'city', 'state', 'postalCode', 'country']
+            ['customerId', 'customerEmail', 'firstName', 'lastName', 'mobileNo', 'gender', 'street', 'city', 'state', 'postalCode', 'country']
                 .forEach((field) => {
                     const element = document.getElementById(field);
                     if (element) {
@@ -2256,7 +2249,7 @@
                     mobileNo: $('#mobileNo').val(),
                     nationality: $('#nationality').val(),
                     dateOfBirth: $('#dateOfBirth').val(),
-                    gender: 1,
+                    gender: $('#gender').val(),
                     locationId: 1,
                     street: $('#street').val(),
                     city: $('#city').val(),

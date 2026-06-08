@@ -525,11 +525,93 @@ class BookingController extends BaseApiController
                 "gender" => (int) $request->gender,
                 "locationId" => (int) $request->locationId,
                 "address" => [
-                    "street" => $request->street,
+                    "addressLine1" => $request->street,
                     "city" => $request->city,
-                    "state" => $request->state,
+                    "country" => $request->country,
                     "zipCode" => $request->postalCode,
-                    "country" => $request->country
+                    "state" => $request->state
+                ]
+            ];
+
+            $response = Http::withHeaders([
+                'ApiKey' => env('API_Key'),
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ])->post($url, $payload);
+
+            // API fail
+            if (!$response->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'API request failed',
+                    'result' => $response->body()
+                ], $response->status());
+            }
+
+            $data = $response->json();
+
+            return response()->json([
+                'success' => $data['success'] ?? true,
+                'error' => $data['error'] ?? null,
+                'result' => $data['result'] ?? $data
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'result' => null
+            ], 500);
+        }
+    }
+
+    public function updateCustomer(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'customerId' => 'required|integer',
+            'firstName' => 'required|string',
+            'lastName' => 'required|string',
+            'email' => 'required|email',
+            'gender' => 'required|integer',
+            'nationality' => 'required|string',
+            "dateOfBirth" => 'required|date',
+            'mobileNo' => 'required|string',
+            'locationId' => 'required|integer',
+            'street' => 'required|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'country' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'error' => $validator->errors()->first(),
+                'result' => null
+            ], 400);
+        }
+
+        try {
+            $code = env('APP_CODE');
+
+            $url = "https://speedbookingportalapi.azurewebsites.net/api/UpdateCustomer?code=" . urlencode($code);
+
+            $payload = [
+                "id" => (int) $request->customerId,
+                "firstName" => $request->firstName,
+                "lastName" => $request->lastName,
+                "email" => $request->email,
+                "mobileNo" => $request->mobileNo,
+                "nationality" => $request->nationality,
+                "dateOfBirth" => \Carbon\Carbon::parse($request->dateOfBirth)->format('Y-m-d\TH:i:s'),
+                "gender" => (int) $request->gender,
+                "locationId" => (int) $request->locationId,
+                "address" => [
+                    "addressLine1" => $request->street,
+                    "city" => $request->city,
+                    "country" => $request->country,
+                    "zipCode" => $request->postalCode,
+                    "state" => $request->state
                 ]
             ];
 
