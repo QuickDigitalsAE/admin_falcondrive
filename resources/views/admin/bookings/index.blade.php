@@ -537,13 +537,14 @@
                         <h3 class="font-semibold mb-2">Booking Info</h3>
                         <div class="grid grid-cols-2 gap-3 text-sm" id="bookingInfo"></div>
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <h3 class="font-semibold mb-2">Vehicle</h3>
-                        <div class="grid grid-cols-2 gap-3 text-sm" id="vehicleInfo"></div>
-                    </div>
+                    
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <h3 class="font-semibold mb-2">Customer</h3>
                         <div class="grid grid-cols-2 gap-3 text-sm" id="customerInfo"></div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-semibold mb-2">Vehicle</h3>
+                        <div class="grid grid-cols-2 gap-3 text-sm" id="vehicleInfo"></div>
                     </div>
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <h3 class="font-semibold mb-2">Charges</h3>
