@@ -2366,9 +2366,7 @@
         }
 
         function renderSpeedView(data) {
-            if (!data || !data.booking) {
-                return;
-            }
+            if (!data || !data.booking) return;
 
             const booking = data.booking;
             const vehicle = booking.vehicle || {};
@@ -2394,13 +2392,19 @@
                 detailRow('Booking Type', booking.bookingType || '-'),
                 `
                 <div class="col-span-2 overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-teal-50 shadow-sm">
-                    <div class="flex items-center justify-between gap-4 px-5 py-4">
-                        <div>
-                            <div class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">TotalAmount</div>
-                            <div class="mt-1">
-                                ${amountWithIcon(booking.amount || 0, 'h-[1em] w-[1em]', 'text-xl font-bold text-slate-900')}
-                            </div>
+                    <div class="px-5 py-4">
+                        <div class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Total Amount</div>
+                        <div class="mt-1">
+                            ${amountWithIcon(booking.amount || 0, 'h-[1em] w-[1em]', 'text-xl font-bold text-slate-900')}
                         </div>
+                    </div>
+                </div>
+                `,
+                `
+                <div class="col-span-2">
+                    <b class="mb-2 block">Notes:</b>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${renderPrettyNotes(booking.notes)}
                     </div>
                 </div>
                 `
@@ -2412,14 +2416,7 @@
                 detailRow('Phone', customer.mobileNo),
                 detailRow('Nationality', customer.nationality),
                 detailRow('Date of Birth', customer.dateOfBirth),
-                detailRow(
-                    'Gender',
-                    customer.gender == 1
-                        ? 'Male'
-                        : customer.gender == 2
-                            ? 'Female'
-                            : '-'
-                ),
+                detailRow('Gender', customer.gender == 1 ? 'Male' : customer.gender == 2 ? 'Female' : '-'),
                 detailRow('Country', address.country),
                 detailRow('City', address.city),
                 detailRow('Street', address.street || address.addressLine1),
@@ -2450,6 +2447,7 @@
             document.getElementById('billingInfo').innerHTML = `
                 <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Card Details</div>
+
                     <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                         <div><b>Card Holder:</b> ${creditCard.cardHolderName || creditCard.CardHolderName || contactCard.nameOnCard || contactCard.NameOnCard || '-'}</div>
                         <div><b>Card No:</b> ${contactCard.cardNo || contactCard.CardNo || '-'}</div>
@@ -2464,25 +2462,14 @@
                         <div><b>External Source:</b> ${contactCard.externalSource || contactCard.ExternalSource || '-'}</div>
                     </div>
                 </div>
-                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                        <div class="min-w-0 flex-1">
-                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                                Billing Notes
-                            </div>
 
-                            <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-4 max-h-[400px] overflow-y-auto">
-                                ${billing.notes || billing.Notes || '-'}
-                            </div>
-                        </div>
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Billing Notes
                     </div>
-                </div>
-            `
-            `
-                <div class="col-span-2">
-                    <b class="mb-2 block">Notes:</b>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        ${renderPrettyNotes(booking.notes)}
+
+                    <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-4 max-h-[400px] overflow-y-auto whitespace-pre-wrap break-words text-sm text-slate-800">
+                        ${billing.notes || billing.Notes || '-'}
                     </div>
                 </div>
             `;
