@@ -464,12 +464,12 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Card Number</label>
-                                        <input type="text" name="cardNumber" placeholder="1234 5678 9012 3456" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                        <input type="text" name="cardNumber" id="cardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="1234 5678 9012 3456" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
                                     
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">Last 4 Digits</label>
-                                        <input type="text" name="cardLastFourDigits" placeholder="1234" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
+                                        <input type="text" name="cardLastFourDigits" id="cardLastFourDigits" inputmode="numeric" maxlength="4" placeholder="1234" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none">
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-600">CVV</label>
@@ -1427,6 +1427,7 @@
             });
 
             applyDecimalSteps();
+            initCardNumberMask();
 
             $('#sendForm').on('submit', function (event) {
                 event.preventDefault();
@@ -1443,6 +1444,8 @@
                     return;
                 }
 
+                formData.set('cardNumber', normalizeCardNumber($('#cardNumber').val()));
+                formData.set('cardLastFourDigits', $('#cardLastFourDigits').val());
                 submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
 
                 if (customerId) {
@@ -1892,6 +1895,7 @@
             $('#country').val('').trigger('change');
             $('input[name="totalCharges"]').data('baseSubtotal', 0);
             $('input[name="amount"]').data('baseAmount', 0);
+            $('#cardNumber, #cardLastFourDigits').val('');
             $('#sendForm select').each(function () {
                 $(this).val('').trigger('change');
             });
@@ -2034,6 +2038,30 @@
             }, 3000);
         }
 
+        function normalizeCardNumber(value) {
+            return String(value || '').replace(/\D/g, '').slice(0, 16);
+        }
+
+        function formatCardNumber(value) {
+            return normalizeCardNumber(value).replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+        }
+
+        function syncCardLastFourDigits() {
+            const digits = normalizeCardNumber($('#cardNumber').val());
+            $('#cardLastFourDigits').val(digits ? digits.slice(-4) : '');
+        }
+
+        function initCardNumberMask() {
+            $(document).on('input', '#cardNumber', function () {
+                this.value = formatCardNumber(this.value);
+                syncCardLastFourDigits();
+            });
+
+            $(document).on('input', '#cardLastFourDigits', function () {
+                this.value = String(this.value || '').replace(/\D/g, '').slice(0, 4);
+            });
+        }
+
         function validateSendForm() {
             const requiredFields = [
                 { id: 'firstName', label: 'First Name' },
@@ -2072,6 +2100,13 @@
                     $(input).removeClass('border-red-500 ring-2 ring-red-200');
                 }
             });
+
+            const cardNumberField = document.getElementById('cardNumber');
+            const normalizedCardNumber = normalizeCardNumber(cardNumberField?.value || '');
+            if (cardNumberField && normalizedCardNumber.length > 0 && normalizedCardNumber.length !== 16) {
+                missing.push('Card Number must be 16 digits');
+                $(cardNumberField).addClass('border-red-500 ring-2 ring-red-200');
+            }
 
             return {
                 valid: missing.length === 0,
