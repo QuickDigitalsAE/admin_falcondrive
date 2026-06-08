@@ -2428,6 +2428,17 @@
                 detailRow('Email', customer.email),
                 detailRow('Phone', customer.mobileNo),
                 detailRow('City', address.city),
+                detailRow('Mobile No', customer.mobileNo),
+                detailRow('Nationality', customer.nationality),
+                detailRow('Date of Birth', customer.dateOfBirth),
+                detailRow(
+                    'Gender',
+                    customer.gender == 1
+                        ? 'Male'
+                        : customer.gender == 2
+                            ? 'Female'
+                            : '-'
+                ),
                 detailRow('Street', address.street || address.addressLine1),
                 detailRow('Zip Code', address.zipCode || address.postalCode),
                 detailRow('Country', address.country)
