@@ -2448,7 +2448,7 @@
                 <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Card Details</div>
                     <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                        <div><b>Type:</b> ${contactCard.type || contactCard.Type || '-'}</div>
+                        <div><b>Card Holder:</b> ${creditCard.cardHolderName || creditCard.CardHolderName || contactCard.nameOnCard || contactCard.NameOnCard || '-'}</div>
                         <div><b>Card No:</b> ${contactCard.cardNo || contactCard.CardNo || '-'}</div>
                         <div><b>Last 4 Digits:</b> ${contactCard.cardNoLastFourDigits || contactCard.CardNoLastFourDigits || creditCard.cardNoLastDigits || creditCard.CardNoLastDigits || '-'}</div>
                         <div><b>Expiry:</b> ${contactCard.expiry || contactCard.Expiry || creditCard.expiryDate || creditCard.ExpiryDate || '-'}</div>
@@ -2467,10 +2467,6 @@
                                 <div class="rounded-xl bg-slate-50 px-3 py-2">
                                     <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Transaction No</div>
                                     <div class="mt-1 font-semibold text-slate-900">${creditCard.transactionNo || creditCard.TransactionNo || '-'}</div>
-                                </div>
-                                <div class="rounded-xl bg-slate-50 px-3 py-2">
-                                    <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Card Holder</div>
-                                    <div class="mt-1 font-semibold text-slate-900">${creditCard.cardHolderName || creditCard.CardHolderName || contactCard.nameOnCard || contactCard.NameOnCard || '-'}</div>
                                 </div>
                                 <div class="rounded-xl bg-slate-50 px-3 py-2">
                                     <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Commission</div>
