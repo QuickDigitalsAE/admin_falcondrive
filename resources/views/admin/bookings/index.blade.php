@@ -551,7 +551,7 @@
                     </div>
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <h3 class="font-semibold mb-2">Billing</h3>
-                        <div class="grid grid-cols-2 gap-3 text-sm" id="billingInfo"></div>
+                        <div class="space-y-3 text-sm" id="billingInfo"></div>
                     </div>
                 </div>
 
@@ -2410,28 +2410,45 @@
             }
 
             document.getElementById('billingInfo').innerHTML = `
-                <div class="bg-gray-100 p-2 rounded mb-2">
-                    <h4 class="font-semibold mb-1">Credit Card Info</h4>
-                    ${detailRow('Transaction No', creditCard.transactionNo || creditCard.TransactionNo)}
-                    ${detailRow('Card Last Digits', creditCard.cardNoLastDigits || creditCard.CardNoLastDigits)}
-                    ${detailRow('Card Holder', creditCard.cardHolderName || creditCard.CardHolderName)}
-                    ${detailRow('Expiry Date', creditCard.expiryDate || creditCard.ExpiryDate)}
-                    ${detailRow('Commission %', creditCard.commissionPercentage || creditCard.CommissionPercentage || 0)}
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div class="min-w-0 flex-1">
+                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Billing Summary</div>
+                            <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                                <div class="rounded-xl bg-slate-50 px-3 py-2">
+                                    <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Transaction No</div>
+                                    <div class="mt-1 font-semibold text-slate-900">${creditCard.transactionNo || creditCard.TransactionNo || '-'}</div>
+                                </div>
+                                <div class="rounded-xl bg-slate-50 px-3 py-2">
+                                    <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Card Holder</div>
+                                    <div class="mt-1 font-semibold text-slate-900">${creditCard.cardHolderName || creditCard.CardHolderName || contactCard.nameOnCard || contactCard.NameOnCard || '-'}</div>
+                                </div>
+                                <div class="rounded-xl bg-slate-50 px-3 py-2">
+                                    <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Commission</div>
+                                    <div class="mt-1 font-semibold text-slate-900">${creditCard.commissionPercentage || creditCard.CommissionPercentage || 0}%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 lg:max-w-xs">
+                            <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">Billing Notes</div>
+                            <div class="mt-1 text-sm leading-6 text-slate-700">${billing.notes || billing.Notes || '-'}</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-gray-100 p-2 rounded mb-2">
-                    <h4 class="font-semibold mb-1">Contact Card Info</h4>
-                    ${detailRow('Type', contactCard.type || contactCard.Type)}
-                    ${detailRow('Card No', contactCard.cardNo || contactCard.CardNo)}
-                    ${detailRow('Last 4 Digits', contactCard.cardNoLastFourDigits || contactCard.CardNoLastFourDigits)}
-                    ${detailRow('Expiry', contactCard.expiry || contactCard.Expiry)}
-                    ${detailRow('CVV', contactCard.cvv || contactCard.Cvv)}
-                    ${detailRow('Name On Card', contactCard.nameOnCard || contactCard.NameOnCard)}
-                    ${detailRow('Bank', contactCard.bankName || contactCard.BankName)}
-                    ${detailRow('Default', (contactCard.isDefault || contactCard.IsDefault) ? 'Yes' : 'No')}
-                    ${detailRow('Contact ID', contactCard.contactId || contactCard.ContactId)}
-                    ${detailRow('External Source', contactCard.externalSource || contactCard.ExternalSource)}
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Card Details</div>
+                    <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        <div><b>Type:</b> ${contactCard.type || contactCard.Type || '-'}</div>
+                        <div><b>Card No:</b> ${contactCard.cardNo || contactCard.CardNo || '-'}</div>
+                        <div><b>Last 4 Digits:</b> ${contactCard.cardNoLastFourDigits || contactCard.CardNoLastFourDigits || creditCard.cardNoLastDigits || creditCard.CardNoLastDigits || '-'}</div>
+                        <div><b>Expiry:</b> ${contactCard.expiry || contactCard.Expiry || creditCard.expiryDate || creditCard.ExpiryDate || '-'}</div>
+                        <div><b>CVV:</b> ${contactCard.cvv || contactCard.Cvv || '-'}</div>
+                        <div><b>Bank:</b> ${contactCard.bankName || contactCard.BankName || '-'}</div>
+                        <div><b>Default:</b> ${(contactCard.isDefault || contactCard.IsDefault) ? 'Yes' : 'No'}</div>
+                        <div><b>Contact ID:</b> ${contactCard.contactId || contactCard.ContactId || '-'}</div>
+                        <div><b>External Source:</b> ${contactCard.externalSource || contactCard.ExternalSource || '-'}</div>
+                    </div>
                 </div>
-                <div class="mb-2"><b>Billing Notes:</b> ${billing.notes || billing.Notes || '-'}</div>
             `;
         }
 

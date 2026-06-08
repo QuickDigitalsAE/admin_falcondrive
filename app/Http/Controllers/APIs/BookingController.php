@@ -726,6 +726,32 @@ class BookingController extends BaseApiController
                         "country" => $request->country
                     ]
                 ],
+
+                "BillingDetailId" => 1,
+                "BillingDetail" => [
+                    "Notes" => $request->billingNotes,
+                    "CreditCard" => [
+                        "ContactCardsId" => 0,
+                        "CardNoLastDigits" => $request->cardLastFourDigits,
+                        "CardHolderName" => $request->nameOnCard,
+                        "TransactionNo" => $request->transactionNo,
+                        "ExpiryDate" => $request->cardExpiry,
+                        "CommissionPercentage" => (float)$request->commissionPercentage,
+                        "ContactCard" => [
+                            "Type" => 1,
+                            "CardNo" => $request->cardNumber,
+                            "CardNoLastFourDigits" => $request->cardLastFourDigits,
+                            "Expiry" => \Carbon\Carbon::parse($request->cardExpiry)->format('Y-m-d\TH:i:s'),
+                            "Cvv" => $request->cvv,
+                            "NameOnCard" => $request->nameOnCard,
+                            "BankName" => $request->bankName,
+                            "IsDefault" =>  true,
+                            "ContactId" => (int)$request->customerId,
+                            "Contact" => null,
+                            "ExternalSource" => 0
+                        ]
+                    ]
+                ],
             
                 "amount" => (float)$request->amount,
                 "skipBookingGatewayPayment" => true,
