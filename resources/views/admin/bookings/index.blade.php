@@ -2456,27 +2456,23 @@
                         <div><b>Bank:</b> ${contactCard.bankName || contactCard.BankName || '-'}</div>
                         <div><b>Default:</b> ${(contactCard.isDefault || contactCard.IsDefault) ? 'Yes' : 'No'}</div>
                         <div><b>Contact ID:</b> ${contactCard.contactId || contactCard.ContactId || '-'}</div>
+                        <div><b>Transaction No:</b> ${creditCard.transactionNo || creditCard.TransactionNo || '-'}</div>
+                        <div><b>Commission:</b> ${creditCard.commissionPercentage || creditCard.CommissionPercentage || 0}%</div>
                         <div><b>External Source:</b> ${contactCard.externalSource || contactCard.ExternalSource || '-'}</div>
                     </div>
                 </div>
                 <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div class="min-w-0 flex-1">
-                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Billing Summary</div>
+                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Billing Notes</div>
                             <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                                 <div class="rounded-xl bg-slate-50 px-3 py-2">
-                                    <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Transaction No</div>
-                                    <div class="mt-1 font-semibold text-slate-900">${creditCard.transactionNo || creditCard.TransactionNo || '-'}</div>
-                                </div>
-                                <div class="rounded-xl bg-slate-50 px-3 py-2">
-                                    <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Commission</div>
-                                    <div class="mt-1 font-semibold text-slate-900">${creditCard.commissionPercentage || creditCard.CommissionPercentage || 0}%</div>
+                                    <div class="mt-1 font-semibold text-slate-900">${billing.notes || billing.Notes || '-'}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="mb-2"><b>Billing Notes:</b> ${billing.notes || billing.Notes || '-'}</div>
             `;
         }
 
