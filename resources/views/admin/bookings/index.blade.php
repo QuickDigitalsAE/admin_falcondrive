@@ -2469,9 +2469,7 @@
                             </div>
 
                             <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-4 max-h-[400px] overflow-y-auto">
-                                <pre class="whitespace-pre-wrap break-words text-sm text-slate-800 font-sans m-0">
-                        ${billing.notes || billing.Notes || '-'}
-                                </pre>
+                                ${billing.notes || billing.Notes || '-'}
                             </div>
                         </div>
                     </div>
