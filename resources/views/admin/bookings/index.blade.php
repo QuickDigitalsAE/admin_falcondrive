@@ -2464,11 +2464,14 @@
                 <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div class="min-w-0 flex-1">
-                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Billing Notes</div>
-                            <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                                <div class="rounded-xl bg-slate-50 px-3 py-2">
-                                    <div class="mt-1 font-semibold text-slate-900">${billing.notes || billing.Notes || '-'}</div>
-                                </div>
+                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                                Billing Notes
+                            </div>
+
+                            <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-4 max-h-[400px] overflow-y-auto">
+                                <pre class="whitespace-pre-wrap break-words text-sm text-slate-800 font-sans m-0">
+                        ${billing.notes || billing.Notes || '-'}
+                                </pre>
                             </div>
                         </div>
                     </div>
