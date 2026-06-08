@@ -649,6 +649,7 @@ class BookingController extends BaseApiController
 
     public function createBooking(Request $request)
     {
+        return response()->joson($request->all());
         $code = env('APP_CODE');
         $url = "https://speedbookingportalapi.azurewebsites.net/api/CreateBooking";
 
@@ -700,7 +701,7 @@ class BookingController extends BaseApiController
                 ],
 
                 "taxPercent" => (float)$request->taxPercent,
-                "charges" => $charges,
+                
 
                 "discount" => (float)$request->discount,
                 "tax" => (float)$request->chargesTax,
