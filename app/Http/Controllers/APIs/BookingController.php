@@ -649,7 +649,7 @@ class BookingController extends BaseApiController
 
     public function createBooking(Request $request)
     {
-        return response()->json($request->all());
+        // return response()->json($request->all());
         $code = env('APP_CODE');
         $url = "https://speedbookingportalapi.azurewebsites.net/api/CreateBooking";
 
@@ -729,7 +729,7 @@ class BookingController extends BaseApiController
                 ],
             
                 "amount" => (float)$request->amount,
-                "skipBookingGatewayPayment" => true,
+                "skipBookingGatewayPayment" => false,
                 "currency" => "AED"
             ]
         ];
