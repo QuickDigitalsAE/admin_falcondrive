@@ -2302,6 +2302,21 @@
             return `<div><b>${label}:</b> ${value ?? '-'}</div>`;
         }
 
+        function amountWithIcon(value, sizeClass = 'h-[1em] w-[1em]', textClass = '') {
+            const icon = @json(asset('images/durham.png'));
+
+            return `
+                <span class="inline-flex items-center gap-1 ${textClass}">
+                    <img src="${icon}" alt="AED" class="inline-block ${sizeClass} object-contain align-[-0.12em]">
+                    <span>${formatAmount(value)}</span>
+                </span>
+            `;
+        }
+
+        function detailAmountRow(label, value) {
+            return `<div><b>${label}:</b> ${amountWithIcon(value)}</div>`;
+        }
+
         function formatAmount(value) {
             const amount = Number(value);
 
@@ -2336,18 +2351,20 @@
                 detailRow('Start', booking.startDate ? new Date(booking.startDate).toLocaleString() : '-'),
                 detailRow('End', booking.endDate ? new Date(booking.endDate).toLocaleString() : '-'),
                 detailRow('Location', booking.locationId),
-                detailRow('Advance', booking.advance || 0),
+                detailAmountRow('Advance', booking.advance || 0),
                 detailRow('Tax Percent', booking.taxPercent || 0),
-                detailRow('Discount', booking.discount || 0),
-                detailRow('Tax', booking.tax || 0),
-                detailRow('Total Charges', booking.totalCharges || 0),
+                detailAmountRow('Discount', booking.discount || 0),
+                detailAmountRow('Tax', booking.tax || 0),
+                detailAmountRow('Total Charges', booking.totalCharges || 0),
                 detailRow('Booking Type', booking.bookingType || '-'),
                 `
                 <div class="col-span-2 overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-teal-50 shadow-sm">
                     <div class="flex items-center justify-between gap-4 px-5 py-4">
                         <div>
                             <div class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">TotalAmount</div>
-                            <div class="mt-1 text-3xl font-bold text-slate-900">AED ${formatAmount(booking.amount || 0)}</div>
+                            <div class="mt-1">
+                                ${amountWithIcon(booking.amount || 0, 'h-[1.4em] w-[1.4em]', 'text-3xl font-bold text-slate-900')}
+                            </div>
                         </div>
                     </div>
                 </div>
