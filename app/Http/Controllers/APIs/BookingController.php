@@ -676,6 +676,7 @@ class BookingController extends BaseApiController
                 "bookingStatus" => (int)$request->bookingStatus,
                 "advance" => (float)$request->advance,
                 "locationId" => (int)$request->locationId,
+                "closingLocationId" => (int)$request->locationId,
                 "notes" => $request->notes,
 
                 "vehicle" => [
@@ -713,43 +714,21 @@ class BookingController extends BaseApiController
                     "lastName" => $request->lastName,
                     "email" => $request->customerEmail,
                     "mobileNo" => $request->mobileNo,
+                    "nationality" => $request->nationality,
+                    "dateOfBirth" => \Carbon\Carbon::parse($request->dateOfBirth)->format('Y-m-d\TH:i:s'),
+                    "gender" => (int) $request->gender,
                     "locationId" => 1,
                     "address" => [
-                        "street" => $request->street,
+                        "addressLine1" => $request->street,
                         "city" => $request->city,
                         "state" => $request->state,
                         "zipCode" => $request->postalCode,
                         "country" => $request->country
                     ]
                 ],
-                "BillingDetailId" => 1,
-                "BillingDetail" => [
-                    "Notes" => $request->billingNotes,
-                    "CreditCard" => [
-                        "ContactCardsId" => 0,
-                        "CardNoLastDigits" => $request->cardLastFourDigits,
-                        "CardHolderName" => $request->nameOnCard,
-                        "TransactionNo" => $request->transactionNo,
-                        "ExpiryDate" => $request->cardExpiry,
-                        "CommissionPercentage" => (float)$request->commissionPercentage,
-                        "ContactCard" => [
-                            "Type" => 1,
-                            "CardNo" => $request->cardNumber,
-                            "CardNoLastFourDigits" => $request->cardLastFourDigits,
-                            "Expiry" => \Carbon\Carbon::parse($request->cardExpiry)->format('Y-m-d\TH:i:s'),
-                            "Cvv" => $request->cvv,
-                            "NameOnCard" => $request->nameOnCard,
-                            "BankName" => $request->bankName,
-                            "IsDefault" =>  true,
-                            "ContactId" => (int)$request->customerId,
-                            "Contact" => null,
-                            "ExternalSource" => 0
-                        ]
-                    ]
-                ],
-
+            
                 "amount" => (float)$request->amount,
-                "skipBookingGatewayPayment" => false,
+                "skipBookingGatewayPayment" => true,
                 "currency" => "AED"
             ]
         ];

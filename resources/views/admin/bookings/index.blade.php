@@ -1433,7 +1433,7 @@
 
                 const formData = new FormData(this);
                 const bookingId = $('#booking_id').val(); // booking id is passed in this field for booking page
-                const email = $('#customerEmail').val();
+                const customerId = String($('#customerId').val() || '').trim();
                 const submitBtn = $('#sendBookingSubmitBtn');
                 const formValidation = validateSendForm();
 
@@ -1445,28 +1445,13 @@
 
                 submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
 
-                $.ajax({
-                    url: @json(route('get.customer.by.email')),
-                    method: 'POST',
-                    data: {
-                        _token: @json(csrf_token()),
-                        email: email
-                    },
-                    success: function (response) {
-                        if (response.success && response.result) {
-                            formData.set('customerId', response.result.customerId || response.result.id || '');
-                            proceedBooking(formData, bookingId);
-                            return;
-                        }
+                if (customerId) {
+                    formData.set('customerId', customerId);
+                    updateCustomerAndProceed(formData, bookingId);
+                    return;
+                }
 
-                        createCustomerAndProceed(formData, bookingId);
-                    },
-                    error: function (xhr) {
-                        const message = xhr.responseJSON?.error || xhr.responseJSON?.message || 'Customer check failed';
-                        showToast(message, 'error');
-                        resetSubmitButton();
-                    }
-                });
+                createCustomerAndProceed(formData, bookingId);
             });
 
             const speedViewModal = document.getElementById('speedViewModal');
@@ -2269,6 +2254,44 @@
                 },
                 error: function (xhr) {
                     const message = xhr.responseJSON?.error || xhr.responseJSON?.message || 'Customer create failed';
+                    showToast(message, 'error');
+                    resetSubmitButton();
+                }
+            });
+        }
+
+        function updateCustomerAndProceed(formData, bookingId) {
+            $.ajax({
+                url: @json(route('update.customer')),
+                method: 'POST',
+                data: {
+                    _token: @json(csrf_token()),
+                    customerId: $('#customerId').val(),
+                    firstName: $('#firstName').val(),
+                    lastName: $('#lastName').val(),
+                    email: $('#customerEmail').val(),
+                    mobileNo: $('#mobileNo').val(),
+                    nationality: $('#nationality').val(),
+                    dateOfBirth: $('#dateOfBirth').val(),
+                    gender: $('#gender').val(),
+                    locationId: 1,
+                    street: $('#street').val(),
+                    city: $('#city').val(),
+                    state: $('#state').val(),
+                    postCode: $('#postalCode').val(),
+                    country: $('#country').val()
+                },
+                success: function (res) {
+                    if (res.success) {
+                        proceedBooking(formData, bookingId);
+                        return;
+                    }
+
+                    showToast(res.error || 'Customer update failed', 'error');
+                    resetSubmitButton();
+                },
+                error: function (xhr) {
+                    const message = xhr.responseJSON?.error || xhr.responseJSON?.message || 'Customer update failed';
                     showToast(message, 'error');
                     resetSubmitButton();
                 }
