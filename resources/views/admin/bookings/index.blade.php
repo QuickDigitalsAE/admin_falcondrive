@@ -2403,24 +2403,7 @@
                         </div>
                     </div>
                 </div>
-                `,
                 `
-                <div class="col-span-2">
-                    <b class="mb-2 block">Notes:</b>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        ${renderPrettyNotes(booking.notes)}
-                    </div>
-                </div>
-                `
-            ].join('');
-
-            document.getElementById('vehicleInfo').innerHTML = [
-                detailRow('Plate No', vehicle.plateNo),
-                detailRow('Model', tariff.title || tariff.Title),
-                detailRow('Sub Title', tariff.subTitle || tariff.SubTitle),
-                detailRow('Seats', tariff.passengerCapacity || tariff.PassengerCapacity),
-                detailRow('Large Bags', tariff.largeBagsCapacity || tariff.LargeBagsCapacity),
-                detailRow('Small Bags', tariff.smallBagsCapacity || tariff.SmallBagsCapacity)
             ].join('');
 
             document.getElementById('customerInfo').innerHTML = [
@@ -2442,6 +2425,15 @@
                 detailRow('Street', address.street || address.addressLine1),
                 detailRow('State', address.state),
                 detailRow('Zip Code', address.zipCode || address.postalCode)
+            ].join('');
+
+            document.getElementById('vehicleInfo').innerHTML = [
+                detailRow('Plate No', vehicle.plateNo),
+                detailRow('Model', tariff.title || tariff.Title),
+                detailRow('Sub Title', tariff.subTitle || tariff.SubTitle),
+                detailRow('Seats', tariff.passengerCapacity || tariff.PassengerCapacity),
+                detailRow('Large Bags', tariff.largeBagsCapacity || tariff.LargeBagsCapacity),
+                detailRow('Small Bags', tariff.smallBagsCapacity || tariff.SmallBagsCapacity)
             ].join('');
 
             if (Array.isArray(booking.charges) && booking.charges.length) {
@@ -2483,6 +2475,14 @@
                                 ${billing.notes || billing.Notes || '-'}
                             </div>
                         </div>
+                    </div>
+                </div>
+            `
+            `
+                <div class="col-span-2">
+                    <b class="mb-2 block">Notes:</b>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${renderPrettyNotes(booking.notes)}
                     </div>
                 </div>
             `;
