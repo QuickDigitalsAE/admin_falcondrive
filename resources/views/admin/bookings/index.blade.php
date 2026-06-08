@@ -2427,8 +2427,6 @@
                 detailRow('Name', `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || '-'),
                 detailRow('Email', customer.email),
                 detailRow('Phone', customer.mobileNo),
-                detailRow('City', address.city),
-                detailRow('Mobile No', customer.mobileNo),
                 detailRow('Nationality', customer.nationality),
                 detailRow('Date of Birth', customer.dateOfBirth),
                 detailRow(
@@ -2439,9 +2437,11 @@
                             ? 'Female'
                             : '-'
                 ),
+                detailRow('Country', address.country),
+                detailRow('City', address.city),
                 detailRow('Street', address.street || address.addressLine1),
-                detailRow('Zip Code', address.zipCode || address.postalCode),
-                detailRow('Country', address.country)
+                detailRow('State', address.state),
+                detailRow('Zip Code', address.zipCode || address.postalCode)
             ].join('');
 
             if (Array.isArray(booking.charges) && booking.charges.length) {
