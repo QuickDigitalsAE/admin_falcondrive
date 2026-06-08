@@ -2302,6 +2302,19 @@
             return `<div><b>${label}:</b> ${value ?? '-'}</div>`;
         }
 
+        function formatAmount(value) {
+            const amount = Number(value);
+
+            if (Number.isNaN(amount)) {
+                return value ?? '-';
+            }
+
+            return amount.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
         function renderSpeedView(data) {
             if (!data || !data.booking) {
                 return;
@@ -2329,6 +2342,16 @@
                 detailRow('Tax', booking.tax || 0),
                 detailRow('Total Charges', booking.totalCharges || 0),
                 detailRow('Booking Type', booking.bookingType || '-'),
+                `
+                <div class="col-span-2 overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-teal-50 shadow-sm">
+                    <div class="flex items-center justify-between gap-4 px-5 py-4">
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">TotalAmount</div>
+                            <div class="mt-1 text-3xl font-bold text-slate-900">AED ${formatAmount(booking.amount || 0)}</div>
+                        </div>
+                    </div>
+                </div>
+                `,
                 `
                 <div class="col-span-2">
                     <b class="mb-2 block">Notes:</b>
