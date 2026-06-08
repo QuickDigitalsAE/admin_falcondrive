@@ -2363,7 +2363,7 @@
                         <div>
                             <div class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">TotalAmount</div>
                             <div class="mt-1">
-                                ${amountWithIcon(booking.amount || 0, 'h-[1.4em] w-[1.4em]', 'text-3xl font-bold text-slate-900')}
+                                ${amountWithIcon(booking.amount || 0, 'h-[1em] w-[1em]', 'text-xl font-bold text-slate-900')}
                             </div>
                         </div>
                     </div>
