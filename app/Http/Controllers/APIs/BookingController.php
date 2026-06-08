@@ -649,7 +649,7 @@ class BookingController extends BaseApiController
 
     public function createBooking(Request $request)
     {
-        return response()->joson($request->all());
+        return response()->json($request->all());
         $code = env('APP_CODE');
         $url = "https://speedbookingportalapi.azurewebsites.net/api/CreateBooking";
 
