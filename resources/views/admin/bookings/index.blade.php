@@ -2329,7 +2329,14 @@
                 detailRow('Tax', booking.tax || 0),
                 detailRow('Total Charges', booking.totalCharges || 0),
                 detailRow('Booking Type', booking.bookingType || '-'),
-                detailRow('Notes', booking.notes || '-')
+                `
+                <div class="col-span-2">
+                    <b class="mb-2 block">Notes:</b>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${renderPrettyNotes(booking.notes)}
+                    </div>
+                </div>
+                `
             ].join('');
 
             document.getElementById('vehicleInfo').innerHTML = [
@@ -2386,6 +2393,90 @@
                 </div>
                 <div class="mb-2"><b>Billing Notes:</b> ${billing.notes || billing.Notes || '-'}</div>
             `;
+        }
+
+        function parseNotesToObject(notes) {
+            const result = {};
+
+            String(notes || '')
+                .split(/\r?\n/)
+                .forEach(line => {
+                    const index = line.indexOf(':');
+                    if (index === -1) return;
+
+                    const key = line.slice(0, index).trim();
+                    const value = line.slice(index + 1).trim();
+
+                    if (key) result[key] = value || '-';
+                });
+
+            return result;
+        }
+
+        function renderPrettyNotes(notes) {
+            const data = parseNotesToObject(notes);
+
+            const sections = {
+                'Car Details': ['Source', 'Car Id', 'Car Slug', 'Car Name'],
+                'Customer Details': ['Name', 'Number', 'Email', 'Contact Preference'],
+                'Booking Schedule': ['Start Date', 'End Date', 'Start Time', 'End Time', 'Rental Type', 'Rental Duration'],
+                'Pickup & Return': [
+                    'Pickup Branch',
+                    'Dropoff Branch',
+                    'Delivery Location',
+                    'Delivery Custom Address',
+                    'Return Location',
+                    'Return Custom Address'
+                ],
+                'Add-ons': [
+                    'Full Insurance',
+                    'Full Insurance Price',
+                    'Additional Driver',
+                    'Additional Driver Charges',
+                    'Baby Seat',
+                    'Baby Seat Price',
+                    'Deposit Waiver',
+                    'Deposit Waiver Price'
+                ],
+                'Payment Summary': [
+                    'Rental Price',
+                    'Subtotal',
+                    'Vat Percentage',
+                    'Vat Amount',
+                    'Discount Percentage',
+                    'Pay Now Discount',
+                    'Total Amount',
+                    'Payment Flow',
+                    'Pay Now 20% To Reserve',
+                    'Pay At Pickup 80%'
+                ],
+                'Terms': [
+                    'Term 22 Years',
+                    'Term 6 Month Experience'
+                ]
+            };
+
+            return Object.entries(sections).map(([title, keys]) => {
+                const rows = keys
+                    .filter(key => data[key] !== undefined && data[key] !== '')
+                    .map(key => `
+                        <div class="flex justify-between gap-4 border-b border-gray-100 py-2 last:border-b-0">
+                            <span class="text-xs font-semibold text-gray-500">${key}</span>
+                            <span class="text-xs font-bold text-gray-800 text-right">${data[key]}</span>
+                        </div>
+                    `).join('');
+
+                if (!rows) return '';
+
+                return `
+                    <div class="rounded-xl border border-[#eadfbe] bg-white p-4 shadow-sm">
+                        <h4 class="mb-3 text-[12px] font-extrabold uppercase tracking-wider text-[#8b6a1c]">
+                            ${title}
+                        </h4>
+                        ${rows}
+                    </div>
+                `;
+            }).join('');
         }
 
         function openSpeedViewModal(bookingId) {
