@@ -807,11 +807,11 @@
                                 data-self-pickup-location-id="${escapeHtml(record.self_pickup_location_id || '')}"
                                 data-rental-price="${escapeHtml(record.rental_price || '')}"
                                 data-rental-duration="${escapeHtml(record.rental_duration || '')}"
-                                data-full-insurance="${escapeHtml(record.full_insurance || '')}"
+                                data-full-insurance="${record.full_insurance ? '1' : '0'}"
                                 data-full-insurance-price="${escapeHtml(record.full_insurance_price || '')}"
-                                data-baby-seat="${escapeHtml(record.baby_seat || '')}"
+                                data-baby-seat="${record.baby_seat ? '1' : '0'}"
                                 data-baby-seat-price="${escapeHtml(record.baby_seat_price || '')}"
-                                data-additional-driver="${escapeHtml(record.additional_driver || '')}"
+                                data-additional-driver="${record.additional_driver ? '1' : '0'}"
                                 data-additional-driver-charges="${escapeHtml(record.additional_driver_charges || '')}"
                                 data-deposit-waiver="${escapeHtml(record.deposit_waiver || '')}"
                                 data-deposit-waiver-price="${escapeHtml(record.deposit_waiver_price || '')}"
@@ -1158,11 +1158,11 @@
                                 selfPickupLocationId: sendBookingBtn.dataset.selfPickupLocationId || '',
                                 rentalPrice: sendBookingBtn.dataset.rentalPrice || '',
                                 rentalDuration: sendBookingBtn.dataset.rentalDuration || '',
-                                fullInsurance: sendBookingBtn.dataset.fullInsurance || '',
+                                fullInsurance: sendBookingBtn.dataset.fullInsurance || '0',
                                 fullInsurancePrice: sendBookingBtn.dataset.fullInsurancePrice || '',
-                                babySeat: sendBookingBtn.dataset.babySeat || '',
+                                babySeat: sendBookingBtn.dataset.babySeat || '0',
                                 babySeatPrice: sendBookingBtn.dataset.babySeatPrice || '',
-                                additionalDriver: sendBookingBtn.dataset.additionalDriver || '',
+                                additionalDriver: sendBookingBtn.dataset.additionalDriver || '0',
                                 additionalDriverCharges: sendBookingBtn.dataset.additionalDriverCharges || '',
                                 depositWaiver: sendBookingBtn.dataset.depositWaiver || '',
                                 depositWaiverPrice: sendBookingBtn.dataset.depositWaiverPrice || ''
@@ -1657,25 +1657,7 @@
             });
         }
 
-        function normalizeMoney(value) {
-            const number = parseFloat(value);
-            return Number.isFinite(number) ? number : 0;
-        }
-
-        function normalizeDuration(value) {
-            const number = parseFloat(value);
-            return Number.isFinite(number) && number > 0 ? number : 1;
-        }
-
-        function isEnabledFlag(value) {
-            return String(value ?? '').toLowerCase() === '1' || String(value ?? '').toLowerCase() === 'yes' || String(value ?? '').toLowerCase() === 'true';
-        }
-
-        function roundAmount(value) {
-            return Math.round((parseFloat(value) || 0) * 100) / 100;
-        }
-
-        function addChargeRow(defaults = {}) {
+        function addChargeRow() {
             const html = `
                 <div class="charge-card border border-gray-200 rounded-2xl p-5 mb-4 bg-white shadow-sm relative transition-all hover:shadow-md">
                     <button type="button" class="removeCharge absolute top-3 right-3 h-8 w-8 flex items-center justify-center rounded-full bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all">&times;</button>
@@ -1721,121 +1703,9 @@
                 </div>
             `;
 
-            const wrapper = $('#chargesWrapper');
-            wrapper.append(html);
-            const card = wrapper.children('.charge-card').last();
-
+            $('#chargesWrapper').append(html);
             applyDecimalSteps(document.getElementById('chargesWrapper'));
             applySelect2();
-
-            if (defaults.chargeTypeId) {
-                card.find('.chargeType').val(String(defaults.chargeTypeId)).trigger('change');
-            }
-
-            window.setTimeout(() => {
-                if (defaults.rateTypeId) {
-                    const rateType = card.find('.rateType');
-                    if (!rateType.find(`option[value="${defaults.rateTypeId}"]`).length) {
-                        rateType.append(new Option(`Rate Type ${defaults.rateTypeId}`, defaults.rateTypeId, false, false));
-                    }
-                    rateType.val(String(defaults.rateTypeId)).trigger('change');
-                }
-
-                if (defaults.rate !== undefined) {
-                    card.find('.rate').val(roundAmount(defaults.rate));
-                }
-
-                if (defaults.units !== undefined) {
-                    card.find('.units').val(defaults.units);
-                }
-
-                if (defaults.total !== undefined) {
-                    card.find('.total').val(roundAmount(defaults.total));
-                }
-
-                if (defaults.notes) {
-                    card.find('.notes').val(defaults.notes);
-                }
-
-                calculateTotalCharges();
-            }, 0);
-        }
-
-        function buildBookingChargeRows(booking = {}) {
-            if (!booking) return;
-
-            const rentalDuration = normalizeDuration(booking.rentalDuration);
-            const rentalType = String(booking.rentalType || '').toLowerCase();
-            const rentalPrice = normalizeMoney(booking.rentalPrice);
-            const rows = [];
-
-            if (rentalPrice > 0) {
-                rows.push({
-                    chargeTypeId: 1,
-                    rateTypeId: rentalType === 'monthly' ? 3 : 1,
-                    total: rentalPrice,
-                    rate: rentalPrice / rentalDuration,
-                    units: rentalDuration,
-                    notes: 'Rental Price'
-                });
-            }
-
-            if (isEnabledFlag(booking.fullInsurance)) {
-                const total = normalizeMoney(booking.fullInsurancePrice);
-                rows.push({
-                    chargeTypeId: 2,
-                    rateTypeId: 6,
-                    total,
-                    rate: total / rentalDuration,
-                    units: rentalDuration,
-                    notes: 'Full Insurance'
-                });
-            }
-
-            if (isEnabledFlag(booking.babySeat)) {
-                const total = normalizeMoney(booking.babySeatPrice);
-                rows.push({
-                    chargeTypeId: 19,
-                    rateTypeId: 1,
-                    total,
-                    rate: total / rentalDuration,
-                    units: rentalDuration,
-                    notes: 'Baby Seat'
-                });
-            }
-
-            if (isEnabledFlag(booking.additionalDriver)) {
-                const total = normalizeMoney(booking.additionalDriverCharges);
-                rows.push({
-                    chargeTypeId: 23,
-                    rateTypeId: 6,
-                    total,
-                    rate: total / rentalDuration,
-                    units: rentalDuration,
-                    notes: 'Additional Driver'
-                });
-            }
-
-            const depositWaiver = String(booking.depositWaiver || '').toLowerCase();
-            const depositWaiverPrice = normalizeMoney(booking.depositWaiverPrice);
-            if (depositWaiver === 'waiver' || depositWaiver === 'deposit') {
-                rows.push({
-                    chargeTypeId: depositWaiver === 'waiver' ? 59 : 54,
-                    rateTypeId: depositWaiver === 'waiver' ? 1 : 3,
-                    total: depositWaiverPrice,
-                    rate: depositWaiverPrice / rentalDuration,
-                    units: rentalDuration,
-                    notes: depositWaiver === 'waiver' ? 'Deposit Waiver' : 'Deposit'
-                });
-            }
-
-            $('#chargesWrapper').html('');
-            $('input[name="totalCharges"]').data('baseSubtotal', 0);
-            rows.forEach(row => addChargeRow(row));
-
-            if (!rows.length) {
-                addChargeRow();
-            }
         }
 
         function applySelect2() {
@@ -1901,6 +1771,132 @@
             const taxAmount = parseFloat($('input[name="chargesTax"]').val()) || 0;
             const finalAmount = Math.round(((total - discount) + taxAmount) * 100) / 100;
             $('input[name="amount"]').val(finalAmount);
+        }
+
+        function parseChargeUnits(rentalDuration) {
+            const value = String(rentalDuration || '').trim();
+            if (value === '') {
+                return 0;
+            }
+
+            const numeric = parseFloat(value);
+            if (!Number.isNaN(numeric) && numeric > 0) {
+                return numeric;
+            }
+
+            const match = value.match(/(\d+(?:\.\d+)?)/);
+            if (!match) {
+                return 0;
+            }
+
+            const parsed = parseFloat(match[1]);
+            return Number.isNaN(parsed) ? 0 : parsed;
+        }
+
+        function calculateChargeRate(totalPrice, units) {
+            const total = parseFloat(totalPrice) || 0;
+            const durationUnits = parseFloat(units) || 0;
+
+            if (durationUnits <= 0) {
+                return total;
+            }
+
+            return Math.round((total / durationUnits) * 100) / 100;
+        }
+
+        function setChargeCardValues(card, config) {
+            if (!card || !config) {
+                return;
+            }
+
+            const chargeType = card.find('.chargeType');
+            const rateType = card.find('.rateType');
+            const rate = card.find('.rate');
+            const units = card.find('.units');
+            const total = card.find('.total');
+
+            chargeType.val(String(config.chargeTypeId)).trigger('change');
+            rateType.val(String(config.rateTypeId)).trigger('change');
+            rate.val(config.rateValue);
+            units.val(config.unitsValue);
+            total.val(config.totalValue);
+        }
+
+        function buildBookingChargeConfigs(values = {}) {
+            const rentalUnits = parseChargeUnits(values.rentalDuration);
+            const configs = [];
+
+            configs.push({
+                chargeTypeId: 1,
+                rateTypeId: ['daily', 'weekly'].includes(String(values.rentalType || '').toLowerCase()) ? 1 : 3,
+                rateValue: calculateChargeRate(values.rentalPrice, rentalUnits),
+                unitsValue: rentalUnits,
+                totalValue: parseFloat(values.rentalPrice) || 0
+            });
+
+            if (String(values.fullInsurance || '0') === '1') {
+                configs.push({
+                    chargeTypeId: 2,
+                    rateTypeId: 6,
+                    rateValue: calculateChargeRate(values.fullInsurancePrice, rentalUnits),
+                    unitsValue: rentalUnits,
+                    totalValue: parseFloat(values.fullInsurancePrice) || 0
+                });
+            }
+
+            if (String(values.babySeat || '0') === '1') {
+                configs.push({
+                    chargeTypeId: 19,
+                    rateTypeId: 1,
+                    rateValue: calculateChargeRate(values.babySeatPrice, rentalUnits),
+                    unitsValue: rentalUnits,
+                    totalValue: parseFloat(values.babySeatPrice) || 0
+                });
+            }
+
+            if (String(values.additionalDriver || '0') === '1') {
+                configs.push({
+                    chargeTypeId: 23,
+                    rateTypeId: 6,
+                    rateValue: calculateChargeRate(values.additionalDriverCharges, rentalUnits),
+                    unitsValue: rentalUnits,
+                    totalValue: parseFloat(values.additionalDriverCharges) || 0
+                });
+            }
+
+            const depositWaiver = String(values.depositWaiver || '').trim().toLowerCase();
+            if (depositWaiver === 'waiver' || depositWaiver === 'deposit') {
+                const isWaiver = depositWaiver === 'waiver';
+                configs.push({
+                    chargeTypeId: isWaiver ? 59 : 54,
+                    rateTypeId: isWaiver ? 1 : 3,
+                    rateValue: calculateChargeRate(values.depositWaiverPrice, rentalUnits),
+                    unitsValue: rentalUnits,
+                    totalValue: parseFloat(values.depositWaiverPrice) || 0
+                });
+            }
+
+            return configs;
+        }
+
+        function populateBookingChargeCards(values = {}) {
+            const wrapper = $('#chargesWrapper');
+            wrapper.html('');
+
+            const configs = buildBookingChargeConfigs(values);
+
+            configs.forEach(config => {
+                addChargeRow();
+                const card = wrapper.children('.charge-card').last();
+                setChargeCardValues(card, config);
+            });
+
+            if (!configs.length) {
+                addChargeRow();
+            }
+
+            $('input[name="totalCharges"]').data('baseSubtotal', 0);
+            calculateTotalCharges();
         }
 
         function loadVehicles() {
@@ -2127,11 +2123,11 @@
                 selfPickupLocationId: bookingFinancials.selfPickupLocationId || '',
                 rentalPrice: bookingFinancials.rentalPrice || '',
                 rentalDuration: bookingFinancials.rentalDuration || '',
-                fullInsurance: bookingFinancials.fullInsurance || '',
+                fullInsurance: bookingFinancials.fullInsurance || '0',
                 fullInsurancePrice: bookingFinancials.fullInsurancePrice || '',
-                babySeat: bookingFinancials.babySeat || '',
+                babySeat: bookingFinancials.babySeat || '0',
                 babySeatPrice: bookingFinancials.babySeatPrice || '',
-                additionalDriver: bookingFinancials.additionalDriver || '',
+                additionalDriver: bookingFinancials.additionalDriver || '0',
                 additionalDriverCharges: bookingFinancials.additionalDriverCharges || '',
                 depositWaiver: bookingFinancials.depositWaiver || '',
                 depositWaiverPrice: bookingFinancials.depositWaiverPrice || ''
@@ -2139,7 +2135,7 @@
             prefillBookingCustomerFields(bookingName, bookingNumber);
             setBookingNotesField(bookingNotes);
             setBookingFinancialFields(bookingFinancials);
-            buildBookingChargeRows(currentBookingSelection);
+            populateBookingChargeCards(currentBookingSelection);
 
             searchCustomer(email, function () {
                 if (!document.getElementById('firstName').value.trim() && !document.getElementById('lastName').value.trim()) {
