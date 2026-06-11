@@ -400,7 +400,7 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Type</label>
                                 <select id="bookingType" name="bookingType" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                     <option value="1">Daily</option>
-                                    <option value="1">Weekly</option>
+                                    <option value="2">Weekly</option>
                                     <option value="3">Monthly</option>
                                 </select>
                             </div>
@@ -801,6 +801,10 @@
                                 data-charges-tax="${escapeHtml(record.charges_tax || '')}"
                                 data-total-charges="${escapeHtml(record.total_charges || '')}"
                                 data-amount="${escapeHtml(record.total_amount || '')}"
+                                data-vehicle-group-id="${escapeHtml(record.vehicle_group_id || '')}"
+                                data-tariff-group-id="${escapeHtml(record.tariff_group_id || '')}"
+                                data-rental-type="${escapeHtml(record.rental_type || '')}"
+                                data-self-pickup-location-id="${escapeHtml(record.self_pickup_location_id || '')}"
                                 title="Send Booking">
                                 <span class="icon-box flex items-center justify-center">
                                     <i class="fa-solid fa-paper-plane text-[13px]"></i>
@@ -1137,7 +1141,11 @@
                                 discount: sendBookingBtn.dataset.discount || '',
                                 chargesTax: sendBookingBtn.dataset.chargesTax || '',
                                 totalCharges: sendBookingBtn.dataset.totalCharges || '',
-                                amount: sendBookingBtn.dataset.amount || ''
+                                amount: sendBookingBtn.dataset.amount || '',
+                                vehicleGroupId: sendBookingBtn.dataset.vehicleGroupId || '',
+                                tariffGroupId: sendBookingBtn.dataset.tariffGroupId || '',
+                                rentalType: sendBookingBtn.dataset.rentalType || '',
+                                selfPickupLocationId: sendBookingBtn.dataset.selfPickupLocationId || ''
                             }
                         );
                     }
@@ -1406,6 +1414,7 @@
         let debounceTimer;
         let vehiclesList = [];
         let chargesSettings = [];
+        let currentBookingSelection = null;
         window.latestPayload = window.latestPayload || {};
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -1530,6 +1539,85 @@
             $('#tariffGroupId').val('');
             $('#plateNo').val('');
             $('#vehicleTitle').val('');
+        }
+
+        function firstSelectValue(selector) {
+            const select = document.querySelector(selector);
+            if (!select) {
+                return '';
+            }
+
+            const firstOption = Array.from(select.options).find(option => String(option.value || '').trim() !== '');
+            return firstOption ? String(firstOption.value) : '';
+        }
+
+        function normalizeRentalTypeSelectionValue(rentalType) {
+            const normalized = String(rentalType || '').trim().toLowerCase();
+
+            if (normalized === 'daily') return '1';
+            if (normalized === 'weekly') return '2';
+            if (normalized === 'monthly') return '3';
+
+            return '';
+        }
+
+        function selectVehicleByTariffGroupId(tariffGroupId) {
+            const select = document.getElementById('vehicleSelect');
+            const target = String(tariffGroupId || '').trim();
+
+            if (!select || target === '') {
+                return false;
+            }
+
+            const option = Array.from(select.options).find(item => {
+                if (!item.value) {
+                    return false;
+                }
+
+                try {
+                    const vehicle = JSON.parse(item.dataset.vehicle || '{}');
+                    return String(vehicle.tariffGroupId || '').trim() === target;
+                } catch (error) {
+                    return false;
+                }
+            });
+
+            if (!option) {
+                return false;
+            }
+
+            $(select).val(option.value).trigger('change');
+            return true;
+        }
+
+        function applyCurrentBookingSelections() {
+            if (!currentBookingSelection) {
+                return;
+            }
+
+            const bookingStatusValue = firstSelectValue('#bookingStatus');
+            if (bookingStatusValue !== '') {
+                $('#bookingStatus').val(bookingStatusValue).trigger('change');
+            }
+
+            const rentalTypeValue = normalizeRentalTypeSelectionValue(currentBookingSelection.rentalType);
+            if (rentalTypeValue !== '') {
+                $('#bookingType').val(rentalTypeValue).trigger('change');
+            }
+
+            if (String(currentBookingSelection.selfPickupLocationId || '').trim() !== '') {
+                $('#locationSelect').val(String(currentBookingSelection.selfPickupLocationId).trim()).trigger('change');
+            }
+
+            if (String(currentBookingSelection.vehicleGroupId || '').trim() !== '') {
+                $('#vehicleGroupSelect').val(String(currentBookingSelection.vehicleGroupId).trim()).trigger('change');
+            }
+
+            if (!selectVehicleByTariffGroupId(currentBookingSelection.tariffGroupId)) {
+                if (String(currentBookingSelection.tariffGroupId || '').trim() !== '') {
+                    $('#tariffGroupId').val(String(currentBookingSelection.tariffGroupId).trim());
+                }
+            }
         }
 
         function loadChargesSettings() {
@@ -1715,7 +1803,7 @@
                     });
 
                     select.prop('disabled', false).trigger('change');
-
+                    applyCurrentBookingSelections();
                     applySelect2();
                 })
                 .catch(() => {
@@ -1739,6 +1827,7 @@
                     });
 
                     select.prop('disabled', false).trigger('change');
+                    applyCurrentBookingSelections();
                     applySelect2();
                 })
                 .catch(() => {
@@ -1760,6 +1849,7 @@
                     });
 
                     select.prop('disabled', false).trigger('change');
+                    applyCurrentBookingSelections();
                     applySelect2();
                 })
                 .catch(() => {
@@ -1880,6 +1970,12 @@
             startBtnLoader(el);
             const emailField = document.getElementById('customerEmail');
             emailField.value = email || '';
+            currentBookingSelection = {
+                vehicleGroupId: bookingFinancials.vehicleGroupId || '',
+                tariffGroupId: bookingFinancials.tariffGroupId || '',
+                rentalType: bookingFinancials.rentalType || '',
+                selfPickupLocationId: bookingFinancials.selfPickupLocationId || ''
+            };
             prefillBookingCustomerFields(bookingName, bookingNumber);
             setBookingNotesField(bookingNotes);
             setBookingFinancialFields(bookingFinancials);
@@ -1910,6 +2006,7 @@
             if (modalBody) {
                 modalBody.scrollTop = 0;
             }
+            applyCurrentBookingSelections();
         }
 
         function closeSendModal() {
@@ -1926,6 +2023,7 @@
             $('#chargesWrapper').html('');
             $('#customerId, #vehicleId, #tariffGroupId, #plateNo, #vehicleTitle').val('');
             $('#customerFields').addClass('hidden');
+            currentBookingSelection = null;
             resetDefaultSelects();
             addChargeRow();
             resetSubmitButton();
@@ -1940,8 +2038,10 @@
             $('#sendForm select').each(function () {
                 $(this).val('').trigger('change');
             });
-            $('#bookingStatus').val('0').trigger('change');
-            $('#bookingType').val('0').trigger('change');
+            const defaultBookingStatus = firstSelectValue('#bookingStatus');
+            if (defaultBookingStatus !== '') {
+                $('#bookingStatus').val(defaultBookingStatus).trigger('change');
+            }
         }
 
         function startBtnLoader(el) {
