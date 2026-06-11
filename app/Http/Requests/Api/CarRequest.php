@@ -9,7 +9,7 @@ class CarRequest extends BaseDataRequest
 {
     public function fillableFields(): array
     {
-        return ['name_en', 'name_ar', 'description_en', 'description_ar', 'price_daily', 'price_weekly', 'price_monthly', 'full_insurance_amount', 'additional_driver_amount', 'baby_seat_amount', 'deposit_amount', 'waiver_amount', 'different_city_dropoff_fee', 'main_image', 'images', 'model', 'featured', 'featured_sorting', 'engine', 'seats', 'doors', 'deposit', 'luggage', 'cruise_control', 'bluetooth', 'automatic', 'parking_sensor', 'navigation', 'carplay', 'camera', 'slug', 'seo_title_en', 'seo_title_ar', 'seo_brief_en', 'seo_brief_ar', 'brand_id', 'stock', 'cdw_daily', 'cdw_weekly', 'cdw_monthly', 'sorting'];
+        return ['name_en', 'name_ar', 'description_en', 'description_ar', 'price_daily', 'price_weekly', 'price_monthly', 'full_insurance_amount', 'additional_driver_amount', 'baby_seat_amount', 'deposit_amount', 'waiver_amount', 'different_city_dropoff_fee', 'main_image', 'images', 'model', 'featured', 'featured_sorting', 'engine', 'seats', 'doors', 'deposit', 'luggage', 'cruise_control', 'bluetooth', 'automatic', 'parking_sensor', 'navigation', 'carplay', 'camera', 'slug', 'seo_title_en', 'seo_title_ar', 'seo_brief_en', 'seo_brief_ar', 'brand_id', 'stock', 'cdw_daily', 'cdw_weekly', 'cdw_monthly', 'vehicle_group_id', 'tariff_group_id', 'sorting'];
     }
 
     public function rules(?Model $model = null): array
@@ -57,6 +57,8 @@ class CarRequest extends BaseDataRequest
             'cdw_daily' => ['nullable','string','max:191'],
             'cdw_weekly' => ['nullable','string','max:191'],
             'cdw_monthly' => ['nullable','string','max:191'],
+            'vehicle_group_id' => ['nullable','integer'],
+            'tariff_group_id' => ['nullable','integer'],
             'sorting' => ['nullable','string','max:191'],
             'slug' => ['required','string','max:191'],
                         'brand_id' => ['required','integer','exists:brands,id']

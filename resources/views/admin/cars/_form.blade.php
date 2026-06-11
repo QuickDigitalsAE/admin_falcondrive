@@ -101,6 +101,47 @@
         </div>
     </div>
 
+    {{-- Vehicle Groups & Tariff Groups - API Options --}}
+    <div class="xl:col-span-3">
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+            <div class="min-w-0">
+                <div class="space-y-2">
+                    <div class="relative">
+                        <select
+                            id="vehicle_group_id"
+                            name="vehicle_group_id"
+                            data-selected-vehicle-group-id="{{ old('vehicle_group_id', $car?->vehicle_group_id ?? '') }}"
+                            class="peer w-full appearance-none rounded-[18px] border {{ $errors->has('vehicle_group_id') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 pr-11 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[58px]"
+                        >
+                            <option value="">Loading Vehicle Groups...</option>
+                        </select>
+                        <label for="vehicle_group_id" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('vehicle_group_id') ? 'text-red-500' : 'text-slate-500' }}">Vehicle Groups</label>
+                        <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                    </div>
+                    @error('vehicle_group_id')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
+            <div class="min-w-0">
+                <div class="space-y-2">
+                    <div class="relative">
+                        <select
+                            id="tariff_group_id"
+                            name="tariff_group_id"
+                            data-selected-tariff-group-id="{{ old('tariff_group_id', $car?->tariff_group_id ?? '') }}"
+                            class="peer w-full appearance-none rounded-[18px] border {{ $errors->has('tariff_group_id') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 pr-11 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[58px]"
+                        >
+                            <option value="">Loading Vehicle Tariff Groups...</option>
+                        </select>
+                        <label for="tariff_group_id" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('tariff_group_id') ? 'text-red-500' : 'text-slate-500' }}">Vehicle Tariff Group</label>
+                        <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                    </div>
+                    @error('tariff_group_id')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="xl:col-span-3">
         <div class="mb-4">
             <h3 class="text-sm font-bold uppercase tracking-[0.18em] text-[#9b7a28]">Addons</h3>
@@ -415,3 +456,120 @@
     @endif
     <a href="{{ route('admin.cars') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-6 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-xmark mr-2 text-[13px]"></i>Cancel</a>
 </div>
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            loadCarVehicleGroups();
+            loadCarVehicleTariffGroups();
+        });
+
+        function getNestedItems(responseData) {
+            if (responseData && responseData.result && Array.isArray(responseData.result.items)) {
+                return responseData.result.items;
+            }
+
+            if (responseData && Array.isArray(responseData.items)) {
+                return responseData.items;
+            }
+
+            return [];
+        }
+
+        function loadCarVehicleGroups() {
+            const select = document.getElementById('vehicle_group_id');
+            if (!select) return;
+
+            const selectedValue = String(select.dataset.selectedVehicleGroupId || '');
+            select.disabled = true;
+            select.innerHTML = '<option value="">Loading Vehicle Groups...</option>';
+
+            fetch(@json(url('/api/speed/getVehicleGroups')), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const groups = getNestedItems(data);
+
+                    select.innerHTML = '<option value="">Select Vehicle Group</option>';
+
+                    groups.forEach(group => {
+                        const id = group.id ?? '';
+                        const name = group.name ?? `Group ${id}`;
+                        const option = new Option(name, id, false, String(id) === selectedValue);
+
+                        option.dataset.vehicleGroup = JSON.stringify(group);
+                        select.appendChild(option);
+                    });
+
+                    select.disabled = false;
+                })
+                .catch(() => {
+                    select.innerHTML = '<option value="">Failed to load Vehicle Groups</option>';
+                    select.disabled = false;
+                });
+        }
+
+        function loadCarVehicleTariffGroups() {
+            const select = document.getElementById('tariff_group_id');
+            if (!select) return;
+
+            const selectedValue = String(select.dataset.selectedTariffGroupId || '');
+            select.disabled = true;
+            select.innerHTML = '<option value="">Loading Vehicle Tariff Groups...</option>';
+
+            fetch(@json(url('/api/speed/getVehicles')), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const vehicles = getNestedItems(data);
+                    const tariffGroups = {};
+
+                    vehicles.forEach(vehicle => {
+                        const tariffGroupId = vehicle.tariffGroupId;
+
+                        if (tariffGroupId === null || tariffGroupId === undefined || tariffGroupId === '') {
+                            return;
+                        }
+
+                        const key = String(tariffGroupId);
+
+                        if (!tariffGroups[key]) {
+                            tariffGroups[key] = {
+                                id: tariffGroupId,
+                                vehicleName: vehicle.makeModelVariant || '',
+                                vehicles: []
+                            };
+                        }
+
+                        tariffGroups[key].vehicles.push(vehicle);
+                    });
+
+                    select.innerHTML = '<option value="">Select Vehicle Tariff Group</option>';
+
+                    Object.values(tariffGroups).forEach(group => {
+                        const label = group.vehicleName
+                            ? `${group.id} - ${group.vehicleName}`
+                            : `Tariff Group ${group.id}`;
+
+                        const option = new Option(label, group.id, false, String(group.id) === selectedValue);
+                        option.dataset.tariffGroup = JSON.stringify(group);
+                        select.appendChild(option);
+                    });
+
+                    select.disabled = false;
+                })
+                .catch(() => {
+                    select.innerHTML = '<option value="">Failed to load Vehicle Tariff Groups</option>';
+                    select.disabled = false;
+                });
+        }
+    </script>
+@endpush

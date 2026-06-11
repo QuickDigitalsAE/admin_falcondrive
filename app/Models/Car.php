@@ -54,6 +54,8 @@ class Car extends Model
         'cdw_daily',
         'cdw_weekly',
         'cdw_monthly',
+        'vehicle_group_id',
+        'tariff_group_id',
         'sorting',
         'created_by',
         'updated_by',
@@ -63,6 +65,8 @@ class Car extends Model
     protected $casts = [
         'images' => 'array',
         'brand_id' => 'integer',
+        'vehicle_group_id' => 'integer',
+        'tariff_group_id' => 'integer',
         'featured' => 'boolean',
         'featured_sorting' => 'integer',
         'cruise_control' => 'boolean',

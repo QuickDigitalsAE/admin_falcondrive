@@ -43,6 +43,8 @@ return new class extends Migration
             $table->string('cdw_daily')->nullable();
             $table->string('cdw_weekly')->nullable();
             $table->string('cdw_monthly')->nullable();
+            $table->unsignedInteger('vehicle_group_id')->nullable();
+            $table->unsignedInteger('tariff_group_id')->nullable();
             $table->string('sorting')->nullable();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();

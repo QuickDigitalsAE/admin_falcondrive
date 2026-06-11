@@ -305,6 +305,8 @@ class CarController extends Controller
                     'price_daily' => $car->price_daily,
                     'price_weekly' => $car->price_weekly,
                     'price_monthly' => $car->price_monthly,
+                    'vehicle_group_id' => $car->vehicle_group_id,
+                    'tariff_group_id' => $car->tariff_group_id,
                     'stock' => $car->stock,
                     'featured' => (bool) $car->featured,
                     'deleted_at' => optional($car->deleted_at)->toDateTimeString(),
@@ -394,6 +396,8 @@ class CarController extends Controller
             'cdw_daily' => ['nullable', 'string', 'max:255'],
             'cdw_weekly' => ['nullable', 'string', 'max:255'],
             'cdw_monthly' => ['nullable', 'string', 'max:255'],
+            'vehicle_group_id' => ['nullable', 'integer'],
+            'tariff_group_id' => ['nullable', 'integer'],
             'sorting' => ['nullable', 'integer', 'min:0'],
         ];
     }
@@ -440,6 +444,8 @@ class CarController extends Controller
             'cdw_daily' => $validated['cdw_daily'] ?? null,
             'cdw_weekly' => $validated['cdw_weekly'] ?? null,
             'cdw_monthly' => $validated['cdw_monthly'] ?? null,
+            'vehicle_group_id' => $validated['vehicle_group_id'] ?? null,
+            'tariff_group_id' => $validated['tariff_group_id'] ?? null,
         ];
     }
 
@@ -661,7 +667,7 @@ class CarController extends Controller
 
         return response()->stream(function () use ($cars, $isDeleted) {
             $file = fopen('php://output', 'w');
-            $headers = ['ID', 'Name EN', 'Name AR', 'Brand', 'Model', 'Slug', 'Price Daily', 'Price Weekly', 'Price Monthly', 'Stock', 'Featured', 'Created At'];
+            $headers = ['ID', 'Name EN', 'Name AR', 'Brand', 'Model', 'Slug', 'Price Daily', 'Price Weekly', 'Price Monthly', 'Vehicle Group ID', 'Tariff Group ID', 'Stock', 'Featured', 'Created At'];
 
             if ($isDeleted) {
                 $headers[] = 'Deleted At';
@@ -680,6 +686,8 @@ class CarController extends Controller
                     $car->price_daily,
                     $car->price_weekly,
                     $car->price_monthly,
+                    $car->vehicle_group_id,
+                    $car->tariff_group_id,
                     $car->stock,
                     $car->featured ? 'Yes' : 'No',
                     optional($car->created_at)->format('Y-m-d H:i:s'),

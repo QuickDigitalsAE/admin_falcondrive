@@ -28,6 +28,8 @@ class CarResource extends BaseResource
             'cdw_daily' => $this->cdw_daily,
             'cdw_weekly' => $this->cdw_weekly,
             'cdw_monthly' => $this->cdw_monthly,
+            'vehicle_group_id' => $this->vehicle_group_id,
+            'tariff_group_id' => $this->tariff_group_id,
             'main_image' => $this->main_image,
             'main_image_url' => $this->imageUrl($this->main_image),
             'images' => $this->decodeImages($this->images),
