@@ -102,6 +102,7 @@
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Actions</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Customer</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Rental</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Self Location IDs</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Payment</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Created</th>
                         </tr>
@@ -166,6 +167,12 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="space-y-1">
+                                        <div class="text-xs text-slate-700">Pickup ID: {{ $booking->self_pickup_location_id ?? '-' }}</div>
+                                        <div class="text-xs text-slate-700">Return ID: {{ $booking->self_return_location_id ?? '-' }}</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="space-y-1">
                                         <div class="text-xs text-slate-700">Flow: {{ $booking->payment_flow == 'now' ? 'Pay Now' : 'Pay Later' }}</div>
                                         <div class="text-xs text-slate-500">
                                             Amount:
@@ -184,7 +191,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-12 text-center text-slate-500">No bookings found.</td>
+                                <td colspan="6" class="px-6 py-12 text-center text-slate-500">No bookings found.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -426,7 +433,7 @@
                         <div class="mt-8">
                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                                 <div>
-                                    <h3 class="font-bold text-lg text-gray-800">Additional Charges</h3>
+                                    <h3 class="font-bold text-lg text-gray-800">Charges</h3>
                                 </div>
                                 <button type="button" id="addCharge" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl shadow-sm transition-all text-sm">
                                     <i class="fas fa-plus"></i> Add Charge
@@ -638,7 +645,7 @@
             function setLoading() {
                 recordsTableBody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                        <td colspan="6" class="px-6 py-12 text-center text-slate-500">
                             <div class="inline-flex items-center gap-2">
                                 <i class="fa-solid fa-spinner fa-spin text-[#b49543]"></i>
                                 <span>Loading bookings...</span>
@@ -844,7 +851,7 @@
                 if (!items.length) {
                     recordsTableBody.innerHTML = `
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-500">
                                 No bookings found.
                             </td>
                         </tr>
@@ -939,7 +946,7 @@
                 } catch (error) {
                     recordsTableBody.innerHTML = `
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-red-500">
+                            <td colspan="6" class="px-6 py-12 text-center text-red-500">
                                 ${escapeHtml(error.message || 'Something went wrong.')}
                             </td>
                         </tr>

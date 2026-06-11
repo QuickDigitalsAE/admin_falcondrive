@@ -33,11 +33,13 @@ class BookingRequest extends BaseDataRequest
             'delivery_location_price' => $this->sanitizeDecimal($this->input('delivery_location_price')),
             'different_city_dropoff_fee' => $this->sanitizeDecimal($this->input('different_city_dropoff_fee')),
             'self_pickup_location' => $this->sanitizeLongText($this->input('self_pickup_location')),
+            'self_pickup_location_id' => $this->sanitizeInteger($this->input('self_pickup_location_id')),
             'self_pickup_address' => $this->sanitizeText($this->input('self_pickup_address')),
             'return_location' => $this->sanitizeLongText($this->input('return_location')),
             'return_custom_address' => $this->sanitizeLongText($this->input('return_custom_address')),
             'return_location_price' => $this->sanitizeDecimal($this->input('return_location_price')),
             'self_return_location' => $this->sanitizeLongText($this->input('self_return_location')),
+            'self_return_location_id' => $this->sanitizeInteger($this->input('self_return_location_id')),
             'self_return_address' => $this->sanitizeText($this->input('self_return_address')),
             'coupon_code' => $this->sanitizeText($this->input('coupon_code')),
             'coupon_amount' => $this->sanitizeDecimal($this->input('coupon_amount')),
@@ -92,11 +94,13 @@ class BookingRequest extends BaseDataRequest
             'delivery_location_price',
             'different_city_dropoff_fee',
             'self_pickup_location',
+            'self_pickup_location_id',
             'self_pickup_address',
             'return_location',
             'return_custom_address',
             'return_location_price',
             'self_return_location',
+            'self_return_location_id',
             'self_return_address',
             'coupon_code',
             'coupon_amount',
@@ -149,11 +153,13 @@ class BookingRequest extends BaseDataRequest
             'delivery_location_price' => ['nullable', 'numeric', 'min:0'],
             'different_city_dropoff_fee' => ['nullable', 'numeric', 'min:0'],
             'self_pickup_location' => ['nullable', 'string', 'max:5000'],
+            'self_pickup_location_id' => ['nullable', 'integer', 'min:1'],
             'self_pickup_address' => ['nullable', 'string', 'max:191'],
             'return_location' => ['nullable', 'string', 'max:5000'],
             'return_custom_address' => ['nullable', 'string', 'max:5000'],
             'return_location_price' => ['nullable', 'numeric', 'min:0'],
             'self_return_location' => ['nullable', 'string', 'max:5000'],
+            'self_return_location_id' => ['nullable', 'integer', 'min:1'],
             'self_return_address' => ['nullable', 'string', 'max:191'],
             'coupon_code' => ['nullable', 'string', 'max:191'],
             'coupon_amount' => ['nullable', 'numeric', 'min:0'],
@@ -252,6 +258,18 @@ class BookingRequest extends BaseDataRequest
     private function sanitizeDateTime(mixed $value): ?string
     {
         return $this->sanitizeDate($value);
+    }
+
+
+    private function sanitizeInteger(mixed $value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        $value = filter_var($value, FILTER_VALIDATE_INT);
+
+        return $value === false ? null : $value;
     }
 
     private function sanitizeDecimal(mixed $value): ?string

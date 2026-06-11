@@ -90,6 +90,8 @@ class BookingController extends Controller
                     'start_time' => $booking->start_time,
                     'end_time' => $booking->end_time,
                     'send_booking_id' => $booking->send_booking_id,
+                    'self_pickup_location_id' => $booking->self_pickup_location_id,
+                    'self_return_location_id' => $booking->self_return_location_id,
                     'deleted_at' => optional($booking->deleted_at)->format('Y-m-d H:i:s'),
                     'created_at_human' => optional($booking->created_at)->format('d M Y, h:i A'),
                     'show_url' => route('admin.bookings.show', $booking->id),
@@ -303,7 +305,7 @@ class BookingController extends Controller
 
         return response()->stream(function () use ($records) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['ID', 'Name', 'Number', 'Email', 'Rental Type', 'Rental Price', 'Payment Flow', 'Total Amount', 'Paid Status', 'Paid Via', 'Created At']);
+            fputcsv($file, ['ID', 'Name', 'Number', 'Email', 'Rental Type', 'Rental Price', 'Self Pickup Location ID', 'Self Return Location ID', 'Payment Flow', 'Total Amount', 'Paid Status', 'Paid Via', 'Created At']);
 
             foreach ($records as $record) {
                 fputcsv($file, [
@@ -313,6 +315,8 @@ class BookingController extends Controller
                     $record->email,
                     $record->rental_type,
                     $record->rental_price,
+                    $record->self_pickup_location_id,
+                    $record->self_return_location_id,
                     $record->payment_flow,
                     $record->total_amount,
                     $record->paid_status,

@@ -156,6 +156,15 @@
                         </div>
                     @endif
 
+                    @if(!empty($booking->self_pickup_location_id))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Self Pickup Location ID:
+                            </span>
+                            {{ $booking->self_pickup_location_id }}
+                        </div>
+                    @endif
+
                     @if(!empty($booking->self_pickup_address))
                         <div>
                             <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
@@ -198,6 +207,15 @@
                                 Self Return Location:
                             </span>
                             {{ $booking->self_return_location }}
+                        </div>
+                    @endif
+
+                    @if(!empty($booking->self_return_location_id))
+                        <div>
+                            <span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">
+                                Self Return Location ID:
+                            </span>
+                            {{ $booking->self_return_location_id }}
                         </div>
                     @endif
 
