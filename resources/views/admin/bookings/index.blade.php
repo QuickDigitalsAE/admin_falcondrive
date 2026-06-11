@@ -309,7 +309,12 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nationality</label>
-                                    <input type="text" name="nationality" id="nationality" placeholder="Nationality" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
+                                    <select name="nationality" id="nationality" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
+                                        <option value="">Select Nationality</option>
+                                        @foreach ($speedCountries as $speedCountry)
+                                            <option value="{{ $speedCountry }}">{{ $speedCountry }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Gender</label>
