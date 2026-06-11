@@ -1597,7 +1597,7 @@
         }
 
         function applySelect2() {
-            const selectors = '.chargeType, .rateType, #vehicleSelect, #vehicleGroupSelect, #locationSelect, #bookingStatus, #bookingType, #country';
+            const selectors = '.chargeType, .rateType, #vehicleSelect, #vehicleGroupSelect, #locationSelect, #bookingStatus, #bookingType, #country, #nationality';
 
             $(selectors).each(function () {
                 const $select = $(this);
@@ -1607,7 +1607,7 @@
                 }
 
                 $select.select2({
-                    placeholder: $select.is('#country') ? 'Select Country' : 'Select option...',
+                    placeholder: $select.is('#country') ? 'Select Country' : ($select.is('#nationality') ? 'Select Nationality' : 'Select option...'),
                     width: '100%',
                     dropdownParent: $('#sendModal')
                 });
@@ -1929,6 +1929,7 @@
 
         function resetDefaultSelects() {
             $('#country').val('').trigger('change');
+            $('#nationality').val('').trigger('change');
             $('input[name="totalCharges"]').data('baseSubtotal', 0);
             $('input[name="amount"]').data('baseAmount', 0);
             $('#cardNumber, #cardLastFourDigits').val('');
@@ -2004,7 +2005,7 @@
                             document.getElementById('firstName').value = pickCustomerValue(customer, ['firstName', 'FirstName']) || pickCustomerValue(customer.customer, ['firstName', 'FirstName']);
                             document.getElementById('lastName').value = pickCustomerValue(customer, ['lastName', 'LastName']) || pickCustomerValue(customer.customer, ['lastName', 'LastName']);
                             document.getElementById('mobileNo').value = pickCustomerValue(customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']) || pickCustomerValue(customer.customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']);
-                            document.getElementById('nationality').value = pickCustomerValue(customer, ['nationality', 'Nationality']) || pickCustomerValue(customer.customer, ['nationality', 'Nationality']);
+                            $('#nationality').val(pickCustomerValue(customer, ['nationality', 'Nationality']) || pickCustomerValue(customer.customer, ['nationality', 'Nationality'])).trigger('change');
                             document.getElementById('gender').value = pickCustomerValue(customer, ['gender', 'Gender']) || pickCustomerValue(customer.customer, ['gender', 'Gender']);
                             document.getElementById('dateOfBirth').value = normalizeDateTimeLocal(
                                 pickCustomerValue(customer, ['dateOfBirth', 'DateOfBirth']) || pickCustomerValue(customer.customer, ['dateOfBirth', 'DateOfBirth'])
@@ -2038,7 +2039,9 @@
                 el.classList.remove('bg-gray-100');
             });
 
+            const nationalityField = document.getElementById('nationality');
             const countryField = document.getElementById('country');
+            nationalityField.classList.remove('bg-gray-100');
             countryField.classList.remove('bg-gray-100');
         }
 
@@ -2053,8 +2056,10 @@
                     el.value = '';
                 }
             });
-            $('#gender').val('');
+            $('#gender').val('').trigger('change');
+            $('#nationality').val('').trigger('change');
             $('#country').val('').trigger('change');
+            document.getElementById('nationality').classList.remove('bg-gray-100');
             document.getElementById('country').classList.remove('bg-gray-100');
         }
 
