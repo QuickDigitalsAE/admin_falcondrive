@@ -316,7 +316,12 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nationality</label>
-                                    <input type="text" name="nationality" id="nationality" placeholder="Nationality" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
+                                    <select name="nationality" id="nationality" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
+                                        <option value="">Select Nationality</option>
+                                        @foreach ($speedCountries as $speedCountry)
+                                            <option value="{{ $speedCountry }}">{{ $speedCountry }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Gender</label>
@@ -328,7 +333,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Date of Birth</label>
-                                    <input type="datetime-local" name="dateOfBirth" id="dateOfBirth" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
+                                    <input type="date" name="dateOfBirth" id="dateOfBirth" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Country</label>
@@ -381,7 +386,6 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Status</label>
                                 <select id="bookingStatus" name="bookingStatus" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
-                                    <option value="0">Select Status</option>
                                     <option value="1">New</option>
                                     <option value="2">Confirmed</option>
                                     <option value="3">Cancelled</option>
@@ -393,21 +397,9 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Type</label>
                                 <select id="bookingType" name="bookingType" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
-                                    <option value="0">Select Type</option>
-                                    <option value="1">TradeLicense</option>
-                                    <option value="2">Passport</option>
-                                    <option value="3">NationalId</option>
-                                    <option value="4">DrivingLicense</option>
-                                    <option value="5">Other</option>
-                                    <option value="6">StaffDocument1</option>
-                                    <option value="7">HealthCard</option>
-                                    <option value="8">Visa</option>
-                                    <option value="9">CreditApplication</option>
-                                    <option value="10">CreditCard</option>
-                                    <option value="15">OtherDocument2</option>
-                                    <option value="16">OtherDocument3</option>
-                                    <option value="17">OtherDocument4</option>
-                                    <option value="18">Signature</option>
+                                    <option value="1">Daily</option>
+                                    <option value="1">Weekly</option>
+                                    <option value="3">Monthly</option>
                                 </select>
                             </div>
 
@@ -1671,25 +1663,61 @@
 
         function loadVehicles() {
             const select = $('#vehicleSelect');
-            select.prop('disabled', true).html('<option value="">Loading vehicles...</option>');
+
+            select.prop('disabled', true)
+                .html('<option value="">Loading vehicles...</option>');
 
             fetch(@json(url('/api/speed/getVehicles')))
                 .then(res => res.json())
                 .then(res => {
                     select.empty().append('<option value="">Select Vehicle</option>');
+
                     vehiclesList = res.items || [];
 
+                    const groupedVehicles = {};
+
                     vehiclesList.forEach(vehicle => {
-                        const option = new Option(`${vehicle.makeModelVariant}`, vehicle.id, false, false);
-                        option.dataset.vehicle = JSON.stringify(vehicle);
+                        const key = (vehicle.makeModelVariant || '').trim();
+
+                        if (!key) return;
+
+                        if (!groupedVehicles[key]) {
+                            groupedVehicles[key] = {
+                                vehicle: vehicle,
+                                vehicles: []
+                            };
+                        }
+
+                        groupedVehicles[key].vehicles.push(vehicle);
+                    });
+
+                    Object.values(groupedVehicles).forEach(item => {
+                        const option = new Option(
+                            item.vehicle.makeModelVariant,
+                            item.vehicle.id,
+                            false,
+                            false
+                        );
+
+                        // First vehicle data
+                        option.dataset.vehicle = JSON.stringify(item.vehicle);
+
+                        // Same model ki tamam vehicles
+                        option.dataset.vehicles = JSON.stringify(item.vehicles);
+
+                        option.dataset.vehicleName = item.vehicle.makeModelVariant;
+
                         select.append(option);
                     });
 
                     select.prop('disabled', false).trigger('change');
+
                     applySelect2();
                 })
                 .catch(() => {
-                    select.html('<option value="">Failed to load</option>').prop('disabled', false).trigger('change');
+                    select.html('<option value="">Failed to load</option>')
+                        .prop('disabled', false)
+                        .trigger('change');
                 });
         }
 
