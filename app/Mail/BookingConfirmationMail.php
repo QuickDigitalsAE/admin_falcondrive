@@ -107,6 +107,8 @@ class BookingConfirmationMail extends Mailable
             $this->makeSection('Terms Confirmation', [
                 $this->makeField('22+ Years Confirmed', $this->formatBoolean($this->booking->term_22_years)),
                 $this->makeField('6+ Months Experience Confirmed', $this->formatBoolean($this->booking->term_6_month_experience)),
+                $this->makeField('Vehicle Group ID', $this->booking->vehicle_group_id),
+                $this->makeField('Tariff Group ID', $this->booking->tariff_group_id),
             ]),
         ]));
     }

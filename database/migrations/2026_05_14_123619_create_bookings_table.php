@@ -70,6 +70,8 @@ return new class extends Migration
             $table->enum('contact_preference', ['whatsapp', 'phone'])->nullable();
             $table->boolean('term_22_years')->default(false);
             $table->boolean('term_6_month_experience')->default(false);
+            $table->unsignedInteger('vehicle_group_id')->nullable();
+            $table->unsignedInteger('tariff_group_id')->nullable();
 
             // Documentation & Logs
             $table->string('send_booking_id')->nullable();

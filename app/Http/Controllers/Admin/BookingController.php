@@ -76,6 +76,8 @@ class BookingController extends Controller
                     'rental_price' => (string) $booking->rental_price,
                     'resident_tourist' => $booking->resident_tourist,
                     'payment_flow' => $booking->payment_flow,
+                    'vehicle_group_id' => $booking->vehicle_group_id,
+                    'tariff_group_id' => $booking->tariff_group_id,
                     'total_amount' => (string) $booking->total_amount,
                     'advance' => (string) ($booking->{'pay_now_20%_to_Reserve'} ?? ''),
                     'tax_percent' => (string) ($booking->vat_percentage ?? ''),
@@ -305,7 +307,7 @@ class BookingController extends Controller
 
         return response()->stream(function () use ($records) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['ID', 'Name', 'Number', 'Email', 'Rental Type', 'Rental Price', 'Self Pickup Location ID', 'Self Return Location ID', 'Payment Flow', 'Total Amount', 'Paid Status', 'Paid Via', 'Created At']);
+            fputcsv($file, ['ID', 'Name', 'Number', 'Email', 'Rental Type', 'Rental Price', 'Self Pickup Location ID', 'Self Return Location ID', 'Vehicle Group ID', 'Tariff Group ID', 'Payment Flow', 'Total Amount', 'Paid Status', 'Paid Via', 'Created At']);
 
             foreach ($records as $record) {
                 fputcsv($file, [
@@ -317,6 +319,8 @@ class BookingController extends Controller
                     $record->rental_price,
                     $record->self_pickup_location_id,
                     $record->self_return_location_id,
+                    $record->vehicle_group_id,
+                    $record->tariff_group_id,
                     $record->payment_flow,
                     $record->total_amount,
                     $record->paid_status,

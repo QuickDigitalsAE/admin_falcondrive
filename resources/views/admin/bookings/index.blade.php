@@ -169,6 +169,8 @@
                                     <div class="space-y-1">
                                         <div class="text-xs text-slate-700">Pickup ID: {{ $booking->self_pickup_location_id ?? '-' }}</div>
                                         <div class="text-xs text-slate-700">Return ID: {{ $booking->self_return_location_id ?? '-' }}</div>
+                                        <div class="text-xs text-slate-700">Vehicle Group ID: {{ $booking->vehicle_group_id ?? '-' }}</div>
+                                        <div class="text-xs text-slate-700">Tariff Group ID: {{ $booking->tariff_group_id ?? '-' }}</div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -877,6 +879,8 @@
                         <td class="px-6 py-4">
                             <div class="space-y-1">
                                 <div class="text-xs text-slate-700">Flow: ${record.payment_flow === 'now' ? 'Pay Now' : 'Pay Later'}</div>
+                                <div class="text-xs text-slate-500">Vehicle Group ID: ${escapeHtml(record.vehicle_group_id || '-')}</div>
+                                <div class="text-xs text-slate-500">Tariff Group ID: ${escapeHtml(record.tariff_group_id || '-')}</div>
                                 <div class="text-xs text-slate-500">Amount: ${currencyHtml(record.total_amount || '0.00')}</div>
                                 <div class="text-xs text-slate-500">Status: ${escapeHtml(record.paid_status || '-')}</div>
                                 <div class="text-xs text-slate-500">Via: ${escapeHtml(record.paid_via || '-')}</div>

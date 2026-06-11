@@ -36,7 +36,6 @@
         ['id' => 'paid_date', 'label' => 'Paid Date', 'type' => 'datetime-local', 'value' => old('paid_date', !empty($booking?->paid_date) ? optional($booking->paid_date)->format('Y-m-d\TH:i') : '')],
         ['id' => 'paid_status', 'label' => 'Paid Status', 'type' => 'text', 'value' => old('paid_status', $booking->paid_status ?? '')],
         ['id' => 'paid_via', 'label' => 'Paid Via', 'type' => 'text', 'value' => old('paid_via', $booking->paid_via ?? '')],
-        ['id' => 'send_booking_id', 'label' => 'Send Booking ID', 'type' => 'text', 'value' => old('send_booking_id', $booking->send_booking_id ?? '')],
     ];
 
     $textareas = [
@@ -153,6 +152,28 @@
             @endforeach
         </div>
     </div>
+
+    @foreach ([
+        ['id' => 'vehicle_group_id', 'label' => 'Vehicle Group ID', 'type' => 'number', 'value' => old('vehicle_group_id', $booking->vehicle_group_id ?? '')],
+        ['id' => 'tariff_group_id', 'label' => 'Tariff Group ID', 'type' => 'number', 'value' => old('tariff_group_id', $booking->tariff_group_id ?? '')],
+        ['id' => 'send_booking_id', 'label' => 'Send Booking ID', 'type' => 'text', 'value' => old('send_booking_id', $booking->send_booking_id ?? '')],
+    ] as $field)
+        <div class="min-w-0">
+            <div class="space-y-2">
+                <div class="relative">
+                    <input
+                        id="{{ $field['id'] }}"
+                        type="{{ $field['type'] }}"
+                        name="{{ $field['id'] }}"
+                        value="{{ $field['value'] }}"
+                        placeholder="{{ $field['label'] }}"
+                        class="peer w-full rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
+                    <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has($field['id']) ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">{{ $field['label'] }}</label>
+                </div>
+                @error($field['id'])<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+            </div>
+        </div>
+    @endforeach
 
     @foreach ($textareas as $field)
         <div class="xl:col-span-2 min-w-0">

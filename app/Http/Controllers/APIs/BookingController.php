@@ -171,6 +171,8 @@ class BookingController extends BaseApiController
                 : ($request->boolean('no_whatsapp', data_get($contact, 'no_whatsapp', false)) ? 'phone' : 'whatsapp'),
             'term_22_years' => $request->input('term_22_years', $request->input('confirm_age', data_get($contact, 'confirm_age'))),
             'term_6_month_experience' => $request->input('term_6_month_experience', $request->input('confirm_driving', data_get($contact, 'confirm_driving'))),
+            'vehicle_group_id' => $this->integerOrNull($request->input('vehicle_group_id', data_get($pricing, 'vehicle_group_id'))),
+            'tariff_group_id' => $this->integerOrNull($request->input('tariff_group_id', data_get($pricing, 'tariff_group_id'))),
             'send_booking_id' => $this->stringOrNull($request->input('send_booking_id')),
             'notes' => $request->input('notes', $this->buildNotes($request, $payload)),
             'speed_response' => $request->input('speed_response'),
@@ -689,7 +691,7 @@ class BookingController extends BaseApiController
         
         $payload = [
             "booking" => [
-                "tariffGroupId" => (int)$request->tariffGroupId,
+                "tariffGroupId" => (int) ($request->tariffGroupId ?: $booking->tariff_group_id),
                 "startDate" => $startDate,
                 "endDate" => $endDate,
 
@@ -700,10 +702,10 @@ class BookingController extends BaseApiController
                 "notes" => $request->notes,
 
                 "vehicle" => [
-                    "tariffGroupId" => (int)$request->tariffGroupId,
+                    "tariffGroupId" => (int) ($request->tariffGroupId ?: $booking->tariff_group_id),
                     "plateNo" => $request->plateNo,
                     "tariffGroup" => [
-                        "Id" => (int)$request->tariffGroupId,
+                        "Id" => (int) ($request->tariffGroupId ?: $booking->tariff_group_id),
                         "AcrissCategory" => null,
                         "AcrissFuelAc" => null,
                         "AcrissType" => null,
@@ -715,7 +717,9 @@ class BookingController extends BaseApiController
                         "SmallBagsCapacity" => 2,
                         "SkipBookingGatewayPayment" => false,
                         "DisplayImage" => null,
-                        "VehicleGroupId" => null
+                        "VehicleGroupId" => $request->vehicleGroupId !== null && $request->vehicleGroupId !== ''
+                            ? (int) $request->vehicleGroupId
+                            : $booking->vehicle_group_id
                     ]
                 ],
 

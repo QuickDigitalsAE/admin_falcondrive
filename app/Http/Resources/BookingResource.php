@@ -60,6 +60,8 @@ class BookingResource extends BaseResource
             'contact_preference' => $this->contact_preference,
             'term_22_years' => (bool) $this->term_22_years,
             'term_6_month_experience' => (bool) $this->term_6_month_experience,
+            'vehicle_group_id' => $this->vehicle_group_id,
+            'tariff_group_id' => $this->tariff_group_id,
             'send_booking_id' => $this->send_booking_id,
             'notes' => $this->notes,
             'speed_response' => $this->speed_response,

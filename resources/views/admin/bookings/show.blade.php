@@ -49,6 +49,8 @@
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Preference:</span> {{ $booking->contact_preference ?? '-' }}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">22+ Years:</span> {{ $booking->term_22_years ? 'Yes' : 'No' }}</div>
                     <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">6+ Months Exp:</span> {{ $booking->term_6_month_experience ? 'Yes' : 'No' }}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Vehicle Group ID:</span> {{ $booking->vehicle_group_id ?? '-' }}</div>
+                    <div><span class="inline-block min-w-[120px] font-semibold text-[#9b7a28]">Tariff Group ID:</span> {{ $booking->tariff_group_id ?? '-' }}</div>
                 </div>
             </div>
 
