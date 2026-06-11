@@ -447,7 +447,7 @@
                                 <input type="number" step="any" name="chargesTax" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 bg-white outline-none">
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Total Extra Charges</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Total Charges</label>
                                 <input type="number" step="any" name="totalCharges" readonly class="w-full bg-gray-100 border border-gray-200 font-semibold text-gray-800 rounded-xl p-3 cursor-not-allowed outline-none">
                             </div>
                             <div>
@@ -1754,8 +1754,7 @@
 
         function calculateTotalCharges() {
             const totalChargesField = $('input[name="totalCharges"]');
-            const baseSubtotal = parseFloat(totalChargesField.data('baseSubtotal')) || 0;
-            let total = baseSubtotal;
+            let total = 0;
 
             $('.charge-card').each(function () {
                 total += parseFloat($(this).find('.total').val()) || 0;
@@ -1767,9 +1766,11 @@
 
         function calculateFinalAmount() {
             const total = parseFloat($('input[name="totalCharges"]').val()) || 0;
-            const discount = parseFloat($('input[name="discount"]').val()) || 0;
-            const taxAmount = parseFloat($('input[name="chargesTax"]').val()) || 0;
-            const finalAmount = Math.round(((total - discount) + taxAmount) * 100) / 100;
+            const totalChargesField = $('input[name="totalCharges"]');
+            const amountField = $('input[name="amount"]');
+            const baseSubtotal = parseFloat(totalChargesField.data('baseSubtotal')) || 0;
+            const baseAmount = parseFloat(amountField.data('baseAmount')) || 0;
+            const finalAmount = Math.round((baseAmount + (total - baseSubtotal)) * 100) / 100;
             $('input[name="amount"]').val(finalAmount);
         }
 
@@ -1895,7 +1896,6 @@
                 addChargeRow();
             }
 
-            $('input[name="totalCharges"]').data('baseSubtotal', 0);
             calculateTotalCharges();
         }
 
@@ -2109,7 +2109,6 @@
 
             $('input[name="totalCharges"]').data('baseSubtotal', parseFloat(values.totalCharges) || 0);
             $('input[name="amount"]').data('baseAmount', parseFloat(values.amount) || 0);
-            calculateTotalCharges();
         }
 
         function prepareSendModal(el, bookingId, email, bookingName = '', bookingNumber = '', bookingNotes = '', bookingFinancials = {}) {
