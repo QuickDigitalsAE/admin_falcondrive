@@ -805,6 +805,16 @@
                                 data-tariff-group-id="${escapeHtml(record.tariff_group_id || '')}"
                                 data-rental-type="${escapeHtml(record.rental_type || '')}"
                                 data-self-pickup-location-id="${escapeHtml(record.self_pickup_location_id || '')}"
+                                data-rental-price="${escapeHtml(record.rental_price || '')}"
+                                data-rental-duration="${escapeHtml(record.rental_duration || '')}"
+                                data-full-insurance="${escapeHtml(record.full_insurance || '')}"
+                                data-full-insurance-price="${escapeHtml(record.full_insurance_price || '')}"
+                                data-baby-seat="${escapeHtml(record.baby_seat || '')}"
+                                data-baby-seat-price="${escapeHtml(record.baby_seat_price || '')}"
+                                data-additional-driver="${escapeHtml(record.additional_driver || '')}"
+                                data-additional-driver-charges="${escapeHtml(record.additional_driver_charges || '')}"
+                                data-deposit-waiver="${escapeHtml(record.deposit_waiver || '')}"
+                                data-deposit-waiver-price="${escapeHtml(record.deposit_waiver_price || '')}"
                                 title="Send Booking">
                                 <span class="icon-box flex items-center justify-center">
                                     <i class="fa-solid fa-paper-plane text-[13px]"></i>
@@ -1145,7 +1155,17 @@
                                 vehicleGroupId: sendBookingBtn.dataset.vehicleGroupId || '',
                                 tariffGroupId: sendBookingBtn.dataset.tariffGroupId || '',
                                 rentalType: sendBookingBtn.dataset.rentalType || '',
-                                selfPickupLocationId: sendBookingBtn.dataset.selfPickupLocationId || ''
+                                selfPickupLocationId: sendBookingBtn.dataset.selfPickupLocationId || '',
+                                rentalPrice: sendBookingBtn.dataset.rentalPrice || '',
+                                rentalDuration: sendBookingBtn.dataset.rentalDuration || '',
+                                fullInsurance: sendBookingBtn.dataset.fullInsurance || '',
+                                fullInsurancePrice: sendBookingBtn.dataset.fullInsurancePrice || '',
+                                babySeat: sendBookingBtn.dataset.babySeat || '',
+                                babySeatPrice: sendBookingBtn.dataset.babySeatPrice || '',
+                                additionalDriver: sendBookingBtn.dataset.additionalDriver || '',
+                                additionalDriverCharges: sendBookingBtn.dataset.additionalDriverCharges || '',
+                                depositWaiver: sendBookingBtn.dataset.depositWaiver || '',
+                                depositWaiverPrice: sendBookingBtn.dataset.depositWaiverPrice || ''
                             }
                         );
                     }
@@ -1637,7 +1657,25 @@
             });
         }
 
-        function addChargeRow() {
+        function normalizeMoney(value) {
+            const number = parseFloat(value);
+            return Number.isFinite(number) ? number : 0;
+        }
+
+        function normalizeDuration(value) {
+            const number = parseFloat(value);
+            return Number.isFinite(number) && number > 0 ? number : 1;
+        }
+
+        function isEnabledFlag(value) {
+            return String(value ?? '').toLowerCase() === '1' || String(value ?? '').toLowerCase() === 'yes' || String(value ?? '').toLowerCase() === 'true';
+        }
+
+        function roundAmount(value) {
+            return Math.round((parseFloat(value) || 0) * 100) / 100;
+        }
+
+        function addChargeRow(defaults = {}) {
             const html = `
                 <div class="charge-card border border-gray-200 rounded-2xl p-5 mb-4 bg-white shadow-sm relative transition-all hover:shadow-md">
                     <button type="button" class="removeCharge absolute top-3 right-3 h-8 w-8 flex items-center justify-center rounded-full bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all">&times;</button>
@@ -1683,9 +1721,121 @@
                 </div>
             `;
 
-            $('#chargesWrapper').append(html);
+            const wrapper = $('#chargesWrapper');
+            wrapper.append(html);
+            const card = wrapper.children('.charge-card').last();
+
             applyDecimalSteps(document.getElementById('chargesWrapper'));
             applySelect2();
+
+            if (defaults.chargeTypeId) {
+                card.find('.chargeType').val(String(defaults.chargeTypeId)).trigger('change');
+            }
+
+            window.setTimeout(() => {
+                if (defaults.rateTypeId) {
+                    const rateType = card.find('.rateType');
+                    if (!rateType.find(`option[value="${defaults.rateTypeId}"]`).length) {
+                        rateType.append(new Option(`Rate Type ${defaults.rateTypeId}`, defaults.rateTypeId, false, false));
+                    }
+                    rateType.val(String(defaults.rateTypeId)).trigger('change');
+                }
+
+                if (defaults.rate !== undefined) {
+                    card.find('.rate').val(roundAmount(defaults.rate));
+                }
+
+                if (defaults.units !== undefined) {
+                    card.find('.units').val(defaults.units);
+                }
+
+                if (defaults.total !== undefined) {
+                    card.find('.total').val(roundAmount(defaults.total));
+                }
+
+                if (defaults.notes) {
+                    card.find('.notes').val(defaults.notes);
+                }
+
+                calculateTotalCharges();
+            }, 0);
+        }
+
+        function buildBookingChargeRows(booking = {}) {
+            if (!booking) return;
+
+            const rentalDuration = normalizeDuration(booking.rentalDuration);
+            const rentalType = String(booking.rentalType || '').toLowerCase();
+            const rentalPrice = normalizeMoney(booking.rentalPrice);
+            const rows = [];
+
+            if (rentalPrice > 0) {
+                rows.push({
+                    chargeTypeId: 1,
+                    rateTypeId: rentalType === 'monthly' ? 3 : 1,
+                    total: rentalPrice,
+                    rate: rentalPrice / rentalDuration,
+                    units: rentalDuration,
+                    notes: 'Rental Price'
+                });
+            }
+
+            if (isEnabledFlag(booking.fullInsurance)) {
+                const total = normalizeMoney(booking.fullInsurancePrice);
+                rows.push({
+                    chargeTypeId: 2,
+                    rateTypeId: 6,
+                    total,
+                    rate: total / rentalDuration,
+                    units: rentalDuration,
+                    notes: 'Full Insurance'
+                });
+            }
+
+            if (isEnabledFlag(booking.babySeat)) {
+                const total = normalizeMoney(booking.babySeatPrice);
+                rows.push({
+                    chargeTypeId: 19,
+                    rateTypeId: 1,
+                    total,
+                    rate: total / rentalDuration,
+                    units: rentalDuration,
+                    notes: 'Baby Seat'
+                });
+            }
+
+            if (isEnabledFlag(booking.additionalDriver)) {
+                const total = normalizeMoney(booking.additionalDriverCharges);
+                rows.push({
+                    chargeTypeId: 23,
+                    rateTypeId: 6,
+                    total,
+                    rate: total / rentalDuration,
+                    units: rentalDuration,
+                    notes: 'Additional Driver'
+                });
+            }
+
+            const depositWaiver = String(booking.depositWaiver || '').toLowerCase();
+            const depositWaiverPrice = normalizeMoney(booking.depositWaiverPrice);
+            if (depositWaiver === 'waiver' || depositWaiver === 'deposit') {
+                rows.push({
+                    chargeTypeId: depositWaiver === 'waiver' ? 59 : 54,
+                    rateTypeId: depositWaiver === 'waiver' ? 1 : 3,
+                    total: depositWaiverPrice,
+                    rate: depositWaiverPrice / rentalDuration,
+                    units: rentalDuration,
+                    notes: depositWaiver === 'waiver' ? 'Deposit Waiver' : 'Deposit'
+                });
+            }
+
+            $('#chargesWrapper').html('');
+            $('input[name="totalCharges"]').data('baseSubtotal', 0);
+            rows.forEach(row => addChargeRow(row));
+
+            if (!rows.length) {
+                addChargeRow();
+            }
         }
 
         function applySelect2() {
@@ -1974,11 +2124,22 @@
                 vehicleGroupId: bookingFinancials.vehicleGroupId || '',
                 tariffGroupId: bookingFinancials.tariffGroupId || '',
                 rentalType: bookingFinancials.rentalType || '',
-                selfPickupLocationId: bookingFinancials.selfPickupLocationId || ''
+                selfPickupLocationId: bookingFinancials.selfPickupLocationId || '',
+                rentalPrice: bookingFinancials.rentalPrice || '',
+                rentalDuration: bookingFinancials.rentalDuration || '',
+                fullInsurance: bookingFinancials.fullInsurance || '',
+                fullInsurancePrice: bookingFinancials.fullInsurancePrice || '',
+                babySeat: bookingFinancials.babySeat || '',
+                babySeatPrice: bookingFinancials.babySeatPrice || '',
+                additionalDriver: bookingFinancials.additionalDriver || '',
+                additionalDriverCharges: bookingFinancials.additionalDriverCharges || '',
+                depositWaiver: bookingFinancials.depositWaiver || '',
+                depositWaiverPrice: bookingFinancials.depositWaiverPrice || ''
             };
             prefillBookingCustomerFields(bookingName, bookingNumber);
             setBookingNotesField(bookingNotes);
             setBookingFinancialFields(bookingFinancials);
+            buildBookingChargeRows(currentBookingSelection);
 
             searchCustomer(email, function () {
                 if (!document.getElementById('firstName').value.trim() && !document.getElementById('lastName').value.trim()) {
