@@ -64,7 +64,7 @@ class BookingController extends BaseApiController
         }
 
         try {
-            Mail::to(self::ADMIN_RECIPIENTS)->send(new BookingConfirmationMail($record, 'admin'));
+            // Mail::to(self::ADMIN_RECIPIENTS)->send(new BookingConfirmationMail($record, 'admin'));
         } catch (Throwable $mailException) {
             report($mailException);
         }
