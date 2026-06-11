@@ -102,7 +102,6 @@
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Actions</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Customer</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Rental</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Self Location IDs</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Payment</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Created</th>
                         </tr>
@@ -167,12 +166,6 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="space-y-1">
-                                        <div class="text-xs text-slate-700">Pickup ID: {{ $booking->self_pickup_location_id ?? '-' }}</div>
-                                        <div class="text-xs text-slate-700">Return ID: {{ $booking->self_return_location_id ?? '-' }}</div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="space-y-1">
                                         <div class="text-xs text-slate-700">Flow: {{ $booking->payment_flow == 'now' ? 'Pay Now' : 'Pay Later' }}</div>
                                         <div class="text-xs text-slate-500">
                                             Amount:
@@ -191,7 +184,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-slate-500">No bookings found.</td>
+                                <td colspan="5" class="px-6 py-12 text-center text-slate-500">No bookings found.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -316,12 +309,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nationality</label>
-                                    <select name="nationality" id="nationality" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
-                                        <option value="">Select Nationality</option>
-                                        @foreach ($speedCountries as $speedCountry)
-                                            <option value="{{ $speedCountry }}">{{ $speedCountry }}</option>
-                                        @endforeach
-                                    </select>
+                                    <input type="text" name="nationality" id="nationality" placeholder="Nationality" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Gender</label>
@@ -333,7 +321,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Date of Birth</label>
-                                    <input type="date" name="dateOfBirth" id="dateOfBirth" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
+                                    <input type="datetime-local" name="dateOfBirth" id="dateOfBirth" class="w-full border border-gray-300 rounded-xl p-3 bg-white transition-all outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Country</label>
@@ -386,6 +374,7 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Status</label>
                                 <select id="bookingStatus" name="bookingStatus" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                    <option value="0">Select Status</option>
                                     <option value="1">New</option>
                                     <option value="2">Confirmed</option>
                                     <option value="3">Cancelled</option>
@@ -397,9 +386,21 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Type</label>
                                 <select id="bookingType" name="bookingType" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
-                                    <option value="1">Daily</option>
-                                    <option value="1">Weekly</option>
-                                    <option value="3">Monthly</option>
+                                    <option value="0">Select Type</option>
+                                    <option value="1">TradeLicense</option>
+                                    <option value="2">Passport</option>
+                                    <option value="3">NationalId</option>
+                                    <option value="4">DrivingLicense</option>
+                                    <option value="5">Other</option>
+                                    <option value="6">StaffDocument1</option>
+                                    <option value="7">HealthCard</option>
+                                    <option value="8">Visa</option>
+                                    <option value="9">CreditApplication</option>
+                                    <option value="10">CreditCard</option>
+                                    <option value="15">OtherDocument2</option>
+                                    <option value="16">OtherDocument3</option>
+                                    <option value="17">OtherDocument4</option>
+                                    <option value="18">Signature</option>
                                 </select>
                             </div>
 
@@ -637,7 +638,7 @@
             function setLoading() {
                 recordsTableBody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-slate-500">
+                        <td colspan="5" class="px-6 py-12 text-center text-slate-500">
                             <div class="inline-flex items-center gap-2">
                                 <i class="fa-solid fa-spinner fa-spin text-[#b49543]"></i>
                                 <span>Loading bookings...</span>
@@ -843,7 +844,7 @@
                 if (!items.length) {
                     recordsTableBody.innerHTML = `
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-slate-500">
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-500">
                                 No bookings found.
                             </td>
                         </tr>
@@ -938,7 +939,7 @@
                 } catch (error) {
                     recordsTableBody.innerHTML = `
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-red-500">
+                            <td colspan="5" class="px-6 py-12 text-center text-red-500">
                                 ${escapeHtml(error.message || 'Something went wrong.')}
                             </td>
                         </tr>
@@ -1597,7 +1598,7 @@
         }
 
         function applySelect2() {
-            const selectors = '.chargeType, .rateType, #vehicleSelect, #vehicleGroupSelect, #locationSelect, #bookingStatus, #bookingType, #country';
+            const selectors = '.chargeType, .rateType, #vehicleSelect, #vehicleGroupSelect, #locationSelect, #bookingStatus, #bookingType, #country, #nationality';
 
             $(selectors).each(function () {
                 const $select = $(this);
@@ -1607,7 +1608,7 @@
                 }
 
                 $select.select2({
-                    placeholder: $select.is('#country') ? 'Select Country' : 'Select option...',
+                    placeholder: $select.is('#country') ? 'Select Country' : ($select.is('#nationality') ? 'Select Nationality' : 'Select option...'),
                     width: '100%',
                     dropdownParent: $('#sendModal')
                 });
@@ -1663,61 +1664,25 @@
 
         function loadVehicles() {
             const select = $('#vehicleSelect');
-
-            select.prop('disabled', true)
-                .html('<option value="">Loading vehicles...</option>');
+            select.prop('disabled', true).html('<option value="">Loading vehicles...</option>');
 
             fetch(@json(url('/api/speed/getVehicles')))
                 .then(res => res.json())
                 .then(res => {
                     select.empty().append('<option value="">Select Vehicle</option>');
-
                     vehiclesList = res.items || [];
 
-                    const groupedVehicles = {};
-
                     vehiclesList.forEach(vehicle => {
-                        const key = (vehicle.makeModelVariant || '').trim();
-
-                        if (!key) return;
-
-                        if (!groupedVehicles[key]) {
-                            groupedVehicles[key] = {
-                                vehicle: vehicle,
-                                vehicles: []
-                            };
-                        }
-
-                        groupedVehicles[key].vehicles.push(vehicle);
-                    });
-
-                    Object.values(groupedVehicles).forEach(item => {
-                        const option = new Option(
-                            item.vehicle.makeModelVariant,
-                            item.vehicle.id,
-                            false,
-                            false
-                        );
-
-                        // First vehicle data
-                        option.dataset.vehicle = JSON.stringify(item.vehicle);
-
-                        // Same model ki tamam vehicles
-                        option.dataset.vehicles = JSON.stringify(item.vehicles);
-
-                        option.dataset.vehicleName = item.vehicle.makeModelVariant;
-
+                        const option = new Option(`${vehicle.makeModelVariant}`, vehicle.id, false, false);
+                        option.dataset.vehicle = JSON.stringify(vehicle);
                         select.append(option);
                     });
 
                     select.prop('disabled', false).trigger('change');
-
                     applySelect2();
                 })
                 .catch(() => {
-                    select.html('<option value="">Failed to load</option>')
-                        .prop('disabled', false)
-                        .trigger('change');
+                    select.html('<option value="">Failed to load</option>').prop('disabled', false).trigger('change');
                 });
         }
 
@@ -1928,6 +1893,7 @@
         }
 
         function resetDefaultSelects() {
+            $('#nationality').val('').trigger('change');
             $('#country').val('').trigger('change');
             $('input[name="totalCharges"]').data('baseSubtotal', 0);
             $('input[name="amount"]').data('baseAmount', 0);
@@ -2004,7 +1970,7 @@
                             document.getElementById('firstName').value = pickCustomerValue(customer, ['firstName', 'FirstName']) || pickCustomerValue(customer.customer, ['firstName', 'FirstName']);
                             document.getElementById('lastName').value = pickCustomerValue(customer, ['lastName', 'LastName']) || pickCustomerValue(customer.customer, ['lastName', 'LastName']);
                             document.getElementById('mobileNo').value = pickCustomerValue(customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']) || pickCustomerValue(customer.customer, ['mobileNo', 'MobileNo', 'phone', 'Phone']);
-                            document.getElementById('nationality').value = pickCustomerValue(customer, ['nationality', 'Nationality']) || pickCustomerValue(customer.customer, ['nationality', 'Nationality']);
+                            $('#nationality').val(pickCustomerValue(customer, ['nationality', 'Nationality']) || pickCustomerValue(customer.customer, ['nationality', 'Nationality'])).trigger('change');
                             document.getElementById('gender').value = pickCustomerValue(customer, ['gender', 'Gender']) || pickCustomerValue(customer.customer, ['gender', 'Gender']);
                             document.getElementById('dateOfBirth').value = normalizeDateTimeLocal(
                                 pickCustomerValue(customer, ['dateOfBirth', 'DateOfBirth']) || pickCustomerValue(customer.customer, ['dateOfBirth', 'DateOfBirth'])
@@ -2038,6 +2004,9 @@
                 el.classList.remove('bg-gray-100');
             });
 
+            const nationalityField = document.getElementById('nationality');
+            if (nationalityField) nationalityField.classList.remove('bg-gray-100');
+
             const countryField = document.getElementById('country');
             countryField.classList.remove('bg-gray-100');
         }
@@ -2053,8 +2022,10 @@
                     el.value = '';
                 }
             });
-            $('#gender').val('');
+            $('#gender').val('').trigger('change');
+            $('#nationality').val('').trigger('change');
             $('#country').val('').trigger('change');
+            document.getElementById('nationality').classList.remove('bg-gray-100');
             document.getElementById('country').classList.remove('bg-gray-100');
         }
 
@@ -2204,7 +2175,7 @@
         }
 
         function syncCustomerFieldsToFormData(formData) {
-            ['customerId', 'customerEmail', 'firstName', 'lastName', 'mobileNo', 'gender', 'street', 'city', 'state', 'postalCode', 'country']
+            ['customerId', 'customerEmail', 'firstName', 'lastName', 'mobileNo', 'nationality', 'gender', 'street', 'city', 'state', 'postalCode', 'country']
                 .forEach((field) => {
                     const element = document.getElementById(field);
                     if (element) {
