@@ -7,7 +7,9 @@ use App\Http\Requests\Api\CarRequest;
 use App\Http\Resources\CarResource;
 use App\Models\Car;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Throwable;
 
 class CarController extends BaseApiController
 {
@@ -32,6 +34,38 @@ class CarController extends BaseApiController
     ];
 
     protected array $sortable = ['id', 'name_en', 'price_daily', 'price_weekly', 'price_monthly', 'sorting', 'featured_sorting', 'stock'];
+
+    protected function transform(Model $record): array
+    {
+        $data = parent::transform($record);
+
+        if ($record instanceof Car) {
+            $data = $this->appendBookingGroupIds($data, $record);
+        }
+
+        return $data;
+    }
+
+    public function index(Request $request)
+    {
+        try {
+            $perPage = max(1, min((int) $request->get('per_page', 15), 100));
+            $records = $this->query($request)->paginate($perPage)->appends($request->query());
+            $data = $this->paginatedData(
+                $records,
+                $records->getCollection()->map(fn (Car $car) => $this->transform($car))->values()->all()
+            );
+            $metaData = $this->buildMetaData($request);
+
+            if (!empty(array_filter($metaData, fn ($value) => $value !== null && $value !== ''))) {
+                $data['meta_data'] = $metaData;
+            }
+
+            return $this->successResponse($this->publicMessage, $data);
+        } catch (Throwable $e) {
+            return $this->errorResponse($e->getMessage(), ['exception' => class_basename($e)], 500);
+        }
+    }
 
     protected function query(Request $request): Builder
     {
@@ -77,8 +111,10 @@ class CarController extends BaseApiController
     {
         $perPage = max(1, min((int) $request->get('per_page', 12), 100));
         $records = $this->query($request)->paginate($perPage)->appends($request->query());
-        $resource = $this->resourceClass;
-        $data = $this->paginatedData($records, $resource::collection($records)->resolve());
+        $data = $this->paginatedData(
+            $records,
+            $records->getCollection()->map(fn (Car $car) => $this->transform($car))->values()->all()
+        );
         $metaData = $this->buildMetaData($request);
 
         if (!empty(array_filter($metaData, fn ($value) => $value !== null && $value !== ''))) {
@@ -94,5 +130,17 @@ class CarController extends BaseApiController
     public function publicShow(\App\Models\Car $car)
     {
         return $this->successResponse($this->singleMessage, $this->transform($car->load($this->with)));
+    }
+
+    private function appendBookingGroupIds(array $data, Car $car): array
+    {
+        $data['vehicle_group_id'] = array_key_exists('vehicle_group_id', $data)
+            ? $data['vehicle_group_id']
+            : $car->vehicle_group_id;
+        $data['tariff_group_id'] = array_key_exists('tariff_group_id', $data)
+            ? $data['tariff_group_id']
+            : $car->tariff_group_id;
+
+        return $data;
     }
 }
