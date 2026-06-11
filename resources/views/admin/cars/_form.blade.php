@@ -108,24 +108,6 @@
                 <div class="space-y-2">
                     <div class="relative">
                         <select
-                            id="vehicle_group_id"
-                            name="vehicle_group_id"
-                            data-selected-vehicle-group-id="{{ old('vehicle_group_id', $car?->vehicle_group_id ?? '') }}"
-                            class="peer w-full appearance-none rounded-[18px] border {{ $errors->has('vehicle_group_id') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 pr-11 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[58px]"
-                        >
-                            <option value="">Loading Vehicle Groups...</option>
-                        </select>
-                        <label for="vehicle_group_id" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('vehicle_group_id') ? 'text-red-500' : 'text-slate-500' }}">Vehicle Groups</label>
-                        <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
-                    </div>
-                    @error('vehicle_group_id')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
-                </div>
-            </div>
-
-            <div class="min-w-0">
-                <div class="space-y-2">
-                    <div class="relative">
-                        <select
                             id="tariff_group_id"
                             name="tariff_group_id"
                             data-selected-tariff-group-id="{{ old('tariff_group_id', $car?->tariff_group_id ?? '') }}"
@@ -137,6 +119,24 @@
                         <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
                     </div>
                     @error('tariff_group_id')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+                </div>
+            </div>
+            
+            <div class="min-w-0">
+                <div class="space-y-2">
+                    <div class="relative">
+                        <select
+                            id="vehicle_group_id"
+                            name="vehicle_group_id"
+                            data-selected-vehicle-group-id="{{ old('vehicle_group_id', $car?->vehicle_group_id ?? '') }}"
+                            class="peer w-full appearance-none rounded-[18px] border {{ $errors->has('vehicle_group_id') ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 pr-11 text-sm text-slate-800 outline-none transition duration-200 focus:ring-4 min-h-[58px]"
+                        >
+                            <option value="">Loading Vehicle Groups...</option>
+                        </select>
+                        <label for="vehicle_group_id" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has('vehicle_group_id') ? 'text-red-500' : 'text-slate-500' }}">Vehicle Groups</label>
+                        <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                    </div>
+                    @error('vehicle_group_id')<p class="px-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
                 </div>
             </div>
         </div>
