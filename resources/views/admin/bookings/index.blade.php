@@ -2696,6 +2696,28 @@
             return `<div><b>${label}:</b> ${amountWithIcon(value)}</div>`;
         }
 
+        function renderPrettyJson(value) {
+            if (value === null || value === undefined || value === '') {
+                return '<div class="text-sm text-slate-500">-</div>';
+            }
+
+            let data = value;
+
+            if (typeof value === 'string') {
+                try {
+                    data = JSON.parse(value);
+                } catch (error) {
+                    data = value;
+                }
+            }
+
+            const raw = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+
+            return `
+                <pre class="max-h-[420px] overflow-auto rounded-xl border border-slate-200 bg-slate-950 p-4 text-[12px] leading-5 text-slate-100 whitespace-pre-wrap break-words">${escapeHtml(raw)}</pre>
+            `;
+        }
+
         function formatAmount(value) {
             const amount = Number(value);
 
@@ -2819,6 +2841,12 @@
                                 ${billing.notes || billing.Notes || '-'}
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Speed Response</div>
+                    <div class="mt-3">
+                        ${renderPrettyJson(booking.speed_response || booking.speedResponse || booking.speed_response_json || booking.speedResponseJson)}
                     </div>
                 </div>
                 <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
