@@ -415,11 +415,11 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Advance</label>
-                                    <input type="number" step="0.01" name="advance" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                    <input type="number" step="any" name="advance" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tax %</label>
-                                    <input type="number" step="0.01" name="taxPercent" placeholder="5" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
+                                    <input type="number" step="any" name="taxPercent" placeholder="5" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                 </div>
                             </div>
                         </div>
@@ -440,19 +440,19 @@
                         <div class="mt-8 bg-gray-50 border border-gray-200 rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Discount</label>
-                                <input type="number" step="0.01" name="discount" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 bg-white outline-none">
+                                <input type="number" step="any" name="discount" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 bg-white outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Flat Tax</label>
-                                <input type="number" step="0.01" name="chargesTax" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 bg-white outline-none">
+                                <input type="number" step="any" name="chargesTax" placeholder="0.00" class="w-full border border-gray-300 rounded-xl p-3 bg-white outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Total Charges</label>
-                                <input type="number" step="0.01" name="totalCharges" readonly class="w-full bg-gray-100 border border-gray-200 font-semibold text-gray-800 rounded-xl p-3 cursor-not-allowed outline-none">
+                                <input type="number" step="any" name="totalCharges" readonly class="w-full bg-gray-100 border border-gray-200 font-semibold text-gray-800 rounded-xl p-3 cursor-not-allowed outline-none">
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Grand Total Amount</label>
-                                <input type="number" step="0.01" name="amount" readonly class="w-full bg-blue-50 font-bold text-blue-700 border border-blue-200 rounded-xl p-3 cursor-not-allowed outline-none">
+                                <input type="number" step="any" name="amount" readonly class="w-full bg-blue-50 font-bold text-blue-700 border border-blue-200 rounded-xl p-3 cursor-not-allowed outline-none">
                             </div>
                         </div>
 
@@ -1450,14 +1450,7 @@
                 addChargeRow();
             });
 
-            $(document).on('input change blur', 'input[name="discount"], input[name="chargesTax"]', function () {
-                const $field = $(this);
-                const value = $field.val();
-
-                if (String(value).trim() !== '') {
-                    $field.val(formatMoneyValue(value));
-                }
-
+            $(document).on('input', 'input[name="discount"], input[name="chargesTax"]', function () {
                 calculateFinalAmount();
             });
 
@@ -1663,21 +1656,8 @@
                 });
         }
 
-        function roundToTwo(value) {
-            const numeric = parseFloat(value);
-            return Number.isFinite(numeric) ? Math.round(numeric * 100) / 100 : 0;
-        }
-
-        function formatMoneyValue(value) {
-            return roundToTwo(value).toFixed(2);
-        }
-
         function applyDecimalSteps(container = document) {
-            container.querySelectorAll('input[name="advance"], input[name="taxPercent"], input[name="discount"], input[name="chargesTax"], input[name="totalCharges"], input[name="amount"], .charge-card .rate, .charge-card .total').forEach((input) => {
-                input.setAttribute('step', '0.01');
-            });
-
-            container.querySelectorAll('.charge-card .units').forEach((input) => {
+            container.querySelectorAll('#sendForm input[type="number"], .charge-card input[type="number"]').forEach((input) => {
                 input.setAttribute('step', 'any');
             });
         }
@@ -1703,7 +1683,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">Rate</label>
-                            <input type="number" step="0.01" class="rate border border-gray-300 p-2.5 rounded-xl w-full text-sm outline-none" placeholder="Rate">
+                            <input type="number" step="any" class="rate border border-gray-300 p-2.5 rounded-xl w-full text-sm outline-none" placeholder="Rate">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">Units</label>
@@ -1711,7 +1691,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">Total</label>
-                            <input type="number" step="0.01" class="total border border-gray-200 p-2.5 rounded-xl bg-gray-100 text-gray-700 font-semibold w-full text-sm cursor-not-allowed outline-none" readonly placeholder="Calculated total">
+                            <input type="number" step="any" class="total border border-gray-200 p-2.5 rounded-xl bg-gray-100 text-gray-700 font-semibold w-full text-sm cursor-not-allowed outline-none" readonly placeholder="Calculated total">
                         </div>
                     </div>
                     <div class="mt-4">
@@ -1782,20 +1762,10 @@
             let total = 0;
 
             $('.charge-card').each(function () {
-                const card = $(this);
-                const rateField = card.find('.rate');
-                const unitsField = card.find('.units');
-                const totalField = card.find('.total');
-                const rate = roundToTwo(rateField.val());
-                const units = parseFloat(unitsField.val()) || 0;
-                const cardTotal = roundToTwo(rate * units);
-
-                rateField.val(formatMoneyValue(rate));
-                totalField.val(formatMoneyValue(cardTotal));
-                total += cardTotal;
+                total += parseFloat($(this).find('.total').val()) || 0;
             });
 
-            totalChargesField.val(formatMoneyValue(total));
+            totalChargesField.val(Math.round(total * 100) / 100);
             calculateFinalAmount();
         }
 
@@ -1805,10 +1775,9 @@
             const amountField = $('input[name="amount"]');
             const baseSubtotal = parseFloat(totalChargesField.data('baseSubtotal')) || 0;
             const baseAmount = parseFloat(amountField.data('baseAmount')) || 0;
-            const discount = roundToTwo($('input[name="discount"]').val());
-            const chargesTax = roundToTwo($('input[name="chargesTax"]').val());
-            const finalAmount = roundToTwo(baseAmount + (total - baseSubtotal) + chargesTax - discount);
-            $('input[name="amount"]').val(formatMoneyValue(finalAmount));
+            const discount = parseFloat($('input[name="discount"]').val()) || 0;
+            const finalAmount = Math.round((baseAmount + (total - baseSubtotal) - discount) * 100) / 100;
+            $('input[name="amount"]').val(finalAmount);
         }
 
         function parseChargeUnits(rentalDuration) {
@@ -1832,14 +1801,14 @@
         }
 
         function calculateChargeRate(totalPrice, units) {
-            const total = roundToTwo(totalPrice);
+            const total = parseFloat(totalPrice) || 0;
             const durationUnits = parseFloat(units) || 0;
 
             if (durationUnits <= 0) {
-                return formatMoneyValue(total);
+                return total;
             }
 
-            return formatMoneyValue(total / durationUnits);
+            return Math.round((total / durationUnits) * 100) / 100;
         }
 
         function setChargeCardValues(card, config) {
@@ -1855,9 +1824,9 @@
 
             chargeType.val(String(config.chargeTypeId)).trigger('change');
             rateType.val(String(config.rateTypeId)).trigger('change');
-            rate.val(formatMoneyValue(config.rateValue));
+            rate.val(config.rateValue);
             units.val(config.unitsValue);
-            total.val(formatMoneyValue(config.totalValue));
+            total.val(config.totalValue);
         }
 
         function buildBookingChargeConfigs(values = {}) {
@@ -2155,13 +2124,7 @@
             Object.entries(fieldMap).forEach(([name, value]) => {
                 const field = document.querySelector(`#sendForm [name="${name}"]`);
                 if (field) {
-                    if (value === null || value === undefined || String(value).trim() === '') {
-                        field.value = '';
-                    } else if (['advance', 'taxPercent', 'discount', 'chargesTax', 'totalCharges', 'amount'].includes(name)) {
-                        field.value = formatMoneyValue(value);
-                    } else {
-                        field.value = value;
-                    }
+                    field.value = value ?? '';
                 }
             });
 
