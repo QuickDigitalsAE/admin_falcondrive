@@ -2954,13 +2954,16 @@
                 })
                     .then(res => res.json())
                     .then(res => {
-                        if (!res.status || !res.payload) {
+                        const booking = res.booking || res.payload;
+
+                        if (!res.status || !booking) {
                             showToast('Booking data not available', 'error');
                             return;
                         }
 
                         window.latestPayload[bookingId] = {
-                            booking: res.payload,
+                            booking: booking,
+                            payload: res.payload || null,
                             send_booking_id: res.send_booking_id || null
                         };
 

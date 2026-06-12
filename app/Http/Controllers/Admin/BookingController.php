@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\BookingRequest;
+use App\Http\Resources\BookingResource;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -97,6 +98,7 @@ class BookingController extends Controller
                     'paid_status' => $booking->paid_status,
                     'paid_via' => $booking->paid_via,
                     'notes' => $booking->notes,
+                    'speed_response' => $booking->speed_response,
                     'start_date' => optional($booking->start_date)->format('Y-m-d'),
                     'end_date' => optional($booking->end_date)->format('Y-m-d'),
                     'start_time' => $booking->start_time,
@@ -307,6 +309,7 @@ class BookingController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Booking payload fetched successfully.',
+            'booking' => BookingResource::make($booking)->resolve(),
             'payload' => $payload,
             'send_booking_id' => $booking->send_booking_id,
         ]);
