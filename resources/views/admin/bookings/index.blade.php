@@ -1139,7 +1139,6 @@
                 const sendBookingBtn = event.target.closest('.send-booking-btn');
 
                 if (sendBookingBtn) {
-                    alert(sendBookingBtn.dataset.depositWaiverPrice);
                     if (typeof window.prepareSendModal === 'function') {
                         window.prepareSendModal(
                             sendBookingBtn,
