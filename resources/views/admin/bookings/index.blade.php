@@ -1775,8 +1775,7 @@
             const baseSubtotal = parseFloat(totalChargesField.data('baseSubtotal')) || 0;
             const baseAmount = parseFloat(amountField.data('baseAmount')) || 0;
             const discount = parseFloat($('input[name="discount"]').val()) || 0;
-            const chargesTax = parseFloat($('input[name="chargesTax"]').val()) || 0;
-            const finalAmount = Math.round((baseAmount + (total - baseSubtotal) - discount + chargesTax) * 100) / 100;
+            const finalAmount = Math.round((baseAmount + (total - baseSubtotal) - discount) * 100) / 100;
             $('input[name="amount"]').val(finalAmount);
         }
 
@@ -1809,6 +1808,11 @@
             }
 
             return Math.round((total / durationUnits) * 100) / 100;
+        }
+
+        function normalizeChargeAmount(value) {
+            const amount = parseFloat(String(value ?? '').trim());
+            return Number.isFinite(amount) && amount > 0 ? amount : 0;
         }
 
         function setChargeCardValues(card, config) {
@@ -1883,8 +1887,8 @@
                 });
             }
 
-            const deliveryLocationPrice = parseFloat(values.deliveryLocationPrice) || 0;
-            const returnLocationPrice = parseFloat(values.returnLocationPrice) || 0;
+            const deliveryLocationPrice = normalizeChargeAmount(values.deliveryLocationPrice);
+            const returnLocationPrice = normalizeChargeAmount(values.returnLocationPrice);
 
             if (deliveryLocationPrice > 0 || returnLocationPrice > 0) {
                 const totalLocationPrice = deliveryLocationPrice + returnLocationPrice;
