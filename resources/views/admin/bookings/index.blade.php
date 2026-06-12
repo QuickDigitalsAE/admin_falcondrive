@@ -120,15 +120,16 @@
                                                 <i class="fa-solid fa-eye mr-2 text-[12px]"></i>
                                             </a>
                                         @endcan
-                                        <!-- @can('Booking_Edit')
-                                            <a
-                                                href="{{ route('admin.bookings.edit', $booking->id) }}"
-                                                class="inline-flex items-center rounded-xl border border-[#eadfbe] bg-white px-3 py-2 text-xs font-semibold text-[#7d6220] transition hover:bg-[#fff8e8]"
-                                            >
-                                                <i class="fa-solid fa-pen-to-square mr-2 text-[12px]"></i>
-                                                Edit
-                                            </a>
-                                        @endcan -->
+                                        @can('Booking_Edit')
+                                            @if(!empty($booking->send_booking_id))
+                                                <a
+                                                    href="{{ route('admin.bookings.edit', $booking->id) }}"
+                                                    class="inline-flex items-center rounded-xl border border-[#eadfbe] bg-white px-3 py-2 text-xs font-semibold text-[#7d6220] transition hover:bg-[#fff8e8]"
+                                                    title="Edit Booking">
+                                                    <i class="fa-solid fa-pen-to-square mr-2 text-[12px]"></i>
+                                                </a>
+                                            @endif
+                                        @endcan
                                         @can('Booking_Delete')
                                             <form method="POST" action="{{ route('admin.bookings.delete', $booking->id) }}" onsubmit="return confirm('Delete this booking?');">
                                                 @csrf
@@ -766,6 +767,17 @@
                             class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#eadfbe] bg-white text-[#87671c] transition hover:bg-[#fff8e7]"
                             title="View">
                             <i class="fa-solid fa-eye text-[13px]"></i>
+                        </a>
+                    `);
+                }
+
+                if (!record.deleted_at && record.send_booking_id && permissions.can_edit) {
+                    buttons.push(`
+                        <a
+                            href="${record.edit_url}"
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-amber-700 transition hover:bg-amber-100"
+                            title="Edit Booking">
+                            <i class="fa-solid fa-pen-to-square text-[13px]"></i>
                         </a>
                     `);
                 }

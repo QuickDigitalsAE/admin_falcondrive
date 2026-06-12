@@ -110,10 +110,12 @@ class BookingController extends Controller
                     'deleted_at' => optional($booking->deleted_at)->format('Y-m-d H:i:s'),
                     'created_at_human' => optional($booking->created_at)->format('d M Y, h:i A'),
                     'show_url' => route('admin.bookings.show', $booking->id),
+                    'edit_url' => route('admin.bookings.edit', $booking->id),
                     'delete_url' => route('admin.bookings.delete', $booking->id),
                     'restore_url' => route('admin.bookings.restore', $booking->id),
                     'permissions' => [
                         'can_view' => $authUser->can('Booking_ViewAll') || $authUser->can('Booking_View'),
+                        'can_edit' => $authUser->can('Booking_Edit'),
                         'can_delete' => $authUser->can('Booking_Delete'),
                         'can_restore' => $authUser->can('Booking_Delete'),
                         'can_send_booking' => $authUser->can('Inquiry_SendBooking') || $authUser->can('Booking_SendBooking'),
