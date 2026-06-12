@@ -1137,7 +1137,6 @@
 
             recordsTableBody.addEventListener('click', function (event) {
                 const sendBookingBtn = event.target.closest('.send-booking-btn');
-
                 if (sendBookingBtn) {
                     if (typeof window.prepareSendModal === 'function') {
                         window.prepareSendModal(
