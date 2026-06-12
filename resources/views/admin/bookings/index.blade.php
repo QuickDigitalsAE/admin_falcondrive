@@ -1438,13 +1438,11 @@
         let vehiclesList = [];
         let chargesSettings = [];
         let currentBookingSelection = null;
+        let bookingModalDataPromise = null;
         window.latestPayload = window.latestPayload || {};
 
         document.addEventListener('DOMContentLoaded', function () {
-            loadVehicles();
-            loadVehicleGroups();
-            loadLocations();
-            loadChargesSettings();
+            preloadBookingModalData();
 
             $('#addCharge').on('click', function () {
                 addChargeRow();
@@ -1546,11 +1544,9 @@
 
         $(document).on('input', '.rate, .units', function () {
             const card = $(this).closest('.charge-card');
-            const rate = roundToTwo(card.find('.rate').val());
+            const rate = parseFloat(card.find('.rate').val()) || 0;
             const units = parseFloat(card.find('.units').val()) || 0;
-            const total = roundToTwo(rate * units);
-            card.find('.rate').val(formatMoneyValue(rate));
-            card.find('.total').val(formatMoneyValue(total));
+            card.find('.total').val(rate * units);
             calculateTotalCharges();
         });
 
@@ -1646,7 +1642,7 @@
         }
 
         function loadChargesSettings() {
-            fetch(@json(url('/api/speed/getChargesSettings')))
+            return fetch(@json(url('/api/speed/getChargesSettings')))
                 .then(res => res.json())
                 .then(data => {
                     chargesSettings = data.items || [];
@@ -1920,13 +1916,26 @@
             calculateTotalCharges();
         }
 
+        function preloadBookingModalData() {
+            if (!bookingModalDataPromise) {
+                bookingModalDataPromise = Promise.all([
+                    loadVehicles(),
+                    loadVehicleGroups(),
+                    loadLocations(),
+                    loadChargesSettings()
+                ]);
+            }
+
+            return bookingModalDataPromise;
+        }
+
         function loadVehicles() {
             const select = $('#vehicleSelect');
 
             select.prop('disabled', true)
                 .html('<option value="">Loading vehicles...</option>');
 
-            fetch(@json(url('/api/speed/getVehicles')))
+            return fetch(@json(url('/api/speed/getVehicles')))
                 .then(res => res.json())
                 .then(res => {
                     select.empty().append('<option value="">Select Vehicle</option>');
@@ -1984,7 +1993,7 @@
             const select = $('#vehicleGroupSelect');
             select.prop('disabled', true).html('<option>Loading vehicle groups...</option>');
 
-            fetch(@json(url('/api/speed/getVehicleGroups')))
+            return fetch(@json(url('/api/speed/getVehicleGroups')))
                 .then(res => res.json())
                 .then(res => {
                     select.empty().append('<option value="">Select Vehicle Group</option>');
@@ -2006,7 +2015,7 @@
             const select = $('#locationSelect');
             select.prop('disabled', true).html('<option>Loading locations...</option>');
 
-            fetch(@json(url('/api/speed/getLocations')))
+            return fetch(@json(url('/api/speed/getLocations')))
                 .then(res => res.json())
                 .then(res => {
                     select.empty().append('<option value="">Select Location</option>');
@@ -2132,34 +2141,38 @@
             $('input[name="amount"]').data('baseAmount', parseFloat(values.amount) || 0);
         }
 
-        function prepareSendModal(el, bookingId, email, bookingName = '', bookingNumber = '', bookingNotes = '', bookingFinancials = {}) {
+        async function prepareSendModal(el, bookingId, email, bookingName = '', bookingNumber = '', bookingNotes = '', bookingFinancials = {}) {
             startBtnLoader(el);
-            const emailField = document.getElementById('customerEmail');
-            emailField.value = email || '';
-            currentBookingSelection = {
-                vehicleGroupId: bookingFinancials.vehicleGroupId || '',
-                tariffGroupId: bookingFinancials.tariffGroupId || '',
-                rentalType: bookingFinancials.rentalType || '',
-                selfPickupLocationId: bookingFinancials.selfPickupLocationId || '',
-                rentalPrice: bookingFinancials.rentalPrice || '',
-                rentalDuration: bookingFinancials.rentalDuration || '',
-                fullInsurance: bookingFinancials.fullInsurance || '0',
-                fullInsurancePrice: bookingFinancials.fullInsurancePrice || '',
-                babySeat: bookingFinancials.babySeat || '0',
-                babySeatPrice: bookingFinancials.babySeatPrice || '',
-                additionalDriver: bookingFinancials.additionalDriver || '0',
-                additionalDriverCharges: bookingFinancials.additionalDriverCharges || '',
-                depositWaiver: bookingFinancials.depositWaiver || '',
-                depositWaiverPrice: bookingFinancials.depositWaiverPrice || '',
-                deliveryLocationPrice: bookingFinancials.deliveryLocationPrice || '',
-                returnLocationPrice: bookingFinancials.returnLocationPrice || ''
-            };
-            prefillBookingCustomerFields(bookingName, bookingNumber);
-            setBookingNotesField(bookingNotes);
-            setBookingFinancialFields(bookingFinancials);
-            populateBookingChargeCards(currentBookingSelection);
 
-            searchCustomer(email, function () {
+            try {
+                const emailField = document.getElementById('customerEmail');
+                emailField.value = email || '';
+                currentBookingSelection = {
+                    vehicleGroupId: bookingFinancials.vehicleGroupId || '',
+                    tariffGroupId: bookingFinancials.tariffGroupId || '',
+                    rentalType: bookingFinancials.rentalType || '',
+                    selfPickupLocationId: bookingFinancials.selfPickupLocationId || '',
+                    rentalPrice: bookingFinancials.rentalPrice || '',
+                    rentalDuration: bookingFinancials.rentalDuration || '',
+                    fullInsurance: bookingFinancials.fullInsurance || '0',
+                    fullInsurancePrice: bookingFinancials.fullInsurancePrice || '',
+                    babySeat: bookingFinancials.babySeat || '0',
+                    babySeatPrice: bookingFinancials.babySeatPrice || '',
+                    additionalDriver: bookingFinancials.additionalDriver || '0',
+                    additionalDriverCharges: bookingFinancials.additionalDriverCharges || '',
+                    depositWaiver: bookingFinancials.depositWaiver || '',
+                    depositWaiverPrice: bookingFinancials.depositWaiverPrice || '',
+                    deliveryLocationPrice: bookingFinancials.deliveryLocationPrice || '',
+                    returnLocationPrice: bookingFinancials.returnLocationPrice || ''
+                };
+                prefillBookingCustomerFields(bookingName, bookingNumber);
+                setBookingNotesField(bookingNotes);
+                setBookingFinancialFields(bookingFinancials);
+
+                await preloadBookingModalData();
+                populateBookingChargeCards(currentBookingSelection);
+                await searchCustomerAsync(email);
+
                 if (!document.getElementById('firstName').value.trim() && !document.getElementById('lastName').value.trim()) {
                     prefillBookingCustomerFields(bookingName, bookingNumber);
                 }
@@ -2169,9 +2182,10 @@
                     document.getElementById('customerFields').classList.remove('hidden');
                 }
 
-                stopBtnLoader(el);
                 openSendModal(bookingId);
-            });
+            } finally {
+                stopBtnLoader(el);
+            }
         }
 
         function openSendModal(id) {
@@ -2311,6 +2325,12 @@
                         if (callback) callback();
                     });
             }, 500);
+        }
+
+        function searchCustomerAsync(value) {
+            return new Promise((resolve) => {
+                searchCustomer(value, resolve);
+            });
         }
 
         function showCustomerFieldsReadonly() {
