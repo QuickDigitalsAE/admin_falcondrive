@@ -2712,9 +2712,15 @@
             }
 
             const raw = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+            const escapeJsonHtml = (text) => String(text)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
 
             return `
-                <pre class="max-h-[420px] overflow-auto rounded-xl border border-slate-200 bg-slate-950 p-4 text-[12px] leading-5 text-slate-100 whitespace-pre-wrap break-words">${escapeHtml(raw)}</pre>
+                <pre class="max-h-[420px] overflow-auto rounded-xl border border-slate-200 bg-slate-950 p-4 text-[12px] leading-5 text-slate-100 whitespace-pre-wrap break-words">${escapeJsonHtml(raw)}</pre>
             `;
         }
 
