@@ -815,6 +815,8 @@
                                 data-additional-driver-charges="${escapeHtml(record.additional_driver_charges || '')}"
                                 data-deposit-waiver="${escapeHtml(record.deposit_waiver || '')}"
                                 data-deposit-waiver-price="${escapeHtml(record.deposit_waiver_price || '')}"
+                                data-delivery-location-price="${escapeHtml(record.delivery_location_price || '')}"
+                                data-return-location-price="${escapeHtml(record.return_location_price || '')}"
                                 title="Send Booking">
                                 <span class="icon-box flex items-center justify-center">
                                     <i class="fa-solid fa-paper-plane text-[13px]"></i>
@@ -1165,7 +1167,9 @@
                                 additionalDriver: sendBookingBtn.dataset.additionalDriver || '0',
                                 additionalDriverCharges: sendBookingBtn.dataset.additionalDriverCharges || '',
                                 depositWaiver: sendBookingBtn.dataset.depositWaiver || '',
-                                depositWaiverPrice: sendBookingBtn.dataset.depositWaiverPrice || ''
+                                depositWaiverPrice: sendBookingBtn.dataset.depositWaiverPrice || '',
+                                deliveryLocationPrice: sendBookingBtn.dataset.deliveryLocationPrice || '',
+                                returnLocationPrice: sendBookingBtn.dataset.returnLocationPrice || ''
                             }
                         );
                     }
@@ -1771,7 +1775,8 @@
             const baseSubtotal = parseFloat(totalChargesField.data('baseSubtotal')) || 0;
             const baseAmount = parseFloat(amountField.data('baseAmount')) || 0;
             const discount = parseFloat($('input[name="discount"]').val()) || 0;
-            const finalAmount = Math.round((baseAmount + (total - baseSubtotal) - discount) * 100) / 100;
+            const chargesTax = parseFloat($('input[name="chargesTax"]').val()) || 0;
+            const finalAmount = Math.round((baseAmount + (total - baseSubtotal) - discount + chargesTax) * 100) / 100;
             $('input[name="amount"]').val(finalAmount);
         }
 
@@ -1863,6 +1868,21 @@
                     rateValue: calculateChargeRate(values.additionalDriverCharges, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: parseFloat(values.additionalDriverCharges) || 0
+                });
+            }
+
+            const deliveryLocationPrice = parseFloat(values.deliveryLocationPrice) || 0;
+            const returnLocationPrice = parseFloat(values.returnLocationPrice) || 0;
+
+            if (deliveryLocationPrice > 0 && returnLocationPrice > 0) {
+                const totalLocationPrice = deliveryLocationPrice + returnLocationPrice;
+
+                configs.push({
+                    chargeTypeId: 26,
+                    rateTypeId: 6,
+                    rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
+                    unitsValue: rentalUnits,
+                    totalValue: totalLocationPrice
                 });
             }
 
@@ -2130,7 +2150,9 @@
                 additionalDriver: bookingFinancials.additionalDriver || '0',
                 additionalDriverCharges: bookingFinancials.additionalDriverCharges || '',
                 depositWaiver: bookingFinancials.depositWaiver || '',
-                depositWaiverPrice: bookingFinancials.depositWaiverPrice || ''
+                depositWaiverPrice: bookingFinancials.depositWaiverPrice || '',
+                deliveryLocationPrice: bookingFinancials.deliveryLocationPrice || '',
+                returnLocationPrice: bookingFinancials.returnLocationPrice || ''
             };
             prefillBookingCustomerFields(bookingName, bookingNumber);
             setBookingNotesField(bookingNotes);
