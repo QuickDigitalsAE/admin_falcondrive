@@ -1815,6 +1815,24 @@
             return Number.isFinite(amount) && amount > 0 ? amount : 0;
         }
 
+        function readBookingChargeValue(values, camelKey, snakeKey) {
+            if (!values || typeof values !== 'object') {
+                return '';
+            }
+
+            const camelValue = values[camelKey];
+            if (camelValue !== undefined && camelValue !== null && String(camelValue).trim() !== '') {
+                return camelValue;
+            }
+
+            const snakeValue = values[snakeKey];
+            if (snakeValue !== undefined && snakeValue !== null && String(snakeValue).trim() !== '') {
+                return snakeValue;
+            }
+
+            return '';
+        }
+
         function setChargeCardValues(card, config) {
             if (!card || !config) {
                 return;
@@ -1887,8 +1905,8 @@
                 });
             }
 
-            const deliveryLocationPrice = normalizeChargeAmount(values.deliveryLocationPrice);
-            const returnLocationPrice = normalizeChargeAmount(values.returnLocationPrice);
+            const deliveryLocationPrice = normalizeChargeAmount(readBookingChargeValue(values, 'deliveryLocationPrice', 'delivery_location_price'));
+            const returnLocationPrice = normalizeChargeAmount(readBookingChargeValue(values, 'returnLocationPrice', 'return_location_price'));
 
             if (deliveryLocationPrice > 0 || returnLocationPrice > 0) {
                 const totalLocationPrice = deliveryLocationPrice + returnLocationPrice;
@@ -2155,8 +2173,8 @@
                 additionalDriverCharges: bookingFinancials.additionalDriverCharges || '',
                 depositWaiver: bookingFinancials.depositWaiver || '',
                 depositWaiverPrice: bookingFinancials.depositWaiverPrice || '',
-                deliveryLocationPrice: bookingFinancials.deliveryLocationPrice || '',
-                returnLocationPrice: bookingFinancials.returnLocationPrice || ''
+                deliveryLocationPrice: readBookingChargeValue(bookingFinancials, 'deliveryLocationPrice', 'delivery_location_price'),
+                returnLocationPrice: readBookingChargeValue(bookingFinancials, 'returnLocationPrice', 'return_location_price')
             };
             prefillBookingCustomerFields(bookingName, bookingNumber);
             setBookingNotesField(bookingNotes);
