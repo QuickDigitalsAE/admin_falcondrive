@@ -2565,7 +2565,9 @@
 
                     if (res.result) {
                         window.latestPayload[bookingId] = {
+                            payload: res.result,
                             booking: res.result,
+                            speed_response: res.result.speed_response || null,
                             send_booking_id: res.result.id || null
                         };
                     }
@@ -2738,11 +2740,13 @@
         }
 
         function renderSpeedView(data) {
-            if (!data || !data.booking) {
+            const booking = data?.payload || data?.booking;
+
+            if (!data || !booking) {
                 return;
             }
 
-            const booking = data.booking;
+            const speedResponse = data.speed_response || booking.speed_response || booking.speedResponse || booking.speed_response_json || booking.speedResponseJson || null;
             const vehicle = booking.vehicle || {};
             const tariff = vehicle.tariffGroup || vehicle.tariffgroup || {};
             const customer = booking.customer || {};
@@ -2852,7 +2856,7 @@
                 <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Speed Response</div>
                     <div class="mt-3">
-                        ${renderPrettyJson(booking.speed_response || booking.speedResponse || booking.speed_response_json || booking.speedResponseJson)}
+                        ${renderPrettyJson(speedResponse)}
                     </div>
                 </div>
                 <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -2960,7 +2964,7 @@
                 })
                     .then(res => res.json())
                     .then(res => {
-                        const booking = res.booking || res.payload;
+                        const booking = res.payload || res.booking;
 
                         if (!res.status || !booking) {
                             showToast('Booking data not available', 'error');
@@ -2968,8 +2972,9 @@
                         }
 
                         window.latestPayload[bookingId] = {
-                            booking: booking,
                             payload: res.payload || null,
+                            booking: booking,
+                            speed_response: (res.booking && res.booking.speed_response) || booking.speed_response || null,
                             send_booking_id: res.send_booking_id || null
                         };
 
