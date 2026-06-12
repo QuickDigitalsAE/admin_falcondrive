@@ -771,7 +771,7 @@
                     `);
                 }
 
-                if (!record.deleted_at && record.send_booking_id && permissions.can_edit) {
+                if (!record.deleted_at && !record.send_booking_id && permissions.can_edit) {
                     buttons.push(`
                         <a
                             href="${record.edit_url}"
