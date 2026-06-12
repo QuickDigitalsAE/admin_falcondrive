@@ -1771,8 +1771,7 @@
             const baseSubtotal = parseFloat(totalChargesField.data('baseSubtotal')) || 0;
             const baseAmount = parseFloat(amountField.data('baseAmount')) || 0;
             const discount = parseFloat($('input[name="discount"]').val()) || 0;
-            const chargesTax = parseFloat($('input[name="chargesTax"]').val()) || 0;
-            const finalAmount = Math.round((baseAmount + (total - baseSubtotal) - discount + chargesTax) * 100) / 100;
+            const finalAmount = Math.round((baseAmount + (total - baseSubtotal) - discount) * 100) / 100;
             $('input[name="amount"]').val(finalAmount);
         }
 
