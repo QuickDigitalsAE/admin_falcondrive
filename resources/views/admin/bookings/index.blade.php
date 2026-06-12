@@ -1874,7 +1874,7 @@
             const deliveryLocationPrice = parseFloat(values.deliveryLocationPrice) || 0;
             const returnLocationPrice = parseFloat(values.returnLocationPrice) || 0;
 
-            if (deliveryLocationPrice > 0 && returnLocationPrice > 0) {
+            if (deliveryLocationPrice > 0 || returnLocationPrice > 0) {
                 const totalLocationPrice = deliveryLocationPrice + returnLocationPrice;
 
                 configs.push({
