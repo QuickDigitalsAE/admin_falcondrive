@@ -1871,6 +1871,18 @@
                 });
             }
 
+            const depositWaiver = String(values.depositWaiver || '').trim().toLowerCase();
+            if (depositWaiver === 'waiver' || depositWaiver === 'deposit') {
+                const isWaiver = depositWaiver === 'waiver';
+                configs.push({
+                    chargeTypeId: isWaiver ? 59 : 54,
+                    rateTypeId: isWaiver ? 1 : 3,
+                    rateValue: calculateChargeRate(values.depositWaiverPrice, rentalUnits),
+                    unitsValue: rentalUnits,
+                    totalValue: parseFloat(values.depositWaiverPrice) || 0
+                });
+            }
+
             const deliveryLocationPrice = parseFloat(values.deliveryLocationPrice) || 0;
             const returnLocationPrice = parseFloat(values.returnLocationPrice) || 0;
 
@@ -1883,18 +1895,6 @@
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: totalLocationPrice
-                });
-            }
-
-            const depositWaiver = String(values.depositWaiver || '').trim().toLowerCase();
-            if (depositWaiver === 'waiver' || depositWaiver === 'deposit') {
-                const isWaiver = depositWaiver === 'waiver';
-                configs.push({
-                    chargeTypeId: isWaiver ? 59 : 54,
-                    rateTypeId: isWaiver ? 1 : 3,
-                    rateValue: calculateChargeRate(values.depositWaiverPrice, rentalUnits),
-                    unitsValue: rentalUnits,
-                    totalValue: parseFloat(values.depositWaiverPrice) || 0
                 });
             }
 
