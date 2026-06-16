@@ -2637,7 +2637,7 @@
                 },
                 success: function (res) {
                     if (res.success && res.result) {
-                        formData.set('customerId', res.result.id);
+                        formData.set('customerId', res.result);
                         proceedBooking(formData, bookingId);
                         return;
                     }
