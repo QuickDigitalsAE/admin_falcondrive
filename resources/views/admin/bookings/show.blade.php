@@ -26,6 +26,20 @@
                 '</span>'
             );
         };
+
+        $prettySpeedResponse = '-';
+        if (!empty($booking->speed_response)) {
+            $decodedSpeedResponse = json_decode($booking->speed_response, true);
+
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $prettySpeedResponse = json_encode(
+                    $decodedSpeedResponse,
+                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                );
+            } else {
+                $prettySpeedResponse = $booking->speed_response;
+            }
+        }
     @endphp
     <div class="rounded-3xl border border-[#eee4ca] bg-white p-6 shadow-sm">
         <div class="grid grid-cols-1 gap-5 2xl:grid-cols-12">
@@ -346,7 +360,7 @@
 
             <div class="rounded-2xl border border-[#f2ead4] bg-[#fffdf9] p-5">
                 <h3 class="mb-4 text-sm font-semibold text-slate-700">Speed Response</h3>
-                <div class="whitespace-pre-wrap break-words text-sm text-slate-700">{{ $booking->speed_response ?: '-' }}</div>
+                <pre class="max-h-[520px] overflow-auto whitespace-pre-wrap break-words rounded-2xl border border-slate-200 bg-slate-950 p-4 text-[12px] leading-5 text-slate-100">{{ $prettySpeedResponse }}</pre>
             </div>
         </div>
 
