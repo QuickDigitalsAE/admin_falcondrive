@@ -817,6 +817,7 @@
                                 data-tariff-group-id="${escapeHtml(record.tariff_group_id || '')}"
                                 data-rental-type="${escapeHtml(record.rental_type || '')}"
                                 data-self-pickup-location-id="${escapeHtml(record.self_pickup_location_id || '')}"
+                                data-self-return-location-id="${escapeHtml(record.self_return_location_id || '')}"
                                 data-rental-price="${escapeHtml(record.rental_price || '')}"
                                 data-rental-duration="${escapeHtml(record.rental_duration || '')}"
                                 data-full-insurance="${record.full_insurance ? '1' : '0'}"
@@ -1169,6 +1170,7 @@
                                 tariffGroupId: sendBookingBtn.dataset.tariffGroupId || '',
                                 rentalType: sendBookingBtn.dataset.rentalType || '',
                                 selfPickupLocationId: sendBookingBtn.dataset.selfPickupLocationId || '',
+                                selfReturnLocationId: sendBookingBtn.dataset.selfReturnLocationId || '',
                                 rentalPrice: sendBookingBtn.dataset.rentalPrice || '',
                                 rentalDuration: sendBookingBtn.dataset.rentalDuration || '',
                                 fullInsurance: sendBookingBtn.dataset.fullInsurance || '0',
@@ -1908,11 +1910,23 @@
             const deliveryLocationPrice = parseFloat(values.deliveryLocationPrice) || 0;
             const returnLocationPrice = parseFloat(values.returnLocationPrice) || 0;
 
-            if (deliveryLocationPrice > 0 || returnLocationPrice > 0) {
-                const totalLocationPrice = deliveryLocationPrice + returnLocationPrice;
+            if (deliveryLocationPrice > 0) {
+                const totalLocationPrice = deliveryLocationPrice;
 
                 configs.push({
                     chargeTypeId: 26,
+                    rateTypeId: 6,
+                    rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
+                    unitsValue: rentalUnits,
+                    totalValue: totalLocationPrice
+                });
+            }
+
+            if (returnLocationPrice > 0) {
+                const totalLocationPrice = returnLocationPrice;
+
+                configs.push({
+                    chargeTypeId: 27,
                     rateTypeId: 6,
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
@@ -2178,6 +2192,7 @@
                     tariffGroupId: bookingFinancials.tariffGroupId || '',
                     rentalType: bookingFinancials.rentalType || '',
                     selfPickupLocationId: bookingFinancials.selfPickupLocationId || '',
+                    selfReturnLocationId: bookingFinancials.selfReturnLocationId || '',
                     rentalPrice: bookingFinancials.rentalPrice || '',
                     rentalDuration: bookingFinancials.rentalDuration || '',
                     fullInsurance: bookingFinancials.fullInsurance || '0',
