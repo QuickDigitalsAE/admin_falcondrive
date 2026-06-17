@@ -1610,7 +1610,12 @@
                 return false;
             }
 
-            $(select).val(option.value).trigger('change');
+            Array.from(select.options).forEach(item => {
+                item.selected = false;
+            });
+
+            option.selected = true;
+            $(select).trigger('change');
             return true;
         }
 
