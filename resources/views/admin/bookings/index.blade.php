@@ -1880,11 +1880,25 @@
             }
 
             const depositWaiver = String(values.depositWaiver || '').trim().toLowerCase();
+            const rentalType = String(values.rentalType || '').trim().toLowerCase();
+
             if (depositWaiver === 'waiver' || depositWaiver === 'deposit') {
-                const isWaiver = depositWaiver === 'waiver';
+                let chargeTypeId = 54;
+                let rateTypeId = 3;
+
+                if (depositWaiver === 'waiver') {
+                    if (rentalType === 'monthly') {
+                        chargeTypeId = 70;
+                        rateTypeId = 3;
+                    } else {
+                        chargeTypeId = 59;
+                        rateTypeId = 1;
+                    }
+                }
+
                 configs.push({
-                    chargeTypeId: isWaiver ? 59 : 54,
-                    rateTypeId: isWaiver ? 1 : 3,
+                    chargeTypeId: chargeTypeId,
+                    rateTypeId: rateTypeId,
                     rateValue: calculateChargeRate(values.depositWaiverPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: parseFloat(values.depositWaiverPrice) || 0
