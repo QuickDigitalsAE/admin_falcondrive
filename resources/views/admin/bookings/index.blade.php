@@ -1871,7 +1871,7 @@
                 rateValue: calculateChargeRate(values.rentalPrice, rentalUnits),
                 unitsValue: rentalUnits,
                 totalValue: parseFloat(values.rentalPrice) || 0,
-                notes: 'rental charge'
+                notes: 'Rental charge'
             });
 
             if (String(values.fullInsurance || '0') === '1') {
@@ -1881,7 +1881,7 @@
                     rateValue: calculateChargeRate(values.fullInsurancePrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: parseFloat(values.fullInsurancePrice) || 0,
-                    notes: 'full insurance charge'
+                    notes: 'Full insurance charge'
                 });
             }
 
@@ -1892,7 +1892,7 @@
                     rateValue: calculateChargeRate(values.babySeatPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: parseFloat(values.babySeatPrice) || 0,
-                    notes: 'baby seat charge'
+                    notes: 'Baby seat charge'
                 });
             }
 
@@ -1903,7 +1903,7 @@
                     rateValue: calculateChargeRate(values.additionalDriverCharges, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: parseFloat(values.additionalDriverCharges) || 0,
-                    notes: 'additional driver charge'
+                    notes: 'Additional driver charge'
                 });
             }
 
@@ -1930,7 +1930,7 @@
                     rateValue: calculateChargeRate(values.depositWaiverPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: parseFloat(values.depositWaiverPrice) || 0,
-                    notes: 'deposit waiver charge'
+                    notes: 'Deposit waiver charge'
                 });
             }
 
