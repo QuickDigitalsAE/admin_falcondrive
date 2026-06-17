@@ -1959,7 +1959,7 @@
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: totalLocationPrice,
-                    notes: 'Pick-up location charge'
+                    notes: 'Collection location charge'
                 });
             }
 
