@@ -1877,7 +1877,7 @@
             if (String(values.fullInsurance || '0') === '1') {
                 configs.push({
                     chargeTypeId: 2,
-                    rateTypeId: 6,
+                    rateTypeId: 1,
                     rateValue: calculateChargeRate(values.fullInsurancePrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: parseFloat(values.fullInsurancePrice) || 0,
@@ -1941,12 +1941,12 @@
                 const totalLocationPrice = deliveryLocationPrice;
 
                 configs.push({
-                    chargeTypeId: 27,
+                    chargeTypeId: 26,
                     rateTypeId: 6,
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: totalLocationPrice,
-                    notes: 'Pick-up location charge'
+                    notes: 'Drop-off location charge'
                 });
             }
 
@@ -1954,12 +1954,12 @@
                 const totalLocationPrice = returnLocationPrice;
 
                 configs.push({
-                    chargeTypeId: 26,
+                    chargeTypeId: 27,
                     rateTypeId: 6,
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: totalLocationPrice,
-                    notes: 'Drop-off location charge'
+                    notes: 'Pick-up location charge'
                 });
             }
 
