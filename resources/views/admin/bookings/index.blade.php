@@ -401,7 +401,7 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Type</label>
                                 <select id="bookingType" name="bookingType" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                     <option value="1">Daily</option>
-                                    <option value="1">Weekly</option>
+                                    <option value="2">Weekly</option>
                                     <option value="3">Monthly</option>
                                 </select>
                             </div>
