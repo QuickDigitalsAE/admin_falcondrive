@@ -401,7 +401,7 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Booking Type</label>
                                 <select id="bookingType" name="bookingType" class="w-full border border-gray-300 rounded-xl p-3 outline-none">
                                     <option value="1">Daily</option>
-                                    <option value="2">Weekly</option>
+                                    <option value="1">Weekly</option>
                                     <option value="3">Monthly</option>
                                 </select>
                             </div>
@@ -1586,14 +1586,32 @@
             return firstOption ? String(firstOption.value) : '';
         }
 
-        function normalizeRentalTypeSelectionValue(rentalType) {
+        function normalizeRentalTypeSelectionText(rentalType) {
             const normalized = String(rentalType || '').trim().toLowerCase();
 
-            if (normalized === 'daily') return '1';
-            if (normalized === 'weekly') return '2';
-            if (normalized === 'monthly') return '3';
+            if (normalized === 'daily') return 'Daily';
+            if (normalized === 'weekly') return 'Weekly';
+            if (normalized === 'monthly') return 'Monthly';
 
             return '';
+        }
+
+        function selectBookingTypeByRentalType(rentalType) {
+            const targetText = normalizeRentalTypeSelectionText(rentalType);
+            const select = document.getElementById('bookingType');
+
+            if (!select || targetText === '') {
+                return false;
+            }
+
+            const option = Array.from(select.options).find(item => String(item.textContent || '').trim().toLowerCase() === targetText.toLowerCase());
+
+            if (!option) {
+                return false;
+            }
+
+            $(select).val(option.value).trigger('change');
+            return true;
         }
 
         function selectVehicleByTariffGroupId(tariffGroupId) {
@@ -1635,10 +1653,7 @@
                 $('#bookingStatus').val(bookingStatusValue).trigger('change');
             }
 
-            const rentalTypeValue = normalizeRentalTypeSelectionValue(currentBookingSelection.rentalType);
-            if (rentalTypeValue !== '') {
-                $('#bookingType').val(rentalTypeValue).trigger('change');
-            }
+            selectBookingTypeByRentalType(currentBookingSelection.rentalType);
 
             if (String(currentBookingSelection.selfPickupLocationId || '').trim() !== '') {
                 $('#locationSelect').val(String(currentBookingSelection.selfPickupLocationId).trim()).trigger('change');
