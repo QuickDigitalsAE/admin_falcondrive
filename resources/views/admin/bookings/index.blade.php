@@ -1941,25 +1941,25 @@
                 const totalLocationPrice = deliveryLocationPrice;
 
                 configs.push({
-                    chargeTypeId: 26,
-                    rateTypeId: 6,
-                    rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
-                    unitsValue: rentalUnits,
-                    totalValue: totalLocationPrice,
-                    notes: 'Drop-off location charge'
-                });
-            }
-
-            if (values.selfPickupLocationId > 0 ) {
-                const totalLocationPrice = 0;
-
-                configs.push({
                     chargeTypeId: 27,
                     rateTypeId: 6,
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: totalLocationPrice,
                     notes: 'Pick-up location charge'
+                });
+            }
+
+            if (returnLocationPrice > 0) {
+                const totalLocationPrice = returnLocationPrice;
+
+                configs.push({
+                    chargeTypeId: 26,
+                    rateTypeId: 6,
+                    rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
+                    unitsValue: rentalUnits,
+                    totalValue: totalLocationPrice,
+                    notes: 'Drop-off location charge'
                 });
             }
 
