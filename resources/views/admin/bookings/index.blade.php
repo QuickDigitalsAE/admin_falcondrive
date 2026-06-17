@@ -2459,8 +2459,7 @@
                 { id: 'country', label: 'Country' },
                 { id: 'street', label: 'Street' },
                 { id: 'state', label: 'State' },
-                { id: 'vehicleSelect', label: 'Vehicle' },
-                { id: 'vehicleGroupSelect', label: 'Vehicle Group' },
+                { id: 'vehicleSelect', label: 'Vehicle' },                
                 { id: 'bookingStatus', label: 'Booking Status', invalidValues: ['0'] },
                 { id: 'bookingType', label: 'Booking Type', invalidValues: ['0'] },
                 { id: 'locationSelect', label: 'Location' }
