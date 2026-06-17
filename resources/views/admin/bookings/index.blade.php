@@ -1851,12 +1851,14 @@
             const rate = card.find('.rate');
             const units = card.find('.units');
             const total = card.find('.total');
+            const notes = card.find('.notes');
 
             chargeType.val(String(config.chargeTypeId)).trigger('change');
             rateType.val(String(config.rateTypeId)).trigger('change');
             rate.val(config.rateValue);
             units.val(config.unitsValue);
             total.val(config.totalValue);
+            notes.val(config.notes);
         }
 
         function buildBookingChargeConfigs(values = {}) {
@@ -1868,7 +1870,8 @@
                 rateTypeId: ['daily', 'weekly'].includes(String(values.rentalType || '').toLowerCase()) ? 1 : 3,
                 rateValue: calculateChargeRate(values.rentalPrice, rentalUnits),
                 unitsValue: rentalUnits,
-                totalValue: parseFloat(values.rentalPrice) || 0
+                totalValue: parseFloat(values.rentalPrice) || 0,
+                notes: 'rental charge'
             });
 
             if (String(values.fullInsurance || '0') === '1') {
@@ -1877,7 +1880,8 @@
                     rateTypeId: 6,
                     rateValue: calculateChargeRate(values.fullInsurancePrice, rentalUnits),
                     unitsValue: rentalUnits,
-                    totalValue: parseFloat(values.fullInsurancePrice) || 0
+                    totalValue: parseFloat(values.fullInsurancePrice) || 0,
+                    notes: 'full insurance charge'
                 });
             }
 
@@ -1887,7 +1891,8 @@
                     rateTypeId: 1,
                     rateValue: calculateChargeRate(values.babySeatPrice, rentalUnits),
                     unitsValue: rentalUnits,
-                    totalValue: parseFloat(values.babySeatPrice) || 0
+                    totalValue: parseFloat(values.babySeatPrice) || 0,
+                    notes: 'baby seat charge'
                 });
             }
 
@@ -1897,7 +1902,8 @@
                     rateTypeId: 6,
                     rateValue: calculateChargeRate(values.additionalDriverCharges, rentalUnits),
                     unitsValue: rentalUnits,
-                    totalValue: parseFloat(values.additionalDriverCharges) || 0
+                    totalValue: parseFloat(values.additionalDriverCharges) || 0,
+                    notes: 'additional driver charge'
                 });
             }
 
@@ -1923,7 +1929,8 @@
                     rateTypeId: rateTypeId,
                     rateValue: calculateChargeRate(values.depositWaiverPrice, rentalUnits),
                     unitsValue: rentalUnits,
-                    totalValue: parseFloat(values.depositWaiverPrice) || 0
+                    totalValue: parseFloat(values.depositWaiverPrice) || 0,
+                    notes: 'deposit waiver charge'
                 });
             }
 
@@ -1938,19 +1945,21 @@
                     rateTypeId: 6,
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
-                    totalValue: totalLocationPrice
+                    totalValue: totalLocationPrice,
+                    notes: 'Drop-off location charge'
                 });
             }
 
-            if (returnLocationPrice > 0) {
-                const totalLocationPrice = returnLocationPrice;
+            if (values.selfPickupLocationId > 0 ) {
+                const totalLocationPrice = 0;
 
                 configs.push({
                     chargeTypeId: 27,
                     rateTypeId: 6,
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
-                    totalValue: totalLocationPrice
+                    totalValue: totalLocationPrice,
+                    notes: 'Pick-up location charge'
                 });
             }
 
