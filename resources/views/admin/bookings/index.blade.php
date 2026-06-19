@@ -1535,15 +1535,6 @@
             const chargeTypeId = $(this).val();
             const filtered = chargesSettings.filter(item => String(item.chargesTypeId) === String(chargeTypeId));
 
-            let rateOptions = '<option value="">Rate Type</option>';
-            filtered.forEach(item => {
-                if (item.rateType) {
-                    rateOptions += `<option value="${item.rateType.id}">${item.rateType.name}</option>`;
-                }
-            });
-
-            card.find('.rateType').html(rateOptions).trigger('change');
-
             if (filtered.length > 0) {
                 const item = filtered[0];
                 card.find('.taxCodeId').val(item.taxCodeId ?? '');
@@ -1554,6 +1545,8 @@
                 card.find('.isStatic').val(item.isStatic ?? false);
                 card.find('.taxable').val(item.taxable ?? false);
             }
+
+            syncChargeCardRateType(card);
         });
 
         $(document).on('input', '.rate, .units', function () {
@@ -1596,15 +1589,21 @@
             return '';
         }
 
-        function selectBookingTypeByRentalType(rentalType) {
-            const targetText = normalizeRentalTypeSelectionText(rentalType);
-            const select = document.getElementById('bookingType');
+        function getStaticRateTypeOptions() {
+            return `
+                <option value="">Select Rate Type</option>
+                <option value="1">Daily</option>
+                <option value="1">Weekly</option>
+                <option value="3">Monthly</option>
+            `;
+        }
 
-            if (!select || targetText === '') {
+        function selectOptionByText(select, targetText) {
+            if (!select || !targetText) {
                 return false;
             }
 
-            const option = Array.from(select.options).find(item => String(item.textContent || '').trim().toLowerCase() === targetText.toLowerCase());
+            const option = Array.from(select.options).find(item => String(item.textContent || '').trim().toLowerCase() === String(targetText).trim().toLowerCase());
 
             if (!option) {
                 return false;
@@ -1617,6 +1616,44 @@
             option.selected = true;
             $(select).trigger('change');
             return true;
+        }
+
+        function selectBookingTypeByRentalType(rentalType) {
+            const targetText = normalizeRentalTypeSelectionText(rentalType);
+            const select = document.getElementById('bookingType');
+
+            return selectOptionByText(select, targetText);
+        }
+
+        function getSelectedBookingTypeText() {
+            const select = document.getElementById('bookingType');
+            if (!select) {
+                return '';
+            }
+
+            const option = select.options[select.selectedIndex];
+            return option ? String(option.textContent || '').trim() : '';
+        }
+
+        function selectChargeCardRateTypeByRentalType(rateTypeSelect, rentalType) {
+            const targetText = normalizeRentalTypeSelectionText(rentalType);
+            return selectOptionByText(rateTypeSelect, targetText);
+        }
+
+        function syncChargeCardRateType(card) {
+            const rateTypeSelect = card && card.length ? card.find('.rateType').get(0) : null;
+            if (!rateTypeSelect) {
+                return false;
+            }
+
+            const bookingTypeText = getSelectedBookingTypeText();
+            return selectOptionByText(rateTypeSelect, bookingTypeText);
+        }
+
+        function syncAllChargeCardRateTypes() {
+            $('.charge-card').each(function () {
+                syncChargeCardRateType($(this));
+            });
         }
 
         function selectVehicleByTariffGroupId(tariffGroupId) {
@@ -1659,6 +1696,7 @@
             }
 
             selectBookingTypeByRentalType(currentBookingSelection.rentalType);
+            syncAllChargeCardRateTypes();
 
             if (String(currentBookingSelection.selfPickupLocationId || '').trim() !== '') {
                 $('#locationSelect').val(String(currentBookingSelection.selfPickupLocationId).trim()).trigger('change');
@@ -1707,8 +1745,7 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">Rate Type</label>
                             <select class="rateType border border-gray-300 p-2.5 rounded-xl w-full text-sm">
-                                <option value="">Select Rate Type</option>
-                                ${getRateTypeOptions()}
+                                ${getStaticRateTypeOptions()}
                             </select>
                         </div>
                         <div>
@@ -1739,6 +1776,7 @@
             `;
 
             $('#chargesWrapper').append(html);
+            syncChargeCardRateType($('#chargesWrapper').children('.charge-card').last());
             applyDecimalSteps(document.getElementById('chargesWrapper'));
             applySelect2();
         }
@@ -1766,19 +1804,6 @@
             chargesSettings.forEach(item => {
                 if (item.chargesType) {
                     unique[item.chargesType.id] = item.chargesType.name;
-                }
-            });
-
-            return Object.entries(unique)
-                .map(([id, name]) => `<option value="${id}">${name}</option>`)
-                .join('');
-        }
-
-        function getRateTypeOptions() {
-            const unique = {};
-            chargesSettings.forEach(item => {
-                if (item.rateType) {
-                    unique[item.rateType.id] = item.rateType.name;
                 }
             });
 
@@ -1854,7 +1879,9 @@
             const notes = card.find('.notes');
 
             chargeType.val(String(config.chargeTypeId)).trigger('change');
-            rateType.val(String(config.rateTypeId)).trigger('change');
+            if (!selectChargeCardRateTypeByRentalType(rateType.get(0), config.rentalType)) {
+                rateType.val(String(config.rateTypeId)).trigger('change');
+            }
             rate.val(config.rateValue);
             units.val(config.unitsValue);
             total.val(config.totalValue);
@@ -1868,6 +1895,7 @@
             configs.push({
                 chargeTypeId: 1,
                 rateTypeId: ['daily', 'weekly'].includes(String(values.rentalType || '').toLowerCase()) ? 1 : 3,
+                rentalType: values.rentalType,
                 rateValue: calculateChargeRate(values.rentalPrice, rentalUnits),
                 unitsValue: rentalUnits,
                 totalValue: parseFloat(values.rentalPrice) || 0,
@@ -1878,6 +1906,7 @@
                 configs.push({
                     chargeTypeId: 2,
                     rateTypeId: 1,
+                    rentalType: values.rentalType,
                     rateValue: calculateChargeRate(values.fullInsurancePrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: parseFloat(values.fullInsurancePrice) || 0,
@@ -1889,6 +1918,7 @@
                 configs.push({
                     chargeTypeId: 19,
                     rateTypeId: 1,
+                    rentalType: values.rentalType,
                     rateValue: calculateChargeRate(values.babySeatPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: parseFloat(values.babySeatPrice) || 0,
@@ -1900,6 +1930,7 @@
                 configs.push({
                     chargeTypeId: 23,
                     rateTypeId: 6,
+                    rentalType: values.rentalType,
                     rateValue: calculateChargeRate(values.additionalDriverCharges, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: parseFloat(values.additionalDriverCharges) || 0,
@@ -1927,6 +1958,7 @@
                 configs.push({
                     chargeTypeId: chargeTypeId,
                     rateTypeId: rateTypeId,
+                    rentalType: values.rentalType,
                     rateValue: calculateChargeRate(values.depositWaiverPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: parseFloat(values.depositWaiverPrice) || 0,
@@ -1943,6 +1975,7 @@
                 configs.push({
                     chargeTypeId: 26,
                     rateTypeId: 6,
+                    rentalType: values.rentalType,
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: totalLocationPrice,
@@ -1956,6 +1989,7 @@
                 configs.push({
                     chargeTypeId: 27,
                     rateTypeId: 6,
+                    rentalType: values.rentalType,
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
                     totalValue: totalLocationPrice,
@@ -1984,6 +2018,10 @@
 
             calculateTotalCharges();
         }
+
+        $(document).on('change', '#bookingType', function () {
+            syncAllChargeCardRateTypes();
+        });
 
         function preloadBookingModalData() {
             if (!bookingModalDataPromise) {
