@@ -1589,6 +1589,30 @@
             return '';
         }
 
+        function getRentalRateTypeId(rentalType) {
+            const normalized = String(rentalType || '').trim().toLowerCase();
+
+            // Speed rate type IDs: Daily = 1, Weekly = 1, Monthly = 3
+            if (normalized === 'monthly') {
+                return 3;
+            }
+
+            return 1;
+        }
+
+        function selectOneTimeRateType(rateTypeSelect) {
+            if (!rateTypeSelect) {
+                return false;
+            }
+
+            if (selectOptionByText(rateTypeSelect, 'OneTime')) {
+                return true;
+            }
+
+            $(rateTypeSelect).val('6').trigger('change');
+            return String($(rateTypeSelect).val() || '') === '6';
+        }
+
         function getStaticRateTypeOptions() {
             return `
                 <option value="">Select Rate Type</option>
@@ -1675,6 +1699,10 @@
             const rateTypeSelect = card && card.length ? card.find('.rateType').get(0) : null;
             if (!rateTypeSelect) {
                 return false;
+            }
+
+            if (String(card.attr('data-rate-type-mode') || '').trim() === 'one_time') {
+                return selectOneTimeRateType(rateTypeSelect);
             }
 
             const bookingTypeText = getSelectedBookingTypeText();
@@ -1807,7 +1835,9 @@
             `;
 
             $('#chargesWrapper').append(html);
-            syncChargeCardRateType($('#chargesWrapper').children('.charge-card').last());
+            const newCard = $('#chargesWrapper').children('.charge-card').last();
+            newCard.attr('data-rate-type-mode', 'rental_type');
+            syncChargeCardRateType(newCard);
             applyDecimalSteps(document.getElementById('chargesWrapper'));
             applySelect2();
         }
@@ -1911,9 +1941,17 @@
 
             chargeType.val(String(config.chargeTypeId)).trigger('change');
 
-            if (!selectChargeCardRateTypeByRentalType(rateType.get(0), config.rentalType)) {
+            const rateTypeMode = String(config.rateTypeMode || 'rental_type');
+            card.attr('data-rate-type-mode', rateTypeMode);
+
+            if (rateTypeMode === 'one_time') {
+                if (!selectOneTimeRateType(rateType.get(0))) {
+                    rateType.val(String(config.rateTypeId)).trigger('change');
+                }
+            } else if (!selectChargeCardRateTypeByRentalType(rateType.get(0), config.rentalType)) {
                 rateType.val(String(config.rateTypeId)).trigger('change');
             }
+
             rate.val(config.rateValue);
             units.val(config.unitsValue);
             total.val(config.totalValue);
@@ -1922,11 +1960,14 @@
 
         function buildBookingChargeConfigs(values = {}) {
             const rentalUnits = parseChargeUnits(values.rentalDuration);
+            const rentalType = String(values.rentalType || '').trim().toLowerCase();
+            const rentalRateTypeId = getRentalRateTypeId(rentalType);
             const configs = [];
 
             configs.push({
                 chargeTypeId: 1,
-                rateTypeId: ['daily', 'weekly'].includes(String(values.rentalType || '').toLowerCase()) ? 1 : 3,
+                rateTypeId: rentalRateTypeId,
+                rateTypeMode: 'rental_type',
                 rentalType: values.rentalType,
                 rateValue: calculateChargeRate(values.rentalPrice, rentalUnits),
                 unitsValue: rentalUnits,
@@ -1937,7 +1978,8 @@
             if (String(values.fullInsurance || '0') === '1') {
                 configs.push({
                     chargeTypeId: 2,
-                    rateTypeId: 1,
+                    rateTypeId: rentalRateTypeId,
+                    rateTypeMode: 'rental_type',
                     rentalType: values.rentalType,
                     rateValue: calculateChargeRate(values.fullInsurancePrice, rentalUnits),
                     unitsValue: rentalUnits,
@@ -1949,7 +1991,8 @@
             if (String(values.babySeat || '0') === '1') {
                 configs.push({
                     chargeTypeId: 19,
-                    rateTypeId: 1,
+                    rateTypeId: rentalRateTypeId,
+                    rateTypeMode: 'rental_type',
                     rentalType: values.rentalType,
                     rateValue: calculateChargeRate(values.babySeatPrice, rentalUnits),
                     unitsValue: rentalUnits,
@@ -1962,6 +2005,7 @@
                 configs.push({
                     chargeTypeId: 23,
                     rateTypeId: 6,
+                    rateTypeMode: 'one_time',
                     rentalType: values.rentalType,
                     rateValue: calculateChargeRate(values.additionalDriverCharges, rentalUnits),
                     unitsValue: rentalUnits,
@@ -1971,25 +2015,18 @@
             }
 
             const depositWaiver = String(values.depositWaiver || '').trim().toLowerCase();
-            const rentalType = String(values.rentalType || '').trim().toLowerCase();
 
             if (depositWaiver === 'waiver' || depositWaiver === 'deposit') {
                 let chargeTypeId = 54;
-                let rateTypeId = 3;
 
                 if (depositWaiver === 'waiver') {
-                    if (rentalType === 'monthly') {
-                        chargeTypeId = 70;
-                        rateTypeId = 3;
-                    } else {
-                        chargeTypeId = 59;
-                        rateTypeId = 1;
-                    }
+                    chargeTypeId = rentalType === 'monthly' ? 70 : 59;
                 }
 
                 configs.push({
                     chargeTypeId: chargeTypeId,
-                    rateTypeId: rateTypeId,
+                    rateTypeId: rentalRateTypeId,
+                    rateTypeMode: 'rental_type',
                     rentalType: values.rentalType,
                     rateValue: calculateChargeRate(values.depositWaiverPrice, rentalUnits),
                     unitsValue: rentalUnits,
@@ -2007,6 +2044,7 @@
                 configs.push({
                     chargeTypeId: 26,
                     rateTypeId: 6,
+                    rateTypeMode: 'one_time',
                     rentalType: values.rentalType,
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
@@ -2021,6 +2059,7 @@
                 configs.push({
                     chargeTypeId: 27,
                     rateTypeId: 6,
+                    rateTypeMode: 'one_time',
                     rentalType: values.rentalType,
                     rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
                     unitsValue: rentalUnits,
