@@ -1595,6 +1595,7 @@
                 <option value="1">Daily</option>
                 <option value="1">Weekly</option>
                 <option value="3">Monthly</option>
+                <option value="6">OneTime</option>
             `;
         }
 
@@ -1636,8 +1637,38 @@
         }
 
         function selectChargeCardRateTypeByRentalType(rateTypeSelect, rentalType) {
-            const targetText = normalizeRentalTypeSelectionText(rentalType);
-            return selectOptionByText(rateTypeSelect, targetText);
+            if (!rateTypeSelect || !rentalType) {
+                return false;
+            }
+
+            const type = String(rentalType).toLowerCase().trim();
+
+            let matchText = '';
+
+            if (type === 'daily') {
+                matchText = 'Daily';
+            } else if (type === 'weekly') {
+                matchText = 'Weekly';
+            } else if (type === 'monthly') {
+                matchText = 'Monthly';
+            }
+
+            if (!matchText) {
+                return false;
+            }
+
+            const option = Array.from(rateTypeSelect.options).find(function (opt) {
+                return opt.text.trim().toLowerCase() === matchText.toLowerCase();
+            });
+
+            if (option) {
+                rateTypeSelect.value = option.value;
+                $(rateTypeSelect).trigger('change');
+
+                return true;
+            }
+
+            return false;
         }
 
         function syncChargeCardRateType(card) {
@@ -1879,6 +1910,7 @@
             const notes = card.find('.notes');
 
             chargeType.val(String(config.chargeTypeId)).trigger('change');
+
             if (!selectChargeCardRateTypeByRentalType(rateType.get(0), config.rentalType)) {
                 rateType.val(String(config.rateTypeId)).trigger('change');
             }
