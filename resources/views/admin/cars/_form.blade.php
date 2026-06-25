@@ -152,15 +152,14 @@
                 ['id' => 'full_insurance_daily', 'label' => 'Full Insurance Daily', 'value' => old('full_insurance_daily', $car?->full_insurance_daily ?? '')],
                 ['id' => 'full_insurance_weekly', 'label' => 'Full Insurance Weekly', 'value' => old('full_insurance_weekly', $car?->full_insurance_weekly ?? '')],
                 ['id' => 'full_insurance_monthly', 'label' => 'Full Insurance Monthly', 'value' => old('full_insurance_monthly', $car?->full_insurance_monthly ?? '')],
-                ['id' => 'additional_driver_amount', 'label' => 'Additional Driver Amount', 'value' => old('additional_driver_amount', $car?->additional_driver_amount ?? '')],
                 ['id' => 'baby_seat_daily', 'label' => 'Baby Seat Daily', 'value' => old('baby_seat_daily', $car?->baby_seat_daily ?? '')],
                 ['id' => 'baby_seat_weekly', 'label' => 'Baby Seat Weekly', 'value' => old('baby_seat_weekly', $car?->baby_seat_weekly ?? '')],
                 ['id' => 'baby_seat_monthly', 'label' => 'Baby Seat Monthly', 'value' => old('baby_seat_monthly', $car?->baby_seat_monthly ?? '')],
-                ['id' => 'deposit_amount', 'label' => 'Deposit Amount', 'value' => old('deposit_amount', $car?->deposit_amount ?? '')],
                 ['id' => 'waiver_daily', 'label' => 'Waiver Daily', 'value' => old('waiver_daily', $car?->waiver_daily ?? '')],
                 ['id' => 'waiver_weekly', 'label' => 'Waiver Weekly', 'value' => old('waiver_weekly', $car?->waiver_weekly ?? '')],
                 ['id' => 'waiver_monthly', 'label' => 'Waiver Monthly', 'value' => old('waiver_monthly', $car?->waiver_monthly ?? '')],
-                ['id' => 'different_city_dropoff_fee', 'label' => 'Different City Dropoff Fee', 'value' => old('different_city_dropoff_fee', $car?->different_city_dropoff_fee ?? '')],
+                ['id' => 'deposit_amount', 'label' => 'Deposit Amount', 'value' => old('deposit_amount', $car?->deposit_amount ?? '')],
+                ['id' => 'additional_driver_amount', 'label' => 'Additional Driver Amount', 'value' => old('additional_driver_amount', $car?->additional_driver_amount ?? '')],
             ] as $field)
                 <div class="min-w-0">
                     <div class="space-y-2">
