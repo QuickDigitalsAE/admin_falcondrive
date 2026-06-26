@@ -61,6 +61,33 @@ abstract class BaseApiController extends Controller
         return $this->applyFilters($query, $request);
     }
 
+    protected function query(Request $request): Builder
+    {
+        $query = $this->model()->newQuery()->with($this->with);
+
+        if ($request->filled('search') && count($this->searchable) > 0) {
+            $search = trim($request->string('search')->toString());
+
+            $keywords = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY);
+
+            $query->where(function (Builder $outer) use ($keywords) {
+                foreach ($keywords as $keyword) {
+                    $outer->where(function (Builder $inner) use ($keyword) {
+                        foreach ($this->searchable as $index => $field) {
+                            if ($index === 0) {
+                                $inner->where($field, 'like', "%{$keyword}%");
+                            } else {
+                                $inner->orWhere($field, 'like', "%{$keyword}%");
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        return $this->applyFilters($query, $request);
+    }
+
     protected function applyFilters(Builder $query, Request $request): Builder
     {
         $sortBy = in_array($request->get('sort_by'), $this->sortable, true)
