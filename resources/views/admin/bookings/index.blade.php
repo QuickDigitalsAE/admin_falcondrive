@@ -2963,6 +2963,8 @@
                 detailRow('Start', booking.startDate ? new Date(booking.startDate).toLocaleString() : '-'),
                 detailRow('End', booking.endDate ? new Date(booking.endDate).toLocaleString() : '-'),
                 detailRow('Location', booking.locationId),
+                detailRow('Pickup Location', booking.pickupLocationId),
+                detailRow('Pickup Location Address', booking.pickupLocationAddress),
                 detailAmountRow('Advance', booking.advance || 0),
                 detailRow('Tax Percent', booking.taxPercent || 0),
                 detailAmountRow('Discount', booking.discount || 0),
