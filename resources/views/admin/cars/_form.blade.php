@@ -188,9 +188,6 @@
                 ['id' => 'doors', 'label' => 'Doors', 'value' => old('doors', $car?->doors ?? '')],
                 ['id' => 'deposit', 'label' => 'Deposit', 'value' => old('deposit', $car?->deposit ?? '')],
                 ['id' => 'luggage', 'label' => 'Luggage', 'value' => old('luggage', $car?->luggage ?? '')],
-                ['id' => 'cdw_daily', 'label' => 'CDW Daily', 'value' => old('cdw_daily', $car?->cdw_daily ?? '')],
-                ['id' => 'cdw_weekly', 'label' => 'CDW Weekly', 'value' => old('cdw_weekly', $car?->cdw_weekly ?? '')],
-                ['id' => 'cdw_monthly', 'label' => 'CDW Monthly', 'value' => old('cdw_monthly', $car?->cdw_monthly ?? '')],
             ] as $field)
                 <div class="min-w-0">
                     <div class="space-y-2">

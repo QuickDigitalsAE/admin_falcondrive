@@ -90,22 +90,30 @@ class CarResource extends BaseResource
             $data['driver_pages'] = CarWithDriverResource::collection($this->whenLoaded('driverPages'));
             $data['delivery_locations'] = DeliveryReturnLocation::query()
                 ->where('type', 'Delivery location')
-                ->orderBy('city')
-                ->get(['id', 'city', 'price', 'type'])
+                ->orderBy('title')
+                ->get(['id', 'title', 'detail', 'web_id', 'longitude', 'latitude', 'price', 'type'])
                 ->map(fn (DeliveryReturnLocation $location) => [
                     'id' => $location->id,
-                    'city' => $location->city,
+                    'title' => $location->title,
+                    'detail' => $location->detail,
+                    'web_id' => $location->web_id,
+                    'longitude' => $location->longitude,
+                    'latitude' => $location->latitude,
                     'price' => $location->price,
                     'type' => $location->type,
                 ])
                 ->all();
             $data['return_locations'] = DeliveryReturnLocation::query()
                 ->where('type', 'Return location')
-                ->orderBy('city')
-                ->get(['id', 'city', 'price', 'type'])
+                ->orderBy('title')
+                ->get(['id', 'title', 'detail', 'web_id', 'longitude', 'latitude', 'price', 'type'])
                 ->map(fn (DeliveryReturnLocation $location) => [
                     'id' => $location->id,
-                    'city' => $location->city,
+                    'title' => $location->title,
+                    'detail' => $location->detail,
+                    'web_id' => $location->web_id,
+                    'longitude' => $location->longitude,
+                    'latitude' => $location->latitude,
                     'price' => $location->price,
                     'type' => $location->type,
                 ])

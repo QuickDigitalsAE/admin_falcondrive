@@ -15,7 +15,7 @@
                 <div class="min-w-0 flex-1">
                     <div class="relative">
                         <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#b49543]"><i class="fa-solid fa-magnifying-glass text-sm"></i></span>
-                        <input type="text" id="searchInput" placeholder="Search by city, price or type" value="{{ $search ?? '' }}" class="w-full rounded-xl border border-[#eadfbe] bg-[#fffdf8] py-2.5 pl-11 pr-4 text-sm outline-none transition focus:border-[#d8bf79] focus:bg-white">
+                        <input type="text" id="searchInput" placeholder="Search by title, detail, WebID, price or type" value="{{ $search ?? '' }}" class="w-full rounded-xl border border-[#eadfbe] bg-[#fffdf8] py-2.5 pl-11 pr-4 text-sm outline-none transition focus:border-[#d8bf79] focus:bg-white">
                     </div>
                 </div>
                 <div class="flex shrink-0 items-center gap-2 sm:self-stretch">
@@ -39,14 +39,18 @@
                 <thead class="sticky top-0 z-10 bg-[#fffaf0]">
                     <tr>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Actions</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">City</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Title</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Detail</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">WebID</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Longitude</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Latitude</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Price</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Type</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase text-[#9d8750]">Created</th>
                     </tr>
                 </thead>
                 <tbody id="recordsTableBody" class="divide-y divide-[#f6f0df] bg-white">
-                    <tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">Loading locations...</td></tr>
+                    <tr><td colspan="9" class="px-6 py-12 text-center text-slate-500">Loading locations...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -81,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const escapeHtml = v => v === null || v === undefined ? '' : String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
     const renderMeta = p => tableMeta.textContent = `Showing ${p?.from ?? 0} to ${p?.to ?? 0} of ${p?.total ?? 0} results`;
-    const setLoading = () => recordsTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500"><div class="inline-flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin text-[#b49543]"></i><span>Loading locations...</span></div></td></tr>`;
+    const setLoading = () => recordsTableBody.innerHTML = `<tr><td colspan="9" class="px-6 py-12 text-center text-slate-500"><div class="inline-flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin text-[#b49543]"></i><span>Loading locations...</span></div></td></tr>`;
 
     function updateTrashUI() {
         if (!trashToggleBtn) return;
@@ -143,8 +147,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderRows(items) {
-        if (!items.length) { recordsTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500">No locations found.</td></tr>`; return; }
-        recordsTableBody.innerHTML = items.map(r => `<tr class="transition hover:bg-[#fffdf7]"><td class="px-6 py-4">${actionsHtml(r)}</td><td class="px-6 py-4"><div class="flex flex-wrap items-center gap-2"><span class="text-sm font-semibold text-slate-800">${escapeHtml(r.city)}</span>${r.deleted_at ? '<span class="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-600">Trashed</span>' : ''}</div></td><td class="px-6 py-4"><span class="text-sm font-semibold text-slate-800">${escapeHtml(r.price)}</span></td><td class="px-6 py-4">${typeBadge(r.type)}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">${escapeHtml(r.created_at_human || '-')}</td></tr>`).join('');
+        if (!items.length) { recordsTableBody.innerHTML = `<tr><td colspan="9" class="px-6 py-12 text-center text-slate-500">No locations found.</td></tr>`; return; }
+        recordsTableBody.innerHTML = items.map(r => `<tr class="transition hover:bg-[#fffdf7]"><td class="px-6 py-4">${actionsHtml(r)}</td><td class="px-6 py-4"><div class="flex flex-wrap items-center gap-2"><span class="text-sm font-semibold text-slate-800">${escapeHtml(r.title)}</span>${r.deleted_at ? '<span class="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-600">Trashed</span>' : ''}</div></td><td class="px-6 py-4 text-sm text-slate-700">${escapeHtml(r.detail || '-')}</td><td class="px-6 py-4 text-sm text-slate-700">${escapeHtml(r.web_id ?? '-')}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">${escapeHtml(r.longitude ?? '-')}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">${escapeHtml(r.latitude ?? '-')}</td><td class="px-6 py-4"><span class="text-sm font-semibold text-slate-800">${escapeHtml(r.price)}</span></td><td class="px-6 py-4">${typeBadge(r.type)}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">${escapeHtml(r.created_at_human || '-')}</td></tr>`).join('');
     }
 
     async function fetchRecords() {
@@ -164,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok || !result.status) throw new Error(result.message || 'Failed to fetch locations.');
             renderRows(result.data.items || []); renderPagination(result.data.pagination || {}); renderMeta(result.data.pagination || {}); syncUrl();
         } catch (error) {
-            recordsTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-500">${escapeHtml(error.message || 'Something went wrong.')}</td></tr>`;
+            recordsTableBody.innerHTML = `<tr><td colspan="9" class="px-6 py-12 text-center text-red-500">${escapeHtml(error.message || 'Something went wrong.')}</td></tr>`;
             paginationWrapper.innerHTML = ''; renderMeta({from:0,to:0,total:0});
         } finally { state.loading = false; }
     }

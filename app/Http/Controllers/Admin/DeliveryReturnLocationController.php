@@ -100,7 +100,11 @@ class DeliveryReturnLocationController extends Controller
 
         if ($search !== '') {
             $query->where(function ($subQuery) use ($search) {
-                $subQuery->where('city', 'LIKE', "%{$search}%")
+                $subQuery->where('title', 'LIKE', "%{$search}%")
+                    ->orWhere('detail', 'LIKE', "%{$search}%")
+                    ->orWhere('web_id', 'LIKE', "%{$search}%")
+                    ->orWhere('longitude', 'LIKE', "%{$search}%")
+                    ->orWhere('latitude', 'LIKE', "%{$search}%")
                     ->orWhere('price', 'LIKE', "%{$search}%")
                     ->orWhere('type', 'LIKE', "%{$search}%");
             });
@@ -118,7 +122,11 @@ class DeliveryReturnLocationController extends Controller
             $items = $records->getCollection()->map(function (DeliveryReturnLocation $location) {
                 return [
                     'id' => $location->id,
-                    'city' => $location->city,
+                    'title' => $location->title,
+                    'detail' => $location->detail,
+                    'web_id' => $location->web_id,
+                    'longitude' => $location->longitude,
+                    'latitude' => $location->latitude,
                     'price' => $location->price,
                     'type' => $location->type,
                     'deleted_at' => optional($location->deleted_at)->toDateTimeString(),
@@ -162,7 +170,11 @@ class DeliveryReturnLocationController extends Controller
     private function validated(Request $request): array
     {
         return $request->validate([
-            'city' => ['required', 'string', 'max:191'],
+            'title' => ['required', 'string', 'max:191'],
+            'detail' => ['nullable', 'string'],
+            'web_id' => ['nullable', 'string', 'max:191'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'price' => ['required', 'string', 'max:191'],
             'type' => ['required', 'string', 'in:Delivery location,Return location'],
         ]);
@@ -182,13 +194,17 @@ class DeliveryReturnLocationController extends Controller
 
         return response()->streamDownload(function () use ($query) {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['ID', 'City', 'Price', 'Type', 'Created At', 'Updated At', 'Deleted At']);
+            fputcsv($handle, ['ID', 'Title', 'Detail', 'WebID', 'Longitude', 'Latitude', 'Price', 'Type', 'Created At', 'Updated At', 'Deleted At']);
 
             $query->chunk(200, function ($records) use ($handle) {
                 foreach ($records as $record) {
                     fputcsv($handle, [
                         $record->id,
-                        $record->city,
+                        $record->title,
+                        $record->detail,
+                        $record->web_id,
+                        $record->longitude,
+                        $record->latitude,
                         $record->price,
                         $record->type,
                         optional($record->created_at)->format('Y-m-d H:i:s'),

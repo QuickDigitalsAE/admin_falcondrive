@@ -11,7 +11,11 @@ class DeliveryReturnLocation extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'city',
+        'title',
+        'detail',
+        'web_id',
+        'longitude',
+        'latitude',
         'price',
         'type',
         'created_by',
