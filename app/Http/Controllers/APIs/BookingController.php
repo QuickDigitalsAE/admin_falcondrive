@@ -103,6 +103,7 @@ class BookingController extends BaseApiController
 
         $fallbackPickup = $this->nullIfPlaceholder($request->input('fd_pickup'));
         $fallbackReturnPickup = $this->nullIfPlaceholder($request->input('fd_return_pickup'));
+        $pickupLocationId = $this->integerOrNull($request->input('pickup_location_id', $request->input('self_pickup_location_id')));
         $fallbackPickupId = $this->integerOrNull($request->input('self_pickup_location_id', $request->input('pickup_location_id')));
         $fallbackReturnPickupId = $this->integerOrNull($request->input('self_return_location_id', $request->input('return_location_id')));
 
@@ -130,6 +131,7 @@ class BookingController extends BaseApiController
             'delivery_custom_address' => $deliveryLocation !== null ? $deliveryCustomAddress : null,
             'delivery_location_price' => $this->decimalOrNull($request->input('delivery_location_price', data_get($pricing, 'delivery_location_price'))),
             'different_city_dropoff_fee' => $this->decimalOrNull($request->input('different_city_dropoff_fee', data_get($pricing, 'different_city_dropoff_fee'))),
+            'pickup_location_id' => $pickupLocationId,
             'self_pickup_location' => $deliveryLocation === null
                 ? $this->nullIfPlaceholder($request->input('self_pickup_location', $fallbackPickup ?? $request->input('pickup_branch')))
                 : $this->nullIfPlaceholder($request->input('self_pickup_location', $request->input('pickup_branch'))),

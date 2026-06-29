@@ -86,6 +86,7 @@ class BookingController extends Controller
                     'deposit_waiver' => $booking->deposit_waiver,
                     'deposit_waiver_price' => (string) $booking->deposit_waiver_price,
                     'delivery_location_price' => (string) $booking->delivery_location_price,
+                    'pickup_location_id' => $booking->pickup_location_id,
                     'payment_flow' => $booking->payment_flow,
                     'vehicle_group_id' => $booking->vehicle_group_id,
                     'tariff_group_id' => $booking->tariff_group_id,
@@ -104,6 +105,7 @@ class BookingController extends Controller
                     'start_time' => $booking->start_time,
                     'end_time' => $booking->end_time,
                     'send_booking_id' => $booking->send_booking_id,
+                    'pickup_location_id' => $booking->pickup_location_id,
                     'self_pickup_location_id' => $booking->self_pickup_location_id,
                     'self_return_location_id' => $booking->self_return_location_id,
                     'return_location_price' => (string) $booking->return_location_price,
@@ -323,7 +325,7 @@ class BookingController extends Controller
 
         return response()->stream(function () use ($records) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['ID', 'Name', 'Number', 'Email', 'Rental Type', 'Rental Price', 'Self Pickup Location ID', 'Self Return Location ID', 'Vehicle Group ID', 'Tariff Group ID', 'Payment Flow', 'Total Amount', 'Paid Status', 'Paid Via', 'Created At']);
+            fputcsv($file, ['ID', 'Name', 'Number', 'Email', 'Rental Type', 'Rental Price', 'Pickup Location ID', 'Self Pickup Location ID', 'Self Return Location ID', 'Vehicle Group ID', 'Tariff Group ID', 'Payment Flow', 'Total Amount', 'Paid Status', 'Paid Via', 'Created At']);
 
             foreach ($records as $record) {
                 fputcsv($file, [
@@ -333,6 +335,7 @@ class BookingController extends Controller
                     $record->email,
                     $record->rental_type,
                     $record->rental_price,
+                    $record->pickup_location_id,
                     $record->self_pickup_location_id,
                     $record->self_return_location_id,
                     $record->vehicle_group_id,

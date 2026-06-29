@@ -29,6 +29,7 @@ class BookingResource extends BaseResource
             'baby_seat_price' => (string) $this->baby_seat_price,
             'deposit_waiver' => $this->deposit_waiver,
             'deposit_waiver_price' => (string) $this->deposit_waiver_price,
+            'pickup_location_id' => $this->pickup_location_id,
             'delivery_location' => $this->delivery_location,
             'delivery_custom_address' => $this->delivery_custom_address,
             'delivery_location_price' => (string) $this->delivery_location_price,

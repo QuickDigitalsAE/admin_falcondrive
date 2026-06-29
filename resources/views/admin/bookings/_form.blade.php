@@ -17,6 +17,7 @@
         ['id' => 'deposit_waiver_price', 'label' => 'Deposit Waiver Price', 'type' => 'number', 'step' => '0.01', 'value' => old('deposit_waiver_price', $booking->deposit_waiver_price ?? 0)],
         ['id' => 'delivery_location_price', 'label' => 'Delivery Location Price', 'type' => 'number', 'step' => '0.01', 'value' => old('delivery_location_price', $booking->delivery_location_price ?? 0)],
         ['id' => 'different_city_dropoff_fee', 'label' => 'Different City Dropoff Fee', 'type' => 'number', 'step' => '0.01', 'value' => old('different_city_dropoff_fee', $booking->different_city_dropoff_fee ?? 0)],
+        ['id' => 'pickup_location_id', 'label' => 'Pickup Location ID', 'type' => 'number', 'value' => old('pickup_location_id', $booking->pickup_location_id ?? '')],
         ['id' => 'self_pickup_location_id', 'label' => 'Self Pickup Location ID', 'type' => 'number', 'value' => old('self_pickup_location_id', $booking->self_pickup_location_id ?? '')],
         ['id' => 'self_pickup_address', 'label' => 'Self Pickup Address', 'type' => 'text', 'value' => old('self_pickup_address', $booking->self_pickup_address ?? '')],
         ['id' => 'return_location_price', 'label' => 'Return Location Price', 'type' => 'number', 'step' => '0.01', 'value' => old('return_location_price', $booking->return_location_price ?? 0)],

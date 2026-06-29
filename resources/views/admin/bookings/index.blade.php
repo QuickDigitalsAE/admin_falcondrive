@@ -168,7 +168,8 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="space-y-1">
-                                        <div class="text-xs text-slate-700">Pickup ID: {{ $booking->self_pickup_location_id ?? '-' }}</div>
+                                        <div class="text-xs text-slate-700">Pickup Location ID: {{ $booking->pickup_location_id ?? '-' }}</div>
+                                        <div class="text-xs text-slate-700">Self Pickup ID: {{ $booking->self_pickup_location_id ?? '-' }}</div>
                                         <div class="text-xs text-slate-700">Return ID: {{ $booking->self_return_location_id ?? '-' }}</div>
                                         <div class="text-xs text-slate-700">Vehicle Group ID: {{ $booking->vehicle_group_id ?? '-' }}</div>
                                         <div class="text-xs text-slate-700">Tariff Group ID: {{ $booking->tariff_group_id ?? '-' }}</div>
