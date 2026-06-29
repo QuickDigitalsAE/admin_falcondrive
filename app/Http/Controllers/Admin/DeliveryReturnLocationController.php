@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DeliveryReturnLocation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DeliveryReturnLocationController extends Controller
@@ -27,6 +28,7 @@ class DeliveryReturnLocationController extends Controller
     {
         $data = $this->validated($request);
         $data['created_by'] = Auth::id();
+        $data['pickup_location_id'] = $this->createPickupLocationId($data);
 
         DeliveryReturnLocation::create($data);
 
@@ -55,6 +57,7 @@ class DeliveryReturnLocationController extends Controller
         $location = DeliveryReturnLocation::findOrFail($id);
         $data = $this->validated($request);
         $data['updated_by'] = Auth::id();
+        $data['pickup_location_id'] = $this->createPickupLocationId($data);
 
         $location->update($data);
 
@@ -181,6 +184,33 @@ class DeliveryReturnLocationController extends Controller
             'price' => ['required', 'string', 'max:191'],
             'type' => ['required', 'string', 'in:Delivery location,Return location'],
         ]);
+    }
+
+    private function createPickupLocationId(array $data): int|string
+    {
+        $response = Http::acceptJson()->asJson()->post(route('create.deliveryLocation'), [
+            'title' => $data['title'],
+            'detail' => $data['detail'] ?? null,
+            'web_id' => $data['web_id'] ?? null,
+            'longitude' => $data['longitude'] ?? null,
+            'latitude' => $data['latitude'] ?? null,
+        ]);
+
+        if (!$response->successful()) {
+            abort($response->status(), $response->json('error') ?: 'Delivery location API request failed.');
+        }
+
+        $apiResult = $response->json('result');
+
+        if (is_array($apiResult)) {
+            $apiResult = $apiResult['id'] ?? $apiResult['result'] ?? null;
+        }
+
+        if ($apiResult === null || $apiResult === '') {
+            abort(500, 'Delivery location API did not return an id.');
+        }
+
+        return is_numeric($apiResult) ? (int) $apiResult : $apiResult;
     }
 
     private function types(): array

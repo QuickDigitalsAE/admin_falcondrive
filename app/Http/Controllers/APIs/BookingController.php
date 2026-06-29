@@ -669,6 +669,69 @@ class BookingController extends BaseApiController
         }
     }
 
+    public function CreateDeliveryLocation(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string',
+            'detail' => 'nullable|string',
+            'web_id' => 'nullable|string',
+            'longitude' => 'nullable|string',
+            "latitude" => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'error' => $validator->errors()->first(),
+                'result' => null
+            ], 400);
+        }
+
+        try {
+            $code = env('APP_CODE');
+
+            $url = "https://speedbookingportalapi.azurewebsites.net/api/CreateDeliveryLocation?code=" . urlencode($code);
+
+            $payload = [
+                "Title" => $request->title,
+                "Detail" => $request->detail,
+                "WebID" => $request->web_id,
+                "Longitude" => $request->longitude,
+                "Latitude" => $request->latitude
+            ];
+
+            $response = Http::withHeaders([
+                'ApiKey' => env('API_Key'),
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ])->post($url, $payload);
+
+            // API fail
+            if (!$response->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'API request failed',
+                    'result' => $response->body()
+                ], $response->status());
+            }
+
+            $data = $response->json();
+
+            return response()->json([
+                'success' => $data['success'] ?? true,
+                'error' => $data['error'] ?? null,
+                'result' => $data['result'] ?? $data
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'result' => null
+            ], 500);
+        }
+    }
+
     public function createBooking(Request $request)
     {
         $code = env('APP_CODE');

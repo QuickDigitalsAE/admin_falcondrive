@@ -31,6 +31,7 @@ Route::prefix('speed')->group(function () {
     Route::post('/send-booking', [BookingController::class, 'createBooking'])->name('send.booking');
     Route::post('/create-customer', [BookingController::class, 'createCustomer'])->name('create.customer');
     Route::post('/update-customer', [BookingController::class, 'updateCustomer'])->name('update.customer');
+    Route::post('/create-delivery-location', [BookingController::class, 'CreateDeliveryLocation'])->name('create.deliveryLocation');
 });
 
 Route::prefix('website')->group(function () {
