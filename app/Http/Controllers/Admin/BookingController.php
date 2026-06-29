@@ -52,6 +52,7 @@ class BookingController extends Controller
                     ->orWhere('email', 'LIKE', "%{$search}%")
                     ->orWhere('coupon_code', 'LIKE', "%{$search}%")
                     ->orWhere('paid_id', 'LIKE', "%{$search}%")
+                    ->orWhere('pickup_location_id', 'LIKE', "%{$search}%")
                     ->orWhere('send_booking_id', 'LIKE', "%{$search}%");
             });
         }
@@ -86,7 +87,6 @@ class BookingController extends Controller
                     'deposit_waiver' => $booking->deposit_waiver,
                     'deposit_waiver_price' => (string) $booking->deposit_waiver_price,
                     'delivery_location_price' => (string) $booking->delivery_location_price,
-                    'pickup_location_id' => $booking->pickup_location_id,
                     'payment_flow' => $booking->payment_flow,
                     'vehicle_group_id' => $booking->vehicle_group_id,
                     'tariff_group_id' => $booking->tariff_group_id,

@@ -817,6 +817,7 @@
                                 data-vehicle-group-id="${escapeHtml(record.vehicle_group_id || '')}"
                                 data-tariff-group-id="${escapeHtml(record.tariff_group_id || '')}"
                                 data-rental-type="${escapeHtml(record.rental_type || '')}"
+                                data-pickup-location-id="${escapeHtml(record.pickup_location_id || '')}"
                                 data-self-pickup-location-id="${escapeHtml(record.self_pickup_location_id || '')}"
                                 data-self-return-location-id="${escapeHtml(record.self_return_location_id || '')}"
                                 data-rental-price="${escapeHtml(record.rental_price || '')}"
@@ -1170,6 +1171,7 @@
                                 vehicleGroupId: sendBookingBtn.dataset.vehicleGroupId || '',
                                 tariffGroupId: sendBookingBtn.dataset.tariffGroupId || '',
                                 rentalType: sendBookingBtn.dataset.rentalType || '',
+                                pickupLocationId: sendBookingBtn.dataset.pickupLocationId || '',
                                 selfPickupLocationId: sendBookingBtn.dataset.selfPickupLocationId || '',
                                 selfReturnLocationId: sendBookingBtn.dataset.selfReturnLocationId || '',
                                 rentalPrice: sendBookingBtn.dataset.rentalPrice || '',
@@ -1777,7 +1779,7 @@
             selectBookingTypeByRentalType(currentBookingSelection.rentalType);
             syncAllChargeCardRateTypes();
 
-            const pickupLocationId = String(currentBookingSelection.selfPickupLocationId || '').trim();
+            const pickupLocationId = String(currentBookingSelection.pickupLocationId || currentBookingSelection.selfPickupLocationId || '').trim();
             if (pickupLocationId !== '' && Number(pickupLocationId) > 0) {
                 $('#locationSelect').val(pickupLocationId).trigger('change');
             } else {
@@ -2349,6 +2351,7 @@
                     vehicleGroupId: bookingFinancials.vehicleGroupId || '',
                     tariffGroupId: bookingFinancials.tariffGroupId || '',
                     rentalType: bookingFinancials.rentalType || '',
+                    pickupLocationId: bookingFinancials.pickupLocationId || '',
                     selfPickupLocationId: bookingFinancials.selfPickupLocationId || '',
                     selfReturnLocationId: bookingFinancials.selfReturnLocationId || '',
                     rentalPrice: bookingFinancials.rentalPrice || '',

@@ -26,7 +26,7 @@ class BookingController extends BaseApiController
     protected string $resourceClass = BookingResource::class;
     protected string $storeRequestClass = BookingRequest::class;
     protected string $updateRequestClass = BookingRequest::class;
-    protected array $searchable = ['name', 'number', 'email', 'coupon_code', 'paid_id', 'send_booking_id'];
+    protected array $searchable = ['name', 'number', 'email', 'coupon_code', 'paid_id', 'pickup_location_id', 'send_booking_id'];
     protected array $with = [];
     protected string $publicMessage = 'Booking list fetched successfully';
     protected string $singleMessage = 'Booking fetched successfully';
