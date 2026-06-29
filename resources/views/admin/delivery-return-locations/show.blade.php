@@ -30,7 +30,7 @@
                 <div class="rounded-[24px] border border-[#eadfbe] bg-white p-5 shadow-sm">
                     <div class="mb-5">
                         <h3 class="text-lg font-semibold text-slate-900">Location Information</h3>
-                        <p class="mt-1 text-sm text-slate-500">Title, detail, coordinates, price and type details.</p>
+                        <p class="mt-1 text-sm text-slate-500">Title, detail, pickup mapping, coordinates, price and type details.</p>
                     </div>
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                         <div class="rounded-2xl border border-[#f0e6ca] bg-[#fffdf8] p-4"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#b89a4c]">Title</p><p class="mt-2 text-sm font-semibold text-slate-900">{{ $location->title ?: 'N/A' }}</p></div>

@@ -91,12 +91,13 @@ class CarResource extends BaseResource
             $data['delivery_locations'] = DeliveryReturnLocation::query()
                 ->where('type', 'Delivery location')
                 ->orderBy('title')
-                ->get(['id', 'title', 'detail', 'web_id', 'longitude', 'latitude', 'price', 'type'])
+                ->get(['id', 'title', 'detail', 'web_id', 'pickup_location_id', 'longitude', 'latitude', 'price', 'type'])
                 ->map(fn (DeliveryReturnLocation $location) => [
                     'id' => $location->id,
                     'title' => $location->title,
                     'detail' => $location->detail,
                     'web_id' => $location->web_id,
+                    'pickup_location_id' => $location->pickup_location_id,
                     'longitude' => $location->longitude,
                     'latitude' => $location->latitude,
                     'price' => $location->price,
@@ -106,12 +107,13 @@ class CarResource extends BaseResource
             $data['return_locations'] = DeliveryReturnLocation::query()
                 ->where('type', 'Return location')
                 ->orderBy('title')
-                ->get(['id', 'title', 'detail', 'web_id', 'longitude', 'latitude', 'price', 'type'])
+                ->get(['id', 'title', 'detail', 'web_id', 'pickup_location_id', 'longitude', 'latitude', 'price', 'type'])
                 ->map(fn (DeliveryReturnLocation $location) => [
                     'id' => $location->id,
                     'title' => $location->title,
                     'detail' => $location->detail,
                     'web_id' => $location->web_id,
+                    'pickup_location_id' => $location->pickup_location_id,
                     'longitude' => $location->longitude,
                     'latitude' => $location->latitude,
                     'price' => $location->price,

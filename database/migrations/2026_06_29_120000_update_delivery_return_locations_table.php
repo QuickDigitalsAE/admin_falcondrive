@@ -23,8 +23,12 @@ return new class extends Migration
                 $table->string('web_id')->nullable()->after('detail');
             }
 
+            if (!Schema::hasColumn('delivery_return_locations', 'pickup_location_id')) {
+                $table->unsignedBigInteger('pickup_location_id')->nullable()->after('web_id');
+            }
+
             if (!Schema::hasColumn('delivery_return_locations', 'longitude')) {
-                $table->decimal('longitude', 10, 8)->nullable()->after('web_id');
+                $table->decimal('longitude', 10, 8)->nullable()->after('pickup_location_id');
             }
 
             if (!Schema::hasColumn('delivery_return_locations', 'latitude')) {
@@ -46,6 +50,10 @@ return new class extends Migration
 
             if (Schema::hasColumn('delivery_return_locations', 'web_id')) {
                 $table->dropColumn('web_id');
+            }
+
+            if (Schema::hasColumn('delivery_return_locations', 'pickup_location_id')) {
+                $table->dropColumn('pickup_location_id');
             }
 
             if (Schema::hasColumn('delivery_return_locations', 'detail')) {

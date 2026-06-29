@@ -14,6 +14,7 @@ class DeliveryReturnLocation extends Model
         'title',
         'detail',
         'web_id',
+        'pickup_location_id',
         'longitude',
         'latitude',
         'price',

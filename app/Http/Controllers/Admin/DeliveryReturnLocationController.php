@@ -103,6 +103,7 @@ class DeliveryReturnLocationController extends Controller
                 $subQuery->where('title', 'LIKE', "%{$search}%")
                     ->orWhere('detail', 'LIKE', "%{$search}%")
                     ->orWhere('web_id', 'LIKE', "%{$search}%")
+                    ->orWhere('pickup_location_id', 'LIKE', "%{$search}%")
                     ->orWhere('longitude', 'LIKE', "%{$search}%")
                     ->orWhere('latitude', 'LIKE', "%{$search}%")
                     ->orWhere('price', 'LIKE', "%{$search}%")
@@ -125,6 +126,7 @@ class DeliveryReturnLocationController extends Controller
                     'title' => $location->title,
                     'detail' => $location->detail,
                     'web_id' => $location->web_id,
+                    'pickup_location_id' => $location->pickup_location_id,
                     'longitude' => $location->longitude,
                     'latitude' => $location->latitude,
                     'price' => $location->price,
@@ -173,6 +175,7 @@ class DeliveryReturnLocationController extends Controller
             'title' => ['required', 'string', 'max:191'],
             'detail' => ['nullable', 'string'],
             'web_id' => ['nullable', 'string', 'max:191'],
+            'pickup_location_id' => ['nullable', 'integer', 'min:1'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'price' => ['required', 'string', 'max:191'],
@@ -194,7 +197,7 @@ class DeliveryReturnLocationController extends Controller
 
         return response()->streamDownload(function () use ($query) {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['ID', 'Title', 'Detail', 'WebID', 'Longitude', 'Latitude', 'Price', 'Type', 'Created At', 'Updated At', 'Deleted At']);
+            fputcsv($handle, ['ID', 'Title', 'Detail', 'WebID', 'Pickup Location ID', 'Longitude', 'Latitude', 'Price', 'Type', 'Created At', 'Updated At', 'Deleted At']);
 
             $query->chunk(200, function ($records) use ($handle) {
                 foreach ($records as $record) {
@@ -203,6 +206,7 @@ class DeliveryReturnLocationController extends Controller
                         $record->title,
                         $record->detail,
                         $record->web_id,
+                        $record->pickup_location_id,
                         $record->longitude,
                         $record->latitude,
                         $record->price,

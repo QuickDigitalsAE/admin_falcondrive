@@ -16,7 +16,7 @@
                     <div class="min-w-0">
                         <p class="text-[11px] uppercase tracking-[0.24em] text-[#b89a4c]">Location Management</p>
                         <h1 class="text-[28px] font-bold leading-tight text-slate-900">Add New Location</h1>
-                        <p class="mt-1 text-sm text-slate-500">Create delivery or return location with title, details and coordinates.</p>
+                        <p class="mt-1 text-sm text-slate-500">Create delivery or return location with title, details, pickup mapping and coordinates.</p>
                     </div>
                     <a href="{{ route('admin.delivery-return-locations') }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-5 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-arrow-left mr-2 text-[13px]"></i>Back to List</a>
                 </div>

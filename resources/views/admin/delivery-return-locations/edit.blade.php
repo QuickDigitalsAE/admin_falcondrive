@@ -16,7 +16,7 @@
                     <div class="min-w-0">
                         <p class="text-[11px] uppercase tracking-[0.24em] text-[#b89a4c]">Location Management</p>
                         <h1 class="text-[28px] font-bold leading-tight text-slate-900">Edit Location</h1>
-                        <p class="mt-1 text-sm text-slate-500">Update title, detail, coordinates, price and location type.</p>
+                        <p class="mt-1 text-sm text-slate-500">Update title, detail, pickup mapping, coordinates, price and location type.</p>
                     </div>
                     <div class="flex flex-wrap gap-3">
                         <a href="{{ route('admin.delivery-return-locations.show', $location->id) }}" class="inline-flex items-center justify-center rounded-2xl border border-[#eadfbe] bg-white px-5 py-3 text-sm font-semibold text-[#7d6220] shadow-sm transition hover:bg-[#fff8e8]"><i class="fa-solid fa-eye mr-2 text-[13px]"></i>View Location</a>
