@@ -57,7 +57,7 @@ class DeliveryReturnLocationController extends Controller
         $location = DeliveryReturnLocation::findOrFail($id);
         $data = $this->validated($request);
         $data['updated_by'] = Auth::id();
-        $data['pickup_location_id'] = $this->createPickupLocationId($data);
+        $data['pickup_location_id'] = $location->pickup_location_id ?: $this->createPickupLocationId($data);
 
         $location->update($data);
 
