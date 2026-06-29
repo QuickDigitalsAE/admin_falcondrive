@@ -28,21 +28,27 @@ trait InteractsWithCarListings
         }
 
         if ($request->filled('search')) {
-            $search = $request->string('search')->toString();
+            $search = trim($request->search);
 
-            $query->where(function (Builder $inner) use ($search) {
-                $inner->where('name_en', 'like', "%{$search}%")
-                    ->orWhere('name_ar', 'like', "%{$search}%")
-                    ->orWhere('slug', 'like', "%{$search}%")
-                    ->orWhere('model', 'like', "%{$search}%")
-                    ->orWhereHas('brand', function (Builder $brandQuery) use ($search) {
-                        $brandQuery->where('name_en', 'like', "%{$search}%")
-                            ->orWhere('name_ar', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('categories', function (Builder $categoryQuery) use ($search) {
-                        $categoryQuery->where('name_en', 'like', "%{$search}%")
-                            ->orWhere('name_ar', 'like', "%{$search}%");
+            $parts = preg_split('/\s+/', $search);
+
+            $query->where(function (Builder $inner) use ($parts) {
+                foreach ($parts as $part) {
+                    $inner->where(function (Builder $q) use ($part) {
+                        $q->where('name_en', 'like', "%{$part}%")
+                            ->orWhere('name_ar', 'like', "%{$part}%")
+                            ->orWhere('slug', 'like', "%{$part}%")
+                            ->orWhere('model', 'like', "%{$part}%")
+                            ->orWhereHas('brand', function (Builder $brandQuery) use ($part) {
+                                $brandQuery->where('name_en', 'like', "%{$part}%")
+                                        ->orWhere('name_ar', 'like', "%{$part}%");
+                            })
+                            ->orWhereHas('categories', function (Builder $categoryQuery) use ($part) {
+                                $categoryQuery->where('name_en', 'like', "%{$part}%")
+                                            ->orWhere('name_ar', 'like', "%{$part}%");
+                            });
                     });
+                }
             });
         }
 

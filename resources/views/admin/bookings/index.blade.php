@@ -1579,6 +1579,25 @@
             return firstOption ? String(firstOption.value) : '';
         }
 
+        function selectFirstDataOption(selector) {
+            const select = document.querySelector(selector);
+            if (!select) {
+                return '';
+            }
+
+            const firstOption = Array.from(select.options).find(option => {
+                const value = String(option.value || '').trim();
+                return value !== '' && value !== '0';
+            });
+
+            if (!firstOption) {
+                return '';
+            }
+
+            $(select).val(firstOption.value).trigger('change');
+            return String(firstOption.value);
+        }
+
         function normalizeRentalTypeSelectionText(rentalType) {
             const normalized = String(rentalType || '').trim().toLowerCase();
 
@@ -1757,8 +1776,11 @@
             selectBookingTypeByRentalType(currentBookingSelection.rentalType);
             syncAllChargeCardRateTypes();
 
-            if (String(currentBookingSelection.selfPickupLocationId || '').trim() !== '') {
-                $('#locationSelect').val(String(currentBookingSelection.selfPickupLocationId).trim()).trigger('change');
+            const pickupLocationId = String(currentBookingSelection.selfPickupLocationId || '').trim();
+            if (pickupLocationId !== '' && Number(pickupLocationId) > 0) {
+                $('#locationSelect').val(pickupLocationId).trigger('change');
+            } else {
+                selectFirstDataOption('#locationSelect');
             }
 
             if (String(currentBookingSelection.vehicleGroupId || '').trim() !== '') {
@@ -2004,8 +2026,8 @@
                     rateTypeId: 6,
                     rateTypeMode: 'one_time',
                     rentalType: values.rentalType,
-                    rateValue: calculateChargeRate(values.additionalDriverCharges, rentalUnits),
-                    unitsValue: rentalUnits,
+                    rateValue: parseFloat(values.additionalDriverCharges),
+                    unitsValue: 1,
                     totalValue: parseFloat(values.additionalDriverCharges) || 0,
                     notes: 'Additional driver charge'
                 });
@@ -2043,8 +2065,8 @@
                     rateTypeId: 6,
                     rateTypeMode: 'one_time',
                     rentalType: values.rentalType,
-                    rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
-                    unitsValue: rentalUnits,
+                    rateValue: totalLocationPrice,
+                    unitsValue: 1,
                     totalValue: totalLocationPrice,
                     notes: 'Drop-off location charge'
                 });
@@ -2058,8 +2080,8 @@
                     rateTypeId: 6,
                     rateTypeMode: 'one_time',
                     rentalType: values.rentalType,
-                    rateValue: calculateChargeRate(totalLocationPrice, rentalUnits),
-                    unitsValue: rentalUnits,
+                    rateValue: totalLocationPrice,
+                    unitsValue: 1,
                     totalValue: totalLocationPrice,
                     notes: 'Collection location charge'
                 });
