@@ -753,7 +753,7 @@ class BookingController extends BaseApiController
 
         // Charges array (agar dynamic hai)
         $charges = json_decode($request->charges_json, true) ?? [];
-        
+        return $booking->pickup_location_id;
         $payload = [
             "booking" => [
                 "tariffGroupId" => (int) ($request->tariffGroupId ?: $booking->tariff_group_id),
@@ -764,7 +764,7 @@ class BookingController extends BaseApiController
                 "advance" => 0,
                 "locationId" => (int)$request->locationId,
                 "closingLocationId" => (int)$request->locationId,
-                "pickupLocationId" => (int) $booking->pickup_location_id ?? null,
+                "pickupLocationId" =>  $booking->pickup_location_id ?? null,
                 "pickupLocationAddress" => $booking->delivery_custom_address ?? "",
                 "notes" => $request->notes,
 
