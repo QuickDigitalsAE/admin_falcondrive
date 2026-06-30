@@ -764,8 +764,12 @@ class BookingController extends BaseApiController
                 "advance" => 0,
                 "locationId" => (int)$request->locationId,
                 "closingLocationId" => (int)$request->locationId,
-                "pickupLocationId" =>  $booking->pickup_location_id ?? null,
-                "pickupLocationAddress" => $booking->delivery_custom_address ?? "",
+                "pickupLocationId" =>  !empty($booking->pickup_location_id)
+                                            ? $booking->pickup_location_id
+                                            : null,
+                "pickupLocationAddress" => !empty($booking->delivery_custom_address)
+                                            ? $booking->delivery_custom_address
+                                            : null,
                 "notes" => $request->notes,
 
                 "vehicle" => [
