@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.authorization' => \App\Http\Middleware\CheckAuthorization::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'active.user' => \App\Http\Middleware\EnsureUserIsActive::class,
+            'jwt' => \App\Http\Middleware\JwtAuth::class,
         ]);
 
         // Register middleware groups:

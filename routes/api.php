@@ -34,6 +34,32 @@ Route::prefix('speed')->group(function () {
     Route::post('/create-delivery-location', [BookingController::class, 'CreateDeliveryLocation'])->name('create.deliveryLocation');
 });
 
+Route::prefix('customer')->group(function () {
+    Route::post('register', [CustomerController::class, 'register']);
+    Route::post('login', [CustomerController::class, 'login']);  
+    
+    Route::post('forgot-password', [PasswordController::class, 'forgot']);
+    Route::post('verify-otp', [PasswordController::class, 'verifyOtp']);
+    Route::post('reset-password', [PasswordController::class, 'resetPassword']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Protected customer routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('jwt')->group(function () {
+        Route::post('logout', [CustomerController::class, 'logout']);
+
+        Route::get('profile', [ProfileController::class, 'profile']);
+        Route::put('profile/update', [ProfileController::class, 'updateProfile']);
+
+        Route::post('change-password', [
+            PasswordController::class,
+            'changePassword',
+        ]);
+    });
+});
+
 Route::prefix('website')->group(function () {
     // Public APIs
     Route::get('/home', HomeController::class);
