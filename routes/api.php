@@ -20,6 +20,9 @@ use App\Http\Controllers\APIs\LocationController;
 use App\Http\Controllers\APIs\PromotionController;
 use App\Http\Controllers\APIs\SettingController;
 use App\Http\Controllers\APIs\TestimonialController;
+use App\Http\Controllers\APIs\CustomerController;
+use App\Http\Controllers\APIs\ProfileController;
+use App\Http\Controllers\APIs\PasswordController;
 use App\Http\Controllers\Admin\PromoCodeController;
 
 Route::prefix('speed')->group(function () {
