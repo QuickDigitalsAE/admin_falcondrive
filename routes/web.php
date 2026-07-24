@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\DeliveryReturnLocationController;
 use App\Http\Controllers\Admin\PromoCodeController;
+use App\Http\Controllers\Admin\CustomerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -115,6 +116,15 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
         Route::put('/{id}/restore', [UserController::class, 'revokeUser'])->name('users.revoke');
         
         Route::put('/{id}/change-password', [UserController::class, 'changePassword'])->name('users.change-password');
+    });
+
+    Route::prefix('customers')->name('customers')->group(function () {
+        Route::get('/', [CustomerController::class, 'index'])->name('');
+        Route::get('/create', [CustomerController::class, 'create'])->name('.create');
+        Route::post('/store', [CustomerController::class, 'store'])->name('.store');
+        Route::get('/{id}', [CustomerController::class, 'show'])->name('.show');
+        Route::get('/{id}/edit', [CustomerController::class, 'edit'])->name('.edit');
+        Route::put('/{id}/update', [CustomerController::class, 'update'])->name('.update');
     });
 
     Route::prefix('blogs')->name('blogs')->group(function () {

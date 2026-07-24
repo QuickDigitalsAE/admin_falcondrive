@@ -8,6 +8,7 @@ use App\Models\Brand;
 use App\Models\Car;
 use App\Models\CarWithDriver;
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\Faq;
 use App\Models\Highlight;
 use App\Models\Inquiry;
@@ -222,6 +223,24 @@ class AdminGlobalSearch
                 'meta' => fn (User $record) => collect([$record->emp_id ? 'Employee ID: ' . $record->emp_id : null, $record->status ? 'Status: ' . $record->status : null])->filter()->implode(' | '),
                 'query' => fn (Builder $query, ?User $user = null, string $term = '') => SystemVisibility::hideSuperAdminUsers($query),
                 'order_by' => [['name', 'asc']],
+            ],
+            [
+                'key' => 'customers',
+                'label' => 'Customers',
+                'icon' => 'fa-address-card',
+                'model' => Customer::class,
+                'menu_permissions' => ['Customer_Menu'],
+                'view_permissions' => ['Customer_ViewAll', 'Customer_View'],
+                'edit_permissions' => ['Customer_Edit'],
+                'routes' => ['index' => 'admin.customers', 'show' => 'admin.customers.show', 'edit' => 'admin.customers.edit'],
+                'searchable' => ['customer_id', 'username', 'first_name', 'last_name', 'email', 'mobile_no', 'nationality', 'city', 'country'],
+                'title' => fn (Customer $record) => trim(($record->first_name ?? '') . ' ' . ($record->last_name ?? '')) ?: ('Customer #' . $record->id),
+                'subtitle' => fn (Customer $record) => collect([$record->email, $record->mobile_no])->filter()->implode(' | '),
+                'meta' => fn (Customer $record) => collect([
+                    $record->customer_id ? 'Speed ID: ' . $record->customer_id : null,
+                    $record->username ? 'Username: ' . $record->username : null,
+                ])->filter()->implode(' | '),
+                'order_by' => [['created_at', 'desc']],
             ],
             [
                 'key' => 'blogs',

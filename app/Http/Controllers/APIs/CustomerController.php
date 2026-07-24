@@ -530,6 +530,32 @@ class CustomerController extends Controller
         return $this->curlPost($url, $payload);
     }
 
+    private function updateSpeedCustomer(Request $request, $customerId, $code)
+    {
+        $url = "https://speedbookingportalapi.azurewebsites.net/api/UpdateCustomer?code=" . urlencode($code);
+
+        $payload = [
+            "id" => (int) $customerId,
+            "firstName" => $request->input('firstName', $request->input('first_name')),
+            "lastName" => $request->input('lastName', $request->input('last_name')),
+            "email" => $request->input('email'),
+            "mobileNo" => $request->input('mobileNo', $request->input('mobile_no')),
+            "nationality" => $request->input('nationality'),
+            "dateOfBirth" => Carbon::parse($request->input('dateOfBirth', $request->input('date_of_birth')))->format('Y-m-d\TH:i:s'),
+            "gender" => (int) $request->input('gender'),
+            "locationId" => (int) $request->input('locationId', $request->input('location_id')),
+            "address" => [
+                "addressLine1" => $request->input('street', $request->input('addressLine1')),
+                "city" => $request->input('city'),
+                "country" => $request->input('country'),
+                "zipCode" => $request->input('postalCode', $request->input('postal_code')),
+                "state" => $request->input('state')
+            ]
+        ];
+
+        return $this->curlPost($url, $payload);
+    }
+
     private function curlPost($url, $payload)
     {
         $apiKey = env('API_Key');
