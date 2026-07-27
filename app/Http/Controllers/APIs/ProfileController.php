@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\Rule;
 use App\Models\Customer;
 use Carbon\Carbon;
 
@@ -71,11 +72,26 @@ class ProfileController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'username' => 'sometimes|required|string|max:100|unique:users,username,' . $user->id,
+            'username' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('customers', 'username')->ignore($user->id),
+            ],
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'mobile_no' => 'required|string|max:30|unique:users,mobile_no,' . $user->id,
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('customers', 'email')->ignore($user->id),
+            ],
+            'mobile_no' => [
+                'required',
+                'string',
+                'max:30',
+                Rule::unique('customers', 'mobile_no')->ignore($user->id),
+            ],
             'gender' => 'required|integer',
             'nationality' => 'required|string|max:100',
             'date_of_birth' => 'required|date',
