@@ -2825,7 +2825,7 @@
                     country: $('#country').val()
                 },
                 success: function (res) {
-                console.log('Create Customer Response:', res); // Debugging line
+                console.log('Create Customer Response:', res.result); // Debugging line
                     // if (res.success && res.result) {
                     //     formData.set('customerId', res.result);
                     //     proceedBooking(formData, bookingId);
