@@ -2826,7 +2826,26 @@
                 },
                 success: function (res) {
                     if (res.success && res.result) {
-                        formData.set('customerId', res.result);
+                       const customerId =
+                            res.result.id ??
+                            res.result.customerId ??
+                            res.result.customer_id ??
+                            res.result;
+
+                        if (!customerId || typeof customerId === 'object') {
+                            console.error('Customer ID not found:', res.result);
+                            showToast('Customer ID not found in response', 'error');
+                            resetSubmitButton();
+                            return;
+                        }
+
+                        formData.set('customerId', String(customerId));
+
+                        console.log(
+                            'customerId added to FormData:',
+                            formData.get('customerId')
+                        );
+                        
                         proceedBooking(formData, bookingId);
                         return;
                     }
