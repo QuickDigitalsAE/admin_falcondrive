@@ -2758,8 +2758,7 @@
                 contentType: false,
                 success: function (res) {
                     resetSubmitButton();
-                    console.log('Booking response:', res);
-                    return;
+
                     if (!res.success) {
                         showToast(res.error || 'Booking failed', 'error');
                         return;
