@@ -2758,7 +2758,8 @@
                 contentType: false,
                 success: function (res) {
                     resetSubmitButton();
-
+                    console.log('Booking response:', res);
+                    return;
                     if (!res.success) {
                         showToast(res.error || 'Booking failed', 'error');
                         return;
@@ -2825,12 +2826,11 @@
                     country: $('#country').val()
                 },
                 success: function (res) {
-                console.log('Create Customer Response:', res.result); // Debugging line
-                    // if (res.success && res.result) {
-                    //     formData.set('customerId', res.result);
-                    //     proceedBooking(formData, bookingId);
-                    //     return;
-                    // }
+                    if (res.success && res.result) {
+                        formData.set('customerId', res.result);
+                        proceedBooking(formData, bookingId);
+                        return;
+                    }
 
                     showToast(res.error || 'Customer create failed', 'error');
                     resetSubmitButton();
