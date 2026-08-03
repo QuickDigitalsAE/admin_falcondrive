@@ -747,11 +747,7 @@ class BookingController extends BaseApiController
                 'error' => 'booking not found'
             ]);
         }
-dd($request->all());
-return response()->json([
-            'success' => false,
-            'error' => 'Debugging: Booking creation logic not executed'
-        ]);
+
         $startDate = Carbon::parse($booking->start_date)->toISOString();
         $endDate = Carbon::parse($booking->end_date)->toISOString();
 
