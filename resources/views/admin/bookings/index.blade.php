@@ -2825,11 +2825,12 @@
                     country: $('#country').val()
                 },
                 success: function (res) {
-                    if (res.success && res.result) {
-                        formData.set('customerId', res.result);
-                        proceedBooking(formData, bookingId);
-                        return;
-                    }
+                console.log('Create Customer Response:', res); // Debugging line
+                    // if (res.success && res.result) {
+                    //     formData.set('customerId', res.result);
+                    //     proceedBooking(formData, bookingId);
+                    //     return;
+                    // }
 
                     showToast(res.error || 'Customer create failed', 'error');
                     resetSubmitButton();
