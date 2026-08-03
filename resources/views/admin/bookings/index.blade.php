@@ -2844,11 +2844,6 @@
 
                         // Existing FormData mein bhi set
                         formData.set('customerId', String(customerId));
-
-                        console.log(
-                            'customerId added to FormData:',
-                            formData.get('customerId')
-                        );
                         
                         proceedBooking(formData, bookingId);
                         return;
