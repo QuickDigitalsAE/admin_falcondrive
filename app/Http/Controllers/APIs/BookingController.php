@@ -804,24 +804,6 @@ class BookingController extends BaseApiController
                 "bookingType" => (int)$request->bookingType,
                 "customerId" => (int)$request->customerId,
 
-                "customer" => [
-                    "firstName" => $request->firstName,
-                    "lastName" => $request->lastName,
-                    "email" => $request->customerEmail,
-                    "mobileNo" => $request->mobileNo,
-                    "nationality" => $request->nationality,
-                    "dateOfBirth" => \Carbon\Carbon::parse($request->dateOfBirth)->format('Y-m-d\TH:i:s'),
-                    "gender" => (int) $request->gender,
-                    "locationId" => 1,
-                    "address" => [
-                        "addressLine1" => $request->street,
-                        "city" => $request->city,
-                        "state" => $request->state,
-                        "zipCode" => $request->postalCode,
-                        "country" => $request->country
-                    ]
-                ],
-
                 "BillingDetailId" => 1,
                 "BillingDetail" => [
                     "Notes" => $request->billingNotes,
