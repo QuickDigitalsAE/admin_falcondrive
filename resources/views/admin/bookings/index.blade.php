@@ -1456,6 +1456,7 @@
         let chargesSettings = [];
         let currentBookingSelection = null;
         let bookingModalDataPromise = null;
+        let customerDetailsLocked = false;
         window.latestPayload = window.latestPayload || {};
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -1499,13 +1500,10 @@
                 formData.set('cardLastFourDigits', $('#cardLastFourDigits').val());
                 submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
 
-                if (customerId) {
-                    formData.set('customerId', customerId);
-                    updateCustomerAndProceed(formData, bookingId);
+                if (!customerId) {
+                    createCustomerAndProceed(formData, bookingId);
                     return;
                 }
-
-                createCustomerAndProceed(formData, bookingId);
             });
 
             const speedViewModal = document.getElementById('speedViewModal');
@@ -2419,6 +2417,7 @@
             $('#customerId, #vehicleId, #tariffGroupId, #plateNo, #vehicleTitle').val('');
             $('#customerFields').addClass('hidden');
             currentBookingSelection = null;
+            customerDetailsLocked = false;
             resetDefaultSelects();
             addChargeRow();
             resetSubmitButton();
@@ -2473,13 +2472,68 @@
             }
         }
 
+        function getCustomerDetailFields() {
+            return {
+                inputs: [
+                    document.getElementById('customerEmail'),
+                    document.getElementById('firstName'),
+                    document.getElementById('lastName'),
+                    document.getElementById('mobileNo'),
+                    document.getElementById('dateOfBirth'),
+                    document.getElementById('city'),
+                    document.getElementById('street'),
+                    document.getElementById('state'),
+                    document.getElementById('postalCode')
+                ].filter(Boolean),
+                selects: [
+                    document.getElementById('nationality'),
+                    document.getElementById('gender'),
+                    document.getElementById('country')
+                ].filter(Boolean)
+            };
+        }
+
+        function setCustomerDetailFieldState(locked) {
+            const fields = getCustomerDetailFields();
+            const lockedClasses = ['bg-gray-100', 'cursor-not-allowed'];
+
+            fields.inputs.forEach((field) => {
+                field.readOnly = locked;
+                field.classList.toggle('bg-gray-100', locked);
+                field.classList.toggle('cursor-not-allowed', locked);
+                field.setAttribute('aria-readonly', locked ? 'true' : 'false');
+            });
+
+            fields.selects.forEach((field) => {
+                field.disabled = locked;
+                field.classList.toggle('bg-gray-100', locked);
+                field.classList.toggle('cursor-not-allowed', locked);
+            });
+
+            if (!locked) {
+                fields.inputs.forEach((field) => {
+                    field.classList.remove(...lockedClasses);
+                    field.removeAttribute('aria-readonly');
+                });
+                fields.selects.forEach((field) => {
+                    field.classList.remove(...lockedClasses);
+                });
+            }
+        }
+
         function searchCustomer(value, callback) {
             clearTimeout(debounceTimer);
 
             const customerFieldsEl = document.getElementById('customerFields');
 
             if (!value || value.length < 3) {
-                customerFieldsEl.classList.add('hidden');
+                customerFieldsEl.classList.remove('hidden');
+                document.getElementById('customerId').value = '';
+                if (customerDetailsLocked) {
+                    clearCustomerDetailValues();
+                }
+                customerDetailsLocked = false;
+                setCustomerDetailFieldState(false);
                 if (callback) callback();
                 return;
             }
@@ -2515,6 +2569,8 @@
                             document.getElementById('state').value = pickCustomerValue(address, ['state', 'State']);
                             document.getElementById('postalCode').value = pickCustomerValue(address, ['zipCode', 'ZipCode', 'postalCode', 'PostalCode']);
 
+                            customerFieldsEl.classList.remove('hidden');
+                            customerDetailsLocked = true;
                             showCustomerFieldsReadonly();
                         } else {
                             makeCustomerFieldsEditable();
@@ -2523,7 +2579,9 @@
                         if (callback) callback();
                     })
                     .catch(() => {
-                        customerFieldsEl.classList.add('hidden');
+                        customerFieldsEl.classList.remove('hidden');
+                        customerDetailsLocked = false;
+                        setCustomerDetailFieldState(false);
                         if (callback) callback();
                     });
             }, 500);
@@ -2536,36 +2594,35 @@
         }
 
         function showCustomerFieldsReadonly() {
-            const fields = document.querySelectorAll('#customerFields input');
             document.getElementById('customerFields').classList.remove('hidden');
+            setCustomerDetailFieldState(true);
+        }
 
-            fields.forEach(el => {
-                el.removeAttribute('readonly');
-                el.classList.remove('bg-gray-100');
+        function clearCustomerDetailValues() {
+            const fields = getCustomerDetailFields();
+
+            document.getElementById('customerId').value = '';
+
+            fields.inputs.forEach((field) => {
+                if (field.id !== 'customerEmail') {
+                    field.value = '';
+                }
             });
 
-            const nationalityField = document.getElementById('nationality');
-            const countryField = document.getElementById('country');
-            nationalityField.classList.remove('bg-gray-100');
-            countryField.classList.remove('bg-gray-100');
+            fields.selects.forEach((field) => {
+                $(field).val('').trigger('change');
+            });
         }
 
         function makeCustomerFieldsEditable() {
-            const fields = document.querySelectorAll('#customerFields input');
             document.getElementById('customerFields').classList.remove('hidden');
-            document.getElementById('customerId').value = '';
-            fields.forEach(el => {
-                el.removeAttribute('readonly');
-                el.classList.remove('bg-gray-100');
-                if (el.id !== 'customerEmail') {
-                    el.value = '';
-                }
-            });
-            $('#gender').val('').trigger('change');
-            $('#nationality').val('').trigger('change');
-            $('#country').val('').trigger('change');
-            document.getElementById('nationality').classList.remove('bg-gray-100');
-            document.getElementById('country').classList.remove('bg-gray-100');
+            if (customerDetailsLocked) {
+                clearCustomerDetailValues();
+            } else {
+                document.getElementById('customerId').value = '';
+            }
+            customerDetailsLocked = false;
+            setCustomerDetailFieldState(false);
         }
 
         function showToast(message, type = 'success') {
