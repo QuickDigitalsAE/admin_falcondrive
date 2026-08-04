@@ -2670,18 +2670,23 @@
                 { id: 'firstName', label: 'First Name' },
                 { id: 'lastName', label: 'Last Name' },
                 { id: 'mobileNo', label: 'Mobile No' },
-                { id: 'nationality', label: 'Nationality' },
-                { id: 'gender', label: 'Gender' },
-                { id: 'dateOfBirth', label: 'Date of Birth' },
                 { id: 'city', label: 'City' },
                 { id: 'country', label: 'Country' },
                 { id: 'street', label: 'Street' },
-                { id: 'state', label: 'State' },
                 { id: 'vehicleSelect', label: 'Vehicle' },                
                 { id: 'bookingStatus', label: 'Booking Status', invalidValues: ['0'] },
                 { id: 'bookingType', label: 'Booking Type', invalidValues: ['0'] },
                 { id: 'locationSelect', label: 'Location' }
             ];
+
+            if (!customerDetailsLocked) {
+                requiredFields.splice(3, 0,
+                    { id: 'nationality', label: 'Nationality' },
+                    { id: 'gender', label: 'Gender' },
+                    { id: 'dateOfBirth', label: 'Date of Birth' },
+                    { id: 'state', label: 'State' }
+                );
+            }
 
             const missing = [];
 
