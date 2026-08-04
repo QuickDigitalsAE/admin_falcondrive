@@ -1504,6 +1504,9 @@
                     createCustomerAndProceed(formData, bookingId);
                     return;
                 }
+
+                proceedBooking(formData, bookingId);
+                return;
             });
 
             const speedViewModal = document.getElementById('speedViewModal');
