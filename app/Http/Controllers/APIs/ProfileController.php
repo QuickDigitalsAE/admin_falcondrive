@@ -1,37 +1,48 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\APIs;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\User;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\Rule;
+use App\Models\Customer;
 use Carbon\Carbon;
 
 class ProfileController extends Controller
 {
+    
     /**
      * Get authenticated user profile.
      */
     public function profile(Request $request)
     {
-        $userId = $request->auth_user_id;
+        try {
+            $userId = $request->auth_user_id;
 
-        $user = User::find($userId);
+            $user = Customer::find($userId);
 
-        if (!$user) {
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                    'data' => []
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Profile fetched successfully',
+                'data' => $this->profileResponse($user)
+            ], 200);
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'User not found',
+                'message' => $e->getMessage(),
                 'data' => []
-            ], 404);
+            ], 500);
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Profile fetched successfully',
-            'data' => $this->profileResponse($user)
-        ], 200);
     }
 
     /**
@@ -42,7 +53,7 @@ class ProfileController extends Controller
     {
         $userId = $request->auth_user_id;
 
-        $user = User::find($userId);
+        $user = Customer::find($userId);
 
         if (!$user) {
             return response()->json([
@@ -61,11 +72,26 @@ class ProfileController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'username' => 'sometimes|required|string|max:100|unique:users,username,' . $user->id,
+            'username' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('customers', 'username')->ignore($user->id),
+            ],
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'mobile_no' => 'required|string|max:30|unique:users,mobile_no,' . $user->id,
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('customers', 'email')->ignore($user->id),
+            ],
+            'mobile_no' => [
+                'required',
+                'string',
+                'max:30',
+                Rule::unique('customers', 'mobile_no')->ignore($user->id),
+            ],
             'gender' => 'required|integer',
             'nationality' => 'required|string|max:100',
             'date_of_birth' => 'required|date',
@@ -105,7 +131,7 @@ class ProfileController extends Controller
             ) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Customer data could not be fetched',
+                    'message' => 'Customer was updated in Speed, but updated customer data could not be fetched',
                     'data' => $customerDataResponse
                 ], 400);
             }
@@ -258,46 +284,37 @@ class ProfileController extends Controller
     {
         $apiKey = env('API_Key');
 
-        $ch = curl_init($url);
-
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_HTTPHEADER => [
-                'Accept: application/json',
-                'Content-Type: application/json',
-                "ApiKey: {$apiKey}"
-            ],
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_CONNECTTIMEOUT => 20,
-            CURLOPT_TIMEOUT => 60
-        ]);
-
-        $response = curl_exec($ch);
-        $error = curl_error($ch);
-        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        curl_close($ch);
-
-        if ($error) {
+        try {
+            $response = Http::withoutVerifying()
+                ->acceptJson()
+                ->asJson()
+                ->withHeaders([
+                    'ApiKey' => $apiKey,
+                ])
+                ->timeout(60)
+                ->connectTimeout(20)
+                ->post($url, $payload);
+        } catch (\Throwable $e) {
             return [
                 'success' => false,
-                'error' => $error,
+                'error' => $e->getMessage(),
                 'result' => null
             ];
         }
 
-        $decodedResponse = json_decode($response, true);
+        $decodedResponse = $response->json();
 
-        if ($statusCode < 200 || $statusCode >= 300) {
+        if ($response->failed()) {
             return [
                 'success' => false,
-                'error' => $decodedResponse['error']
-                    ?? $decodedResponse['message']
-                    ?? 'Speed API request failed',
-                'result' => $decodedResponse ?? $response
+                'error' => is_array($decodedResponse)
+                    ? (
+                        $decodedResponse['error']
+                        ?? $decodedResponse['message']
+                        ?? 'Speed API request failed'
+                    )
+                    : 'Speed API request failed',
+                'result' => $decodedResponse ?? $response->body()
             ];
         }
 
@@ -305,7 +322,7 @@ class ProfileController extends Controller
             return [
                 'success' => false,
                 'error' => 'Invalid JSON response received from Speed system',
-                'result' => $response
+                'result' => $response->body()
             ];
         }
 
@@ -315,7 +332,7 @@ class ProfileController extends Controller
     /**
      * Common profile response.
      */
-    private function profileResponse(User $user)
+    private function profileResponse(Customer $user)
     {
         return [
             'user_id' => $user->id,
