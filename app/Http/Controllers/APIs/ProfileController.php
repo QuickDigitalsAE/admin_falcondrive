@@ -1,48 +1,37 @@
 <?php
 
-namespace App\Http\Controllers\APIs;
+namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\Rule;
-use App\Models\Customer;
+use App\Models\User;
 use Carbon\Carbon;
 
 class ProfileController extends Controller
 {
-    
     /**
      * Get authenticated user profile.
      */
     public function profile(Request $request)
     {
-        try {
-            $userId = $request->auth_user_id;
+        $userId = $request->auth_user_id;
 
-            $user = Customer::find($userId);
+        $user = User::find($userId);
 
-            if (!$user) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User not found',
-                    'data' => []
-                ], 404);
-            }
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Profile fetched successfully',
-                'data' => $this->profileResponse($user)
-            ], 200);
-        } catch (\Throwable $e) {
+        if (!$user) {
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage(),
+                'message' => 'User not found',
                 'data' => []
-            ], 500);
+            ], 404);
         }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Profile fetched successfully',
+            'data' => $this->profileResponse($user)
+        ], 200);
     }
 
     /**
@@ -53,7 +42,7 @@ class ProfileController extends Controller
     {
         $userId = $request->auth_user_id;
 
-        $user = Customer::find($userId);
+        $user = User::find($userId);
 
         if (!$user) {
             return response()->json([
@@ -72,26 +61,11 @@ class ProfileController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'username' => [
-                'sometimes',
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('customers', 'username')->ignore($user->id),
-            ],
+            'username' => 'sometimes|required|string|max:100|unique:users,username,' . $user->id,
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
-            'email' => [
-                'required',
-                'email',
-                Rule::unique('customers', 'email')->ignore($user->id),
-            ],
-            'mobile_no' => [
-                'required',
-                'string',
-                'max:30',
-                Rule::unique('customers', 'mobile_no')->ignore($user->id),
-            ],
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'mobile_no' => 'required|string|max:30|unique:users,mobile_no,' . $user->id,
             'gender' => 'required|integer',
             'nationality' => 'required|string|max:100',
             'date_of_birth' => 'required|date',
@@ -117,29 +91,6 @@ class ProfileController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | STEP 1: Update customer in Speed
-            |--------------------------------------------------------------------------
-            */
-            $updateCustomerResponse = $this->updateSpeedCustomer(
-                $request,
-                $user->customer_id,
-                $code
-            );
-
-            if (
-                empty($updateCustomerResponse['success']) ||
-                !array_key_exists('result', $updateCustomerResponse)
-            ) {
-                return response()->json([
-                    'status' => false,
-                    'message' => $updateCustomerResponse['error']
-                        ?? 'Failed to update customer in Speed system',
-                    'data' => $updateCustomerResponse
-                ], 400);
-            }
-
-            /*
-            |--------------------------------------------------------------------------
             | STEP 2: Fetch latest customer data from Speed
             |--------------------------------------------------------------------------
             */
@@ -154,7 +105,7 @@ class ProfileController extends Controller
             ) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Customer was updated in Speed, but updated customer data could not be fetched',
+                    'message' => 'Customer data could not be fetched',
                     'data' => $customerDataResponse
                 ], 400);
             }
@@ -307,37 +258,46 @@ class ProfileController extends Controller
     {
         $apiKey = env('API_Key');
 
-        try {
-            $response = Http::withoutVerifying()
-                ->acceptJson()
-                ->asJson()
-                ->withHeaders([
-                    'ApiKey' => $apiKey,
-                ])
-                ->timeout(60)
-                ->connectTimeout(20)
-                ->post($url, $payload);
-        } catch (\Throwable $e) {
+        $ch = curl_init($url);
+
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
+                'Accept: application/json',
+                'Content-Type: application/json',
+                "ApiKey: {$apiKey}"
+            ],
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_CONNECTTIMEOUT => 20,
+            CURLOPT_TIMEOUT => 60
+        ]);
+
+        $response = curl_exec($ch);
+        $error = curl_error($ch);
+        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        if ($error) {
             return [
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $error,
                 'result' => null
             ];
         }
 
-        $decodedResponse = $response->json();
+        $decodedResponse = json_decode($response, true);
 
-        if ($response->failed()) {
+        if ($statusCode < 200 || $statusCode >= 300) {
             return [
                 'success' => false,
-                'error' => is_array($decodedResponse)
-                    ? (
-                        $decodedResponse['error']
-                        ?? $decodedResponse['message']
-                        ?? 'Speed API request failed'
-                    )
-                    : 'Speed API request failed',
-                'result' => $decodedResponse ?? $response->body()
+                'error' => $decodedResponse['error']
+                    ?? $decodedResponse['message']
+                    ?? 'Speed API request failed',
+                'result' => $decodedResponse ?? $response
             ];
         }
 
@@ -345,7 +305,7 @@ class ProfileController extends Controller
             return [
                 'success' => false,
                 'error' => 'Invalid JSON response received from Speed system',
-                'result' => $response->body()
+                'result' => $response
             ];
         }
 
@@ -355,7 +315,7 @@ class ProfileController extends Controller
     /**
      * Common profile response.
      */
-    private function profileResponse(Customer $user)
+    private function profileResponse(User $user)
     {
         return [
             'user_id' => $user->id,
