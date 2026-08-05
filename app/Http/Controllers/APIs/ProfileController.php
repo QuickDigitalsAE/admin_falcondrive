@@ -131,7 +131,7 @@ class ProfileController extends Controller
             ) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Customer was updated in Speed, but updated customer data could not be fetched',
+                    'message' => 'Customer data could not be fetched',
                     'data' => $customerDataResponse
                 ], 400);
             }
