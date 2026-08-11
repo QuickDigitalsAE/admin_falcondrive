@@ -40,6 +40,8 @@ Route::prefix('speed')->group(function () {
 Route::prefix('customer')->group(function () {
     Route::post('register', [CustomerController::class, 'register']);
     Route::post('login', [CustomerController::class, 'login']);  
+    Route::post('verify-email-otp', [CustomerController::class, 'verifyEmailOtp']);
+    Route::post('resend-email-otp', [CustomerController::class, 'resendEmailOtp']);
     
     Route::post('forgot-password', [PasswordController::class, 'forgot']);
     Route::post('verify-otp', [PasswordController::class, 'verifyOtp']);

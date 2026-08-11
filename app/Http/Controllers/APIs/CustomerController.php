@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\BlacklistedToken;
 use App\Helpers\JwtHelper;
+use App\Notifications\SendOtpNotification;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -33,23 +35,13 @@ class CustomerController extends Controller
         try {
             $login = trim($request->login);
 
-            /*
-            |--------------------------------------------------------------------------
-            | STEP 1: Check customer in local customers table
-            |--------------------------------------------------------------------------
-            */
             $customerRecord = Customer::where('email', $login)
                 ->orWhere('username', $login)
                 ->orWhere('mobile_no', $login)
                 ->first();
 
-            /*
-            |--------------------------------------------------------------------------
-            | STEP 2: Local customers found - verify bcrypt password
-            |--------------------------------------------------------------------------
-            */
             if ($customerRecord) {
-                if (!password_verify($request->password, $customerRecord->password)) {
+                if (!Hash::check($request->password, $customerRecord->password)) {
                     return response()->json([
                         'status' => false,
                         'message' => 'Password does not match. Please reset your password through Forgot Password.',
@@ -59,42 +51,25 @@ class CustomerController extends Controller
                     ], 401);
                 }
 
+                if (empty($customerRecord->email_verified_at)) {
+                    $this->sendCustomerOtp($customerRecord);
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'OTP sent to your email. Please verify your email to continue.',
+                        'data' => $this->customerResponse($customerRecord, null)
+                    ], 200);
+                }
+
                 $token = JwtHelper::generateToken($customerRecord->id);
 
                 return response()->json([
                     'status' => true,
                     'message' => 'Login successful',
-                    'data' => [
-                        'id' => $customerRecord->id,
-                        'customer_id' => $customerRecord->customer_id,
-                        'username' => $customerRecord->username,
-                        'first_name' => $customerRecord->first_name,
-                        'last_name' => $customerRecord->last_name,
-                        'gender' => $customerRecord->gender,
-                        'nationality' => $customerRecord->nationality,
-                        'date_of_birth' => $customerRecord->date_of_birth,
-                        'location_id' => $customerRecord->location_id,
-                        'street' => $customerRecord->street,
-                        'city' => $customerRecord->city,
-                        'state' => $customerRecord->state,
-                        'country' => $customerRecord->country,
-                        'postal_code' => $customerRecord->postal_code,
-                        'mobile_no' => $customerRecord->mobile_no,
-                        'email' => $customerRecord->email,
-                        'permissions' => !empty($customerRecord->permissions)
-                            ? explode(',', $customerRecord->permissions)
-                            : [],
-                        'token' => $token
-                    ]
+                    'data' => $this->customerResponse($customerRecord, $token)
                 ], 200);
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | STEP 3: customers not found locally
-            | Speed system only supports email or mobile lookup
-            |--------------------------------------------------------------------------
-            */
             $email = null;
             $mobileNo = null;
 
@@ -106,11 +81,7 @@ class CustomerController extends Controller
 
             $code = env('APP_CODE');
 
-            $customerIdResponse = $this->getCustomerId(
-                $email,
-                $mobileNo,
-                $code
-            );
+            $customerIdResponse = $this->getCustomerId($email, $mobileNo, $code);
 
             if (
                 empty($customerIdResponse['success']) ||
@@ -123,11 +94,6 @@ class CustomerController extends Controller
                 ], 404);
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | STEP 4: Get customer ID from Speed response
-            |--------------------------------------------------------------------------
-            */
             $customerResult = $customerIdResponse['result'];
 
             if (is_array($customerResult)) {
@@ -147,36 +113,7 @@ class CustomerController extends Controller
                 ], 400);
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | STEP 5: Check again by customer ID
-            |--------------------------------------------------------------------------
-            */
-            // $customer = Customer::where('customer_id', $customerId)->first();
-
-            // if ($customer) {
-            //     return response()->json([
-            //         'status' => false,
-            //         'message' => 'Password does not match. Please reset your password through Forgot Password.',
-            //         'data' => [
-            //             'id' => $customer->id,
-            //             'customer_id' => $customer->customer_id,
-            //             'email' => $customer->email,
-            //             'mobile_no' => $customer->mobile_no,
-            //             'forgot_password_required' => true
-            //         ]
-            //     ], 401);
-            // }
-
-            /*
-            |--------------------------------------------------------------------------
-            | STEP 6: Fetch full customer data from Speed
-            |--------------------------------------------------------------------------
-            */
-            $customerDataResponse = $this->getCustomerById(
-                $customerId,
-                $code
-            );
+            $customerDataResponse = $this->getCustomerById($customerId, $code);
 
             if (
                 empty($customerDataResponse['success']) ||
@@ -190,12 +127,6 @@ class CustomerController extends Controller
             }
 
             $customer = $customerDataResponse['result'];
-
-            /*
-            |--------------------------------------------------------------------------
-            | STEP 7: Check duplicate email/mobile before local insertion
-            |--------------------------------------------------------------------------
-            */
             $customerEmail = $customer['email'] ?? $email;
             $customerMobile = $customer['mobileNo'] ?? $mobileNo;
 
@@ -216,30 +147,43 @@ class CustomerController extends Controller
             })->first();
 
             if ($duplicateUser) {
+                if (!Hash::check($request->password, $duplicateUser->password)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Password does not match. Please reset your password through Forgot Password.',
+                        'data' => [
+                            'forgot_password_required' => true,
+                            'id' => $duplicateUser->id,
+                            'customer_id' => $duplicateUser->customer_id,
+                            'email' => $duplicateUser->email,
+                            'mobile_no' => $duplicateUser->mobile_no
+                        ]
+                    ], 401);
+                }
+
+                if (empty($duplicateUser->email_verified_at)) {
+                    $this->sendCustomerOtp($duplicateUser);
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'OTP sent to your email. Please verify your email to continue.',
+                        'data' => $this->customerResponse($duplicateUser, null)
+                    ], 200);
+                }
+
+                $token = JwtHelper::generateToken($duplicateUser->id);
+
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Password does not match. Please reset your password through Forgot Password.',
-                    'data' => [
-                        'id' => $duplicateUser->id,
-                        'customer_id' => $duplicateUser->customer_id,
-                        'email' => $duplicateUser->email,
-                        'mobile_no' => $duplicateUser->mobile_no
-                    ]
-                ], 401);
+                    'status' => true,
+                    'message' => 'Login successful',
+                    'data' => $this->customerResponse($duplicateUser, $token)
+                ], 200);
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | STEP 8: Generate unique username
-            |--------------------------------------------------------------------------
-            */
             $baseUsername = null;
 
             if (!empty($customerEmail)) {
-                $baseUsername = Str::slug(
-                    Str::before($customerEmail, '@'),
-                    '_'
-                );
+                $baseUsername = Str::slug(Str::before($customerEmail, '@'), '_');
             }
 
             if (empty($baseUsername)) {
@@ -264,14 +208,6 @@ class CustomerController extends Controller
                 $counter++;
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | STEP 9: Create local customer
-            |--------------------------------------------------------------------------
-            | Speed system password is not available.
-            | Random password is saved using bcrypt().
-            |--------------------------------------------------------------------------
-            */
             $permissions = [
                 'All customers',
                 'Documents',
@@ -284,66 +220,36 @@ class CustomerController extends Controller
                 'Settings',
             ];
 
-            $customerPassword = $request->password ?? null;
-            
             $customerPayload = Customer::create([
                 'customer_id' => $customer['id'] ?? $customerId,
                 'first_name' => $customer['firstName'] ?? null,
                 'last_name' => $customer['lastName'] ?? null,
                 'gender' => $customer['gender'] ?? null,
                 'nationality' => $customer['nationality'] ?? null,
-
                 'date_of_birth' => !empty($customer['dateOfBirth'])
                     ? Carbon::parse($customer['dateOfBirth'])->format('Y-m-d')
                     : null,
-
                 'location_id' => $customer['locationId'] ?? null,
-
                 'street' => data_get($customer, 'address.addressLine1'),
                 'city' => data_get($customer, 'address.city'),
                 'state' => data_get($customer, 'address.state'),
                 'country' => data_get($customer, 'address.country'),
                 'postal_code' => data_get($customer, 'address.zipCode'),
-
                 'username' => $generatedUsername,
                 'email' => $customerEmail,
                 'mobile_no' => $customerMobile,
-
-                // Password saved through bcrypt()
-                'password' => bcrypt($customerPassword),
-
-                'permissions' => implode(',', $permissions)
+                'password' => Hash::make($request->password),
+                'permissions' => implode(',', $permissions),
+                'email_verified_at' => null,
             ]);
 
-            $token = JwtHelper::generateToken($customerPayload->id);
-            
-            return response()->json([
-                    'status' => true,
-                    'message' => 'Login successful',
-                    'data' => [
-                        'id' => $customerPayload->id,
-                        'customer_id' => $customerPayload->customer_id,
-                        'username' => $customerPayload->username,
-                        'first_name' => $customerPayload->first_name,
-                        'last_name' => $customerPayload->last_name,
-                        'gender' => $customerPayload->gender,
-                        'nationality' => $customerPayload->nationality,
-                        'date_of_birth' => $customerPayload->date_of_birth,
-                        'location_id' => $customerPayload->location_id,
-                        'street' => $customerPayload->street,
-                        'city' => $customerPayload->city,
-                        'state' => $customerPayload->state,
-                        'country' => $customerPayload->country,
-                        'postal_code' => $customerPayload->postal_code,
-                        'mobile_no' => $customerPayload->mobile_no,
-                        'email' => $customerPayload->email,
-                        'permissions' => !empty($customerPayload->permissions)
-                            ? explode(',', $customerPayload->permissions)
-                            : [],
-                        'token' => $token
-                    ]
-                ], 200);
+            $this->sendCustomerOtp($customerPayload);
 
+            return response()->json([
+                'status' => true,
+                'message' => 'Customer found in Speed. OTP sent to your email for verification.',
+                'data' => $this->customerResponse($customerPayload, null)
+            ], 201);
         } catch (\Throwable $e) {
             return response()->json([
                 'status' => false,
@@ -372,110 +278,223 @@ class CustomerController extends Controller
             ], 422);
         }
 
-        $code = env('APP_CODE');
-        $email = $request->email;
-        $mobileNo = $request->mobile_no;
+        try {
+            $code = env('APP_CODE');
+            $email = $request->email;
+            $mobileNo = $request->mobile_no;
 
-        // STEP 1: Get customer id from Speed
-        $customerIdResponse = $this->getCustomerId($email, $mobileNo, $code);
+            $existingCustomer = Customer::where('email', $email)
+                ->orWhere('mobile_no', $mobileNo)
+                ->orWhere('username', $request->username)
+                ->first();
 
-        $customerId = null;
+            if ($existingCustomer) {
+                if (!empty($existingCustomer->email_verified_at)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'A customer with this email address or mobile number is already registered. Please log in.',
+                        'data' => []
+                    ], 409);
+                }
 
-        if (!empty($customerIdResponse['success']) && !empty($customerIdResponse['result'])) {
-            $customerId = $customerIdResponse['result'];
-        }
+                $this->sendCustomerOtp($existingCustomer);
 
-        // STEP 2: If customer not found, create customer in Speed
-        if (empty($customerId)) {
-            $createCustomerResponse = $this->createSpeedCustomer($request, $code);
-
-            if (empty($createCustomerResponse['success']) || empty($createCustomerResponse['result'])) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Failed to create customer in Speed system',
-                    'data' => $createCustomerResponse
-                ], 400);
+                    'status' => true,
+                    'message' => 'Customer already exists but email is not verified. OTP resent to your email.',
+                    'data' => $this->customerResponse($existingCustomer, null)
+                ], 200);
             }
 
-            $createdCustomer = $createCustomerResponse['result'];
+            $customerIdResponse = $this->getCustomerId($email, $mobileNo, $code);
 
-            $customerId = $createdCustomer['id']
-                ?? $createdCustomer['customerId']
-                ?? $createdCustomer;
+            $customerId = null;
+
+            if (!empty($customerIdResponse['success']) && !empty($customerIdResponse['result'])) {
+                $customerId = $customerIdResponse['result'];
+            }
 
             if (empty($customerId)) {
+                $createCustomerResponse = $this->createSpeedCustomer($request, $code);
+
+                if (empty($createCustomerResponse['success']) || empty($createCustomerResponse['result'])) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Failed to create customer in Speed system',
+                        'data' => $createCustomerResponse
+                    ], 400);
+                }
+
+                $createdCustomer = $createCustomerResponse['result'];
+
+                $customerId = $createdCustomer['id']
+                    ?? $createdCustomer['customerId']
+                    ?? $createdCustomer;
+
+                if (empty($customerId)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Customer created but customer id not found from Speed response',
+                        'data' => $createCustomerResponse
+                    ], 400);
+                }
+            }
+
+            $customerDataResponse = $this->getCustomerById($customerId, $code);
+
+            if (empty($customerDataResponse['success']) || empty($customerDataResponse['result'])) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Customer created but customer id not found from Speed response',
-                    'data' => $createCustomerResponse
+                    'message' => 'Failed to fetch customer data',
+                    'data' => $customerDataResponse
                 ], 400);
             }
+
+            $speedCustomer = $customerDataResponse['result'];
+            $permissions = !empty($request->permissions)
+                ? implode(',', $request->permissions)
+                : null;
+
+            $customer = Customer::create([
+                'customer_id' => $speedCustomer['id'] ?? $customerId,
+                'first_name' => $speedCustomer['firstName'] ?? null,
+                'last_name' => $speedCustomer['lastName'] ?? null,
+                'gender' => $speedCustomer['gender'] ?? null,
+                'nationality' => $speedCustomer['nationality'] ?? null,
+                'date_of_birth' => !empty($speedCustomer['dateOfBirth'])
+                    ? Carbon::parse($speedCustomer['dateOfBirth'])->format('Y-m-d')
+                    : null,
+                'location_id' => $speedCustomer['locationId'] ?? null,
+                'street' => data_get($speedCustomer, 'address.addressLine1'),
+                'city' => data_get($speedCustomer, 'address.city'),
+                'state' => data_get($speedCustomer, 'address.state'),
+                'country' => data_get($speedCustomer, 'address.country'),
+                'postal_code' => data_get($speedCustomer, 'address.zipCode'),
+                'username' => $request->username,
+                'email' => $speedCustomer['email'] ?? $request->email,
+                'mobile_no' => $speedCustomer['mobileNo'] ?? $request->mobile_no,
+                'password' => Hash::make($request->password),
+                'permissions' => $permissions,
+                'email_verified_at' => null,
+            ]);
+
+            $this->sendCustomerOtp($customer);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Customer registered successfully. OTP sent to your email for verification.',
+                'data' => $this->customerResponse($customer, null)
+            ], 201);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
+    public function verifyEmailOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'otp' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        // STEP 3: Check local customer already exists
-        $existingCustomer = Customer::where('customer_id', $customerId)
-            ->orWhere('email', $email)
-            ->orWhere('mobile_no', $mobileNo)
+        $customer = Customer::where('email', $request->email)
+            ->where('otp', $request->otp)
             ->first();
 
-        if ($existingCustomer) {
+        if (!$customer) {
             return response()->json([
                 'status' => false,
-                'message' => 'A customer with this email address or mobile number is already registered. Please log in.',
+                'message' => 'Invalid OTP.',
                 'data' => []
-            ], 409);
+            ], 422);
         }
 
-        // STEP 4: Fetch full customer data from Speed
-        $customerDataResponse = $this->getCustomerById($customerId, $code);
-
-        if (empty($customerDataResponse['success']) || empty($customerDataResponse['result'])) {
+        if (empty($customer->otp_expires_at) || Carbon::now()->greaterThan($customer->otp_expires_at)) {
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to fetch customer data',
-                'data' => $customerDataResponse
-            ], 400);
+                'message' => 'OTP expired.',
+                'data' => []
+            ], 422);
         }
 
-        $customer = $customerDataResponse['result'];
-
-        $permissions = !empty($request->permissions)
-            ? implode(',', $request->permissions)
-            : null;
-
-        // STEP 5: Insert customer from Speed customer data
-        $customer = Customer::create([
-            'customer_id' => $customer['id'] ?? $customerId,
-
-            'first_name' => $customer['firstName'] ?? null,
-            'last_name' => $customer['lastName'] ?? null,
-            'gender' => $customer['gender'] ?? null,
-            'nationality' => $customer['nationality'] ?? null,
-            'date_of_birth' => !empty($customer['dateOfBirth'])
-                ? Carbon::parse($customer['dateOfBirth'])->format('Y-m-d')
-                : null,
-            'location_id' => $customer['locationId'] ?? null,
-
-            'street' => $customer['address']['addressLine1'] ?? null,
-            'city' => $customer['address']['city'] ?? null,
-            'state' => $customer['address']['state'] ?? null,
-            'country' => $customer['address']['country'] ?? null,
-            'postal_code' => $customer['address']['zipCode'] ?? null,
-
-            'username' => $request->username,
-            'email' => $customer['email'] ?? $request->email,
-            'mobile_no' => $customer['mobileNo'] ?? $request->mobile_no,
-            'password' => bcrypt($request->password),
-            'permissions' => $permissions
-        ]);
+        $customer->email_verified_at = Carbon::now();
+        $customer->otp = null;
+        $customer->otp_expires_at = null;
+        $customer->save();
 
         $token = JwtHelper::generateToken($customer->id);
 
         return response()->json([
             'status' => true,
-            'message' => 'Customer registered successfully',
+            'message' => 'Email verified successfully.',
             'data' => $this->customerResponse($customer, $token)
+        ], 200);
+    }
+
+    public function resendEmailOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email'
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $customer = Customer::where('email', $request->email)->first();
+
+        if (!$customer) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Customer not found.',
+                'data' => []
+            ], 404);
+        }
+
+        if (!empty($customer->email_verified_at)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Email is already verified.',
+                'data' => $this->customerResponse($customer, null)
+            ], 409);
+        }
+
+        $this->sendCustomerOtp($customer);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'OTP resent to your email.',
+            'data' => $this->customerResponse($customer, null)
+        ], 200);
+    }
+
+    private function sendCustomerOtp(Customer $customer): string
+    {
+        $otp = (string) random_int(100000, 999999);
+
+        $customer->otp = $otp;
+        $customer->otp_expires_at = Carbon::now()->addMinutes(5);
+        $customer->save();
+
+        $customer->notify(new SendOtpNotification($otp));
+
+        return $otp;
     }
 
     private function getCustomerId($email, $mobileNo, $code)
@@ -612,6 +631,8 @@ class CustomerController extends Controller
             'postal_code' => $customer->postal_code,
             'mobile_no' => $customer->mobile_no,
             'email' => $customer->email,
+            'email_verified_at' => $customer->email_verified_at,
+            'email_verified' => !empty($customer->email_verified_at),
             'permissions' => !empty($customer->permissions) ? explode(',', $customer->permissions) : [],
             'token' => $token
         ];

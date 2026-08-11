@@ -33,12 +33,18 @@ class SendOtpNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $recipientName = $notifiable->first_name
+            ?? $notifiable->name
+            ?? $notifiable->username
+            ?? 'User';
+
         return (new MailMessage)
             ->subject('Your OTP Code')
-            ->greeting('Hello ' . ($notifiable->name ?? 'User') . ',')
+            ->greeting('Hello ' . $recipientName . ',')
             ->line('Your One-Time Password (OTP) is:')
             ->line("**{$this->otp}**")
             ->line('This OTP is valid for 5 minutes.')
+            ->line('Use this OTP to verify your email or complete a password reset.')
             ->line('If you did not request this, please ignore this email.')
             ->salutation('Thank you!');
     }
