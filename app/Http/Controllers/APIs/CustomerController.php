@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\BlacklistedToken;
 use App\Helpers\JwtHelper;
-use App\Notifications\SendOtpNotification;
+// use App\Notifications\SendOtpNotification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -492,7 +492,7 @@ class CustomerController extends Controller
         $customer->otp_expires_at = Carbon::now()->addMinutes(5);
         $customer->save();
 
-        $customer->notify(new SendOtpNotification($otp));
+        // $customer->notify(new SendOtpNotification($otp));
 
         return $otp;
     }
