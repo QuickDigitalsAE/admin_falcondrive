@@ -51,16 +51,6 @@ class CustomerController extends Controller
                     ], 401);
                 }
 
-                if (empty($customerRecord->email_verified_at)) {
-                    $this->sendCustomerOtp($customerRecord);
-
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'OTP sent to your email. Please verify your email to continue.',
-                        'data' => $this->customerResponse($customerRecord, null)
-                    ], 200);
-                }
-
                 $token = JwtHelper::generateToken($customerRecord->id);
 
                 return response()->json([
@@ -159,16 +149,6 @@ class CustomerController extends Controller
                             'mobile_no' => $duplicateUser->mobile_no
                         ]
                     ], 401);
-                }
-
-                if (empty($duplicateUser->email_verified_at)) {
-                    $this->sendCustomerOtp($duplicateUser);
-
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'OTP sent to your email. Please verify your email to continue.',
-                        'data' => $this->customerResponse($duplicateUser, null)
-                    ], 200);
                 }
 
                 $token = JwtHelper::generateToken($duplicateUser->id);
