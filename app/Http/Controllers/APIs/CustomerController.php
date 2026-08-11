@@ -269,21 +269,11 @@ class CustomerController extends Controller
                 ->first();
 
             if ($existingCustomer) {
-                if (!empty($existingCustomer->email_verified_at)) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'A customer with this email address or mobile number is already registered. Please log in.',
-                        'data' => []
-                    ], 409);
-                }
-
-                $this->sendCustomerOtp($existingCustomer);
-
                 return response()->json([
-                    'status' => true,
-                    'message' => 'Customer already exists but email is not verified. OTP resent to your email.',
-                    'data' => $this->customerResponse($existingCustomer, null)
-                ], 200);
+                    'status' => false,
+                    'message' => 'A customer with this email address or mobile number is already registered. Please log in.',
+                    'data' => []
+                ], 409);
             }
 
             $customerIdResponse = $this->getCustomerId($email, $mobileNo, $code);
