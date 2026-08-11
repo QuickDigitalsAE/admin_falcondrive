@@ -51,6 +51,17 @@ class CustomerController extends Controller
                     ], 401);
                 }
 
+                if (empty($customerRecord->email_verified_at)) {
+                
+                    $this->sendCustomerOtp($customerRecord);
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Customer already exists but email is not verified. OTP resent to your email.',
+                        'data' => []
+                    ], 200);
+                }
+
                 $token = JwtHelper::generateToken($customerRecord->id);
 
                 return response()->json([
