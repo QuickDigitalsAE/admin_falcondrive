@@ -81,10 +81,14 @@ trait InteractsWithCarListings
         $sortDirection = in_array($sortDirection, ['asc', 'desc'], true) ? $sortDirection : 'desc';
 
         if (in_array($sortBy, $this->carSortableColumns(), true)) {
+            if ($sortBy === 'sorting') {
+                return $this->applyBrandAwareCarOrdering($query, $sortDirection);
+            }
+
             return $query->reorder()->orderBy((string) $sortBy, $sortDirection);
         }
 
-        return $query->reorder()->orderedForListing();
+        return $this->applyBrandAwareCarOrdering($query);
     }
 
     protected function paginatedCarListingPayload(Request $request, ?callable $scope = null): array
@@ -167,5 +171,22 @@ trait InteractsWithCarListings
         }
 
         return false;
+    }
+
+    protected function applyBrandAwareCarOrdering(Builder $query, string $direction = 'asc'): Builder
+    {
+        $direction = strtolower($direction) === 'desc' ? 'desc' : 'asc';
+
+        return $query
+            ->reorder()
+            ->leftJoin('brands', 'brands.id', '=', 'cars.brand_id')
+            ->select('cars.*')
+            ->orderByRaw('CASE WHEN brands.sorting IS NULL THEN 1 ELSE 0 END ASC')
+            ->orderByRaw('CAST(COALESCE(NULLIF(brands.sorting, \'\'), \'999999\') AS UNSIGNED) ' . strtoupper($direction))
+            ->orderByRaw('LOWER(COALESCE(brands.name_en, "")) ASC')
+            ->orderByRaw('CASE WHEN cars.sorting IS NULL OR cars.sorting = "" THEN 1 ELSE 0 END ASC')
+            ->orderByRaw('CAST(COALESCE(NULLIF(cars.sorting, \'\'), \'999999\') AS UNSIGNED) ' . strtoupper($direction))
+            ->orderByRaw('LOWER(COALESCE(cars.name_en, "")) ASC')
+            ->orderByDesc('cars.id');
     }
 }
