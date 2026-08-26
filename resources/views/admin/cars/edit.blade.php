@@ -114,6 +114,7 @@
         const featuredSelect = document.getElementById('featured');
         const featuredSortingWrap = document.getElementById('featuredSortingWrap');
         const featuredSortingSelect = document.getElementById('featured_sorting');
+        const fleetSortingSelect = document.getElementById('fleet_sorting');
         const categorySelect = document.getElementById('category_ids');
         const categoryPickerWrap = document.getElementById('category_picker_wrap');
         const categoryPickerButton = document.getElementById('category_picker_button');
@@ -136,6 +137,8 @@
         const currentCarId = @json($car->id);
         const featuredSortOrdersUrl = @json(url('/admin/cars/featured-sort-orders'));
         const initialFeaturedSortingValue = featuredSortingSelect?.dataset.currentFeaturedSorting || '';
+        const fleetSortOrdersUrl = @json(url('/admin/cars/fleet-sort-orders'));
+        const initialFleetSortingValue = fleetSortingSelect?.dataset.currentFleetSorting || '';
 
         function getAvailableBrandOptions() {
             if (!brandSelect) return [];
@@ -219,6 +222,23 @@
             featuredSortingSelect.value = String(targetValue);
         }
 
+        function renderFleetSortingOptions(orders = [], selectedValue = '') {
+            if (!fleetSortingSelect) return;
+
+            const normalizedOrders = orders.map(Number).filter(order => !Number.isNaN(order));
+            const maxSortOrder = normalizedOrders.length ? Math.max(...normalizedOrders) : -1;
+            const nextPosition = maxSortOrder + 1;
+            const targetValue = selectedValue !== '' ? Number(selectedValue) : nextPosition;
+            const optionValues = Array.from(new Set([...normalizedOrders, nextPosition, targetValue])).sort((a, b) => a - b);
+
+            fleetSortingSelect.innerHTML = optionValues.map((value) => {
+                const suffix = value === nextPosition ? ' (New slot)' : '';
+                return `<option value="${value}">${value}${suffix}</option>`;
+            }).join('');
+
+            fleetSortingSelect.value = String(targetValue);
+        }
+
         function toggleFeaturedSorting() {
             const isFeatured = featuredSelect?.value === '1';
             featuredSortingWrap?.classList.toggle('hidden', !isFeatured);
@@ -246,6 +266,17 @@
                 })
                 .catch(() => {
                     renderFeaturedSortingOptions([], selectedValue);
+                });
+        }
+
+        function fetchFleetSortOrders(selectedValue = '') {
+            fetch(`${fleetSortOrdersUrl}?ignore_car_id=${currentCarId}`)
+                .then((response) => response.json())
+                .then((orders) => {
+                    renderFleetSortingOptions(Array.isArray(orders) ? orders : [], selectedValue);
+                })
+                .catch(() => {
+                    renderFleetSortingOptions([], selectedValue);
                 });
         }
 
@@ -367,6 +398,7 @@
         renderBrandPickerList();
         fetchSortOrders(initialSortingValue);
         fetchFeaturedSortOrders(initialFeaturedSortingValue);
+        fetchFleetSortOrders(initialFleetSortingValue);
         renderCategoryTags();
         setStockLabel();
         renderGalleryPreviews(defaultGalleryImages);

@@ -16,7 +16,7 @@ trait InteractsWithCarListings
 
     protected function carSortableColumns(): array
     {
-        return ['id', 'name_en', 'price_daily', 'price_weekly', 'price_monthly', 'sorting', 'featured_sorting', 'stock'];
+        return ['id', 'name_en', 'price_daily', 'price_weekly', 'price_monthly', 'sorting', 'featured_sorting', 'fleet_sorting', 'stock'];
     }
 
     protected function buildPublicCarListingQuery(Request $request, ?callable $scope = null): Builder
@@ -88,7 +88,7 @@ trait InteractsWithCarListings
             return $query->reorder()->orderBy((string) $sortBy, $sortDirection);
         }
 
-        return $this->applyBrandAwareCarOrdering($query);
+        return $this->applyFleetAwareCarOrdering($query);
     }
 
     protected function paginatedCarListingPayload(Request $request, ?callable $scope = null): array
@@ -186,6 +186,20 @@ trait InteractsWithCarListings
             ->orderByRaw('LOWER(COALESCE(brands.name_en, "")) ASC')
             ->orderByRaw('CASE WHEN cars.sorting IS NULL OR cars.sorting = "" THEN 1 ELSE 0 END ASC')
             ->orderByRaw('CAST(COALESCE(NULLIF(cars.sorting, \'\'), \'999999\') AS UNSIGNED) ' . strtoupper($direction))
+            ->orderByRaw('LOWER(COALESCE(cars.name_en, "")) ASC')
+            ->orderByDesc('cars.id');
+    }
+
+    protected function applyFleetAwareCarOrdering(Builder $query): Builder
+    {
+        return $query
+            ->reorder()
+            ->orderByRaw('CASE WHEN cars.fleet_sorting IS NULL OR cars.fleet_sorting = "" THEN 1 ELSE 0 END ASC')
+            ->orderByRaw('CAST(COALESCE(NULLIF(cars.fleet_sorting, \'\'), \'999999\') AS UNSIGNED) ASC')
+            ->orderByRaw('CASE WHEN cars.brand_id IS NULL THEN 1 ELSE 0 END ASC')
+            ->orderBy('cars.brand_id')
+            ->orderByRaw('CASE WHEN cars.sorting IS NULL OR cars.sorting = "" THEN 1 ELSE 0 END ASC')
+            ->orderByRaw('CAST(COALESCE(NULLIF(cars.sorting, \'\'), \'999999\') AS UNSIGNED) ASC')
             ->orderByRaw('LOWER(COALESCE(cars.name_en, "")) ASC')
             ->orderByDesc('cars.id');
     }

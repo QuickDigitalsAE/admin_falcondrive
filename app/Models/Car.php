@@ -38,6 +38,7 @@ class Car extends Model
         'model',
         'featured',
         'featured_sorting',
+        'fleet_sorting',
         'engine',
         'seats',
         'doors',
@@ -75,6 +76,7 @@ class Car extends Model
         'tariff_group_id' => 'integer',
         'featured' => 'boolean',
         'featured_sorting' => 'integer',
+        'fleet_sorting' => 'integer',
         'cruise_control' => 'boolean',
         'bluetooth' => 'boolean',
         'automatic' => 'boolean',
@@ -147,6 +149,16 @@ class Car extends Model
             ->where('featured', 1)
             ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId))
             ->selectRaw("MAX(CAST(COALESCE(NULLIF(featured_sorting, ''), '0') AS UNSIGNED)) as max_sorting")
+            ->value('max_sorting');
+
+        return $maxSorting === null ? 0 : ((int) $maxSorting + 1);
+    }
+
+    public static function nextFleetSorting(?int $ignoreId = null): int
+    {
+        $maxSorting = static::query()
+            ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId))
+            ->selectRaw("MAX(CAST(COALESCE(NULLIF(fleet_sorting, ''), '0') AS UNSIGNED)) as max_sorting")
             ->value('max_sorting');
 
         return $maxSorting === null ? 0 : ((int) $maxSorting + 1);

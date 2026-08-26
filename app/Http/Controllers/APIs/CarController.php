@@ -33,7 +33,7 @@ class CarController extends BaseApiController
         'description_ar' => ['messages_cars_brief_ar'],
     ];
 
-    protected array $sortable = ['id', 'name_en', 'price_daily', 'price_weekly', 'price_monthly', 'sorting', 'featured_sorting', 'stock'];
+    protected array $sortable = ['id', 'name_en', 'price_daily', 'price_weekly', 'price_monthly', 'sorting', 'featured_sorting', 'fleet_sorting', 'stock'];
 
     protected function transform(Model $record): array
     {
