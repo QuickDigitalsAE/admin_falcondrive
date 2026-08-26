@@ -29,23 +29,22 @@ trait InteractsWithCarListings
 
         if ($request->filled('search')) {
             $search = trim($request->search);
-
             $parts = preg_split('/\s+/', $search);
 
             $query->where(function (Builder $inner) use ($parts) {
                 foreach ($parts as $part) {
                     $inner->where(function (Builder $q) use ($part) {
-                        $q->where('name_en', 'like', "%{$part}%")
-                            ->orWhere('name_ar', 'like', "%{$part}%")
-                            ->orWhere('slug', 'like', "%{$part}%")
-                            ->orWhere('model', 'like', "%{$part}%")
+                        $q->where('cars.name_en', 'like', "%{$part}%")
+                            ->orWhere('cars.name_ar', 'like', "%{$part}%")
+                            ->orWhere('cars.slug', 'like', "%{$part}%")
+                            ->orWhere('cars.model', 'like', "%{$part}%")
                             ->orWhereHas('brand', function (Builder $brandQuery) use ($part) {
                                 $brandQuery->where('name_en', 'like', "%{$part}%")
-                                        ->orWhere('name_ar', 'like', "%{$part}%");
+                                    ->orWhere('name_ar', 'like', "%{$part}%");
                             })
                             ->orWhereHas('categories', function (Builder $categoryQuery) use ($part) {
                                 $categoryQuery->where('name_en', 'like', "%{$part}%")
-                                            ->orWhere('name_ar', 'like', "%{$part}%");
+                                    ->orWhere('name_ar', 'like', "%{$part}%");
                             });
                     });
                 }
@@ -53,23 +52,30 @@ trait InteractsWithCarListings
         }
 
         $brandIds = $this->resolveCarBrandIds($request);
+
         if ($brandIds !== []) {
-            $query->whereIn('brand_id', $brandIds);
+            $query->whereIn('cars.brand_id', $brandIds);
         }
 
         $categoryIds = $this->resolveCarCategoryIds($request);
+
         if ($categoryIds !== []) {
-            $query->whereHas('categories', fn (Builder $categoryQuery) => $categoryQuery->whereIn('categories.id', $categoryIds));
+            $query->whereHas('categories', function (Builder $categoryQuery) use ($categoryIds) {
+                $categoryQuery->whereIn('categories.id', $categoryIds);
+            });
         }
 
         if ($request->filled('featured')) {
-            $query->where('featured', (int) $request->input('featured'));
+            $query->where('cars.featured', (int) $request->input('featured'));
         }
 
         if ($request->filled('stock_status')) {
             $request->input('stock_status') === 'in_stock'
-                ? $query->where('stock', '>', 0)
-                : $query->where('stock', '<=', 0);
+                ? $query->where('cars.stock', '>', 0)
+                : $query->where(function (Builder $stockQuery) {
+                    $stockQuery->where('cars.stock', '<=', 0)
+                        ->orWhereNull('cars.stock');
+                });
         }
 
         if ($this->applyCarPriceSorting($query, $request)) {
@@ -85,15 +91,16 @@ trait InteractsWithCarListings
                 return $this->applyBrandAwareCarOrdering($query, $sortDirection);
             }
 
-            return $query->reorder()->orderBy((string) $sortBy, $sortDirection);
+            return $query->reorder()->orderBy('cars.' . $sortBy, $sortDirection);
         }
 
-        return $this->applyFleetAwareCarOrdering($query);
+        return $this->applyFeaturedThenFleetCarOrdering($query);
     }
 
     protected function paginatedCarListingPayload(Request $request, ?callable $scope = null): array
     {
         $perPage = max(1, min((int) $request->get('per_page', 15), 100));
+
         $cars = $this->buildPublicCarListingQuery($request, $scope)
             ->paginate($perPage)
             ->appends($request->query());
@@ -152,20 +159,21 @@ trait InteractsWithCarListings
         $priceLowToHighValues = ['low_to_high', 'price_low_to_high', 'price-asc', 'price_asc'];
 
         if (in_array($sortBy, $priceHighToLowValues, true)) {
-            $query->reorder()->orderByRaw('CAST(price_daily AS DECIMAL(10,2)) DESC');
+            $query->reorder()->orderByRaw('CAST(cars.price_daily AS DECIMAL(10,2)) DESC');
 
             return true;
         }
 
         if (in_array($sortBy, $priceLowToHighValues, true)) {
-            $query->reorder()->orderByRaw('CAST(price_daily AS DECIMAL(10,2)) ASC');
+            $query->reorder()->orderByRaw('CAST(cars.price_daily AS DECIMAL(10,2)) ASC');
 
             return true;
         }
 
         if ($sortBy === 'price_daily') {
             $direction = in_array($sortDirection, ['asc', 'desc'], true) ? $sortDirection : 'asc';
-            $query->reorder()->orderByRaw('CAST(price_daily AS DECIMAL(10,2)) ' . strtoupper($direction));
+
+            $query->reorder()->orderByRaw('CAST(cars.price_daily AS DECIMAL(10,2)) ' . strtoupper($direction));
 
             return true;
         }
@@ -184,8 +192,8 @@ trait InteractsWithCarListings
             ->orderByRaw('CASE WHEN brands.sorting IS NULL THEN 1 ELSE 0 END ASC')
             ->orderByRaw('CAST(COALESCE(NULLIF(brands.sorting, \'\'), \'999999\') AS UNSIGNED) ' . strtoupper($direction))
             ->orderByRaw('LOWER(COALESCE(brands.name_en, "")) ASC')
-            ->orderByRaw('CASE WHEN cars.sorting IS NULL OR cars.sorting = "" THEN 1 ELSE 0 END ASC')
-            ->orderByRaw('CAST(COALESCE(NULLIF(cars.sorting, \'\'), \'999999\') AS UNSIGNED) ' . strtoupper($direction))
+            ->orderByRaw('CASE WHEN cars.sorting IS NULL OR TRIM(CAST(cars.sorting AS CHAR)) = "" THEN 1 ELSE 0 END ASC')
+            ->orderByRaw('CASE WHEN cars.sorting IS NULL OR TRIM(CAST(cars.sorting AS CHAR)) = "" THEN 999999 ELSE CAST(cars.sorting AS UNSIGNED) END ' . strtoupper($direction))
             ->orderByRaw('LOWER(COALESCE(cars.name_en, "")) ASC')
             ->orderByDesc('cars.id');
     }
@@ -194,12 +202,54 @@ trait InteractsWithCarListings
     {
         return $query
             ->reorder()
-            ->orderByRaw('CASE WHEN cars.fleet_sorting IS NULL OR cars.fleet_sorting = "" THEN 1 ELSE 0 END ASC')
-            ->orderByRaw('CAST(COALESCE(NULLIF(cars.fleet_sorting, \'\'), \'999999\') AS UNSIGNED) ASC')
+            ->orderByRaw('CASE WHEN cars.fleet_sorting IS NULL OR TRIM(CAST(cars.fleet_sorting AS CHAR)) = "" THEN 1 ELSE 0 END ASC')
+            ->orderByRaw('CASE WHEN cars.fleet_sorting IS NULL OR TRIM(CAST(cars.fleet_sorting AS CHAR)) = "" THEN 999999 ELSE CAST(cars.fleet_sorting AS UNSIGNED) END ASC')
             ->orderByRaw('CASE WHEN cars.brand_id IS NULL THEN 1 ELSE 0 END ASC')
             ->orderBy('cars.brand_id')
-            ->orderByRaw('CASE WHEN cars.sorting IS NULL OR cars.sorting = "" THEN 1 ELSE 0 END ASC')
-            ->orderByRaw('CAST(COALESCE(NULLIF(cars.sorting, \'\'), \'999999\') AS UNSIGNED) ASC')
+            ->orderByRaw('CASE WHEN cars.sorting IS NULL OR TRIM(CAST(cars.sorting AS CHAR)) = "" THEN 1 ELSE 0 END ASC')
+            ->orderByRaw('CASE WHEN cars.sorting IS NULL OR TRIM(CAST(cars.sorting AS CHAR)) = "" THEN 999999 ELSE CAST(cars.sorting AS UNSIGNED) END ASC')
+            ->orderByRaw('LOWER(COALESCE(cars.name_en, "")) ASC')
+            ->orderByDesc('cars.id');
+    }
+
+    protected function applyFeaturedThenFleetCarOrdering(Builder $query): Builder
+    {
+        return $query
+            ->reorder()
+            ->orderByRaw('
+                CASE
+                    WHEN cars.featured = 1 THEN 0
+                    WHEN cars.fleet_sorting IS NOT NULL AND TRIM(CAST(cars.fleet_sorting AS CHAR)) <> "" THEN 1
+                    ELSE 2
+                END ASC
+            ')
+            ->orderByRaw('
+                CASE
+                    WHEN cars.featured = 1
+                        AND cars.featured_sorting IS NOT NULL
+                        AND TRIM(CAST(cars.featured_sorting AS CHAR)) <> ""
+                    THEN CAST(cars.featured_sorting AS UNSIGNED)
+                    ELSE 999999
+                END ASC
+            ')
+            ->orderByRaw('
+                CASE
+                    WHEN cars.fleet_sorting IS NOT NULL
+                        AND TRIM(CAST(cars.fleet_sorting AS CHAR)) <> ""
+                    THEN CAST(cars.fleet_sorting AS UNSIGNED)
+                    ELSE 999999
+                END ASC
+            ')
+            ->orderByRaw('
+                CASE
+                    WHEN cars.featured = 1 THEN 0
+                    WHEN cars.fleet_sorting IS NOT NULL AND TRIM(CAST(cars.fleet_sorting AS CHAR)) <> "" THEN 0
+                    WHEN cars.stock > 0 THEN 0
+                    ELSE 1
+                END ASC
+            ')
+            ->orderByRaw('CASE WHEN cars.sorting IS NULL OR TRIM(CAST(cars.sorting AS CHAR)) = "" THEN 1 ELSE 0 END ASC')
+            ->orderByRaw('CASE WHEN cars.sorting IS NULL OR TRIM(CAST(cars.sorting AS CHAR)) = "" THEN 999999 ELSE CAST(cars.sorting AS UNSIGNED) END ASC')
             ->orderByRaw('LOWER(COALESCE(cars.name_en, "")) ASC')
             ->orderByDesc('cars.id');
     }
