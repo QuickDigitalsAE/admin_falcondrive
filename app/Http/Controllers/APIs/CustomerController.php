@@ -18,10 +18,32 @@ class CustomerController extends Controller
 {
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'login' => 'required|string',
-            'password' => 'required|string'
+        // Email ko validate karne se pehle spaces remove karein
+        $request->merge([
+            'login' => strtolower(trim((string) $request->login))
         ]);
+
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'login' => [
+                    'required',
+                    'string',
+                    'email:rfc',
+                    'max:255',
+                ],
+                'password' => [
+                    'required',
+                    'string',
+                ],
+            ],
+            [
+                'login.required' => 'Email address is required.',
+                'login.email' => 'Please enter a valid email address.',
+                'login.max' => 'Email address may not be greater than 255 characters.',
+                'password.required' => 'Password is required.',
+            ]
+        );
 
         if ($validator->fails()) {
             return response()->json([
@@ -86,7 +108,7 @@ class CustomerController extends Controller
             ) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'No customer found with this email or mobile number.',
+                    'message' => 'No customer found with this email.',
                     'data' => []
                 ], 404);
             }
