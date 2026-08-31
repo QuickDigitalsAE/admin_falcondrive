@@ -49,7 +49,6 @@ class CustomerController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $validator->errors()->first(),
-                'errors' => $validator->errors(),
                 'data' => []
             ], 422);
         }
@@ -265,20 +264,64 @@ class CustomerController extends Controller
 
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'username'   => 'required|unique:customers,username',
-            'firstName'  => 'required|string',
-            'lastName'   => 'required|string',
-            'email'      => 'required|email',
-            'password'   => 'required|min:6',
-            'mobile_no'  => 'required|string',
-            'permissions'=> 'nullable|array'
+        // Email se spaces remove karke lowercase mein convert karein
+        $request->merge([
+            'email' => strtolower(trim((string) $request->email))
         ]);
+
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'username' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    'unique:customers,username',
+                ],
+                'firstName' => [
+                    'required',
+                    'string',
+                    'max:255',
+                ],
+                'lastName' => [
+                    'required',
+                    'string',
+                    'max:255',
+                ],
+                'email' => [
+                    'required',
+                    'string',
+                    'email:rfc',
+                    'max:255',
+                    'unique:customers,email',
+                ],
+                'password' => [
+                    'required',
+                    'string',
+                    'min:6',
+                ],
+                'mobile_no' => [
+                    'required',
+                    'string',
+                ],
+                'permissions' => [
+                    'nullable',
+                    'array',
+                ],
+            ],
+            [
+                'email.required' => 'Email address is required.',
+                'email.email' => 'Please enter a valid email address.',
+                'email.unique' => 'A customer with this email address is already registered. Please log in.',
+                'email.max' => 'Email address may not be greater than 255 characters.',
+            ]
+        );
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'errors' => $validator->errors()
+                'message' => $validator->errors()->first(),
+                'data' => []
             ], 422);
         }
 
