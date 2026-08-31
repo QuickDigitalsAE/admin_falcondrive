@@ -36,8 +36,6 @@ class CustomerController extends Controller
             $login = trim($request->login);
 
             $customerRecord = Customer::where('email', $login)
-                ->orWhere('username', $login)
-                ->orWhere('mobile_no', $login)
                 ->first();
 
             if ($customerRecord) {
@@ -76,8 +74,6 @@ class CustomerController extends Controller
 
             if (filter_var($login, FILTER_VALIDATE_EMAIL)) {
                 $email = $login;
-            } else {
-                $mobileNo = $login;
             }
 
             $code = env('APP_CODE');
@@ -133,17 +129,12 @@ class CustomerController extends Controller
 
             $duplicateUser = Customer::where(function ($query) use (
                 $customerId,
-                $customerEmail,
-                $customerMobile
+                $customerEmail
             ) {
                 $query->where('customer_id', $customerId);
 
                 if (!empty($customerEmail)) {
                     $query->orWhere('email', $customerEmail);
-                }
-
-                if (!empty($customerMobile)) {
-                    $query->orWhere('mobile_no', $customerMobile);
                 }
             })->first();
 
@@ -275,19 +266,17 @@ class CustomerController extends Controller
             $mobileNo = $request->mobile_no;
 
             $existingCustomer = Customer::where('email', $email)
-                ->orWhere('mobile_no', $mobileNo)
-                ->orWhere('username', $request->username)
                 ->first();
 
             if ($existingCustomer) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'A customer with this email address or mobile number is already registered. Please log in.',
+                    'message' => 'A customer with this email address is already registered. Please log in.',
                     'data' => []
                 ], 409);
             }
 
-            $customerIdResponse = $this->getCustomerId($email, $mobileNo, $code);
+            $customerIdResponse = $this->getCustomerId($email, null, $code);
 
             $customerId = null;
 
