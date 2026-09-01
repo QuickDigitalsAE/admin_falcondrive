@@ -36,28 +36,6 @@ class InquiryController extends BaseApiController
     protected string $updateMessage = 'Inquiry updated successfully';
     protected string $deleteMessage = 'Inquiry deleted successfully';
 
-    // public function storePublic(Request $request)
-    // {
-    //     try {
-    //         $formRequest = new InquiryRequest();
-    //         $request->validate($formRequest->rules());
-    //         $data = $formRequest->sanitize($request);
-    //         $this->guardAgainstSpam($request, $data);
-    //         $record = Inquiry::create($data);
-
-    //         $this->sendLeadWebhook($record); // CRM / Lead Webhook Integration
-
-    //         $this->sendInquiryEmails($record);
-    //         AdminNotificationService::notifyInquiry($record, 'created');
-
-    //         return $this->successResponse($this->storeMessage, InquiryResource::make($record)->resolve(), 201);
-    //     } catch (ValidationException $e) {
-    //         return $this->errorResponse('Validation failed', ['errors' => $e->errors()], 422);
-    //     } catch (Throwable $e) {
-    //         return $this->errorResponse($e->getMessage(), ['exception' => class_basename($e)], 500);
-    //     }
-    // }
-
     public function storePublic(Request $request)
     {
         try {
@@ -68,12 +46,12 @@ class InquiryController extends BaseApiController
 
             $data = $formRequest->sanitize($request);
 
-            $this->guardAgainstSpam($request, $data);
+            // $this->guardAgainstSpam($request, $data);
 
             $record = Inquiry::create($data);
 
             // Lead Webhook
-            $webhookResponse = $this->sendLeadWebhook($record);
+            // $webhookResponse = $this->sendLeadWebhook($record);
 
             // Emails
             $this->sendInquiryEmails($record);
@@ -85,7 +63,7 @@ class InquiryController extends BaseApiController
                 $this->storeMessage,
                 [
                     'inquiry' => InquiryResource::make($record)->resolve(),
-                    'webhook' => $webhookResponse,
+                    // 'webhook' => $webhookResponse,
                 ],
                 201
             );
@@ -163,11 +141,11 @@ class InquiryController extends BaseApiController
             }
         }
 
-        try {
-            Mail::to(self::ADMIN_RECIPIENTS)->send(new InquiryConfirmationMail($record, 'admin'));
-        } catch (Throwable $mailException) {
-            report($mailException);
-        }
+        // try {
+        //     Mail::to(self::ADMIN_RECIPIENTS)->send(new InquiryConfirmationMail($record, 'admin'));
+        // } catch (Throwable $mailException) {
+        //     report($mailException);
+        // }
     }
 
     private function guardAgainstSpam(Request $request, array $data): void
