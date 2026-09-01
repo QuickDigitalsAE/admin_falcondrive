@@ -65,6 +65,7 @@ class HighlightController extends Controller
             'title_ar' => ['required', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'sorting' => ['nullable', 'integer', 'min:0'],
+            'url' => ['nullable', 'url', 'max:2048'],
         ]);
 
         DB::transaction(function () use ($request, $validated) {
@@ -72,6 +73,7 @@ class HighlightController extends Controller
                 'title_en' => $validated['title_en'],
                 'title_ar' => $validated['title_ar'],
                 'image' => $this->storeImage($request),
+                'url' => $validated['url'] ?? null,
                 'created_by' => Auth::id(),
             ]);
 
@@ -116,6 +118,7 @@ class HighlightController extends Controller
             'title_ar' => ['required', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'sorting' => ['nullable', 'integer', 'min:0'],
+            'url' => ['nullable', 'url', 'max:2048'],
         ]);
 
         DB::transaction(function () use ($request, $validated, $highlight) {
@@ -128,6 +131,7 @@ class HighlightController extends Controller
 
             $highlight->title_en = $validated['title_en'];
             $highlight->title_ar = $validated['title_ar'];
+            $highlight->url = $validated['url'] ?? null;
             $highlight->updated_by = Auth::id();
             $highlight->save();
 
@@ -198,7 +202,7 @@ class HighlightController extends Controller
         }
 
         if ($search !== '') {
-            $query->where(fn ($subQuery) => $subQuery->where('title_en', 'LIKE', "%{$search}%")->orWhere('title_ar', 'LIKE', "%{$search}%"));
+            $query->where(fn ($subQuery) => $subQuery->where('title_en', 'LIKE', "%{$search}%")->orWhere('title_ar', 'LIKE', "%{$search}%")->orWhere('url', 'LIKE', "%{$search}%"));
         }
 
         $query->orderedForListing();
@@ -218,6 +222,7 @@ class HighlightController extends Controller
                     'title_ar' => $highlight->title_ar,
                     'image_url' => $highlight->image_url,
                     'sorting' => $highlight->sorting,
+                    'url' => $highlight->url,
                     'deleted_at' => optional($highlight->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($highlight->created_at)->format('d M Y, h:i A'),
                     ...$this->superAdminAuditMeta($highlight, $authUser),
@@ -282,14 +287,14 @@ class HighlightController extends Controller
 
         return response()->stream(function () use ($records, $isDeleted) {
             $file = fopen('php://output', 'w');
-            $headers = ['ID', 'Sort Order', 'Title EN', 'Title AR', 'Created At'];
+            $headers = ['ID', 'Sort Order', 'Title EN', 'Title AR', 'URL', 'Created At'];
             if ($isDeleted) {
                 $headers[] = 'Deleted At';
             }
             fputcsv($file, $headers);
 
             foreach ($records as $record) {
-                $row = [$record->id, $record->sorting, $record->title_en, $record->title_ar, optional($record->created_at)->format('Y-m-d H:i:s')];
+                $row = [$record->id, $record->sorting, $record->title_en, $record->title_ar, $record->url, optional($record->created_at)->format('Y-m-d H:i:s')];
                 if ($isDeleted) {
                     $row[] = optional($record->deleted_at)->format('Y-m-d H:i:s');
                 }

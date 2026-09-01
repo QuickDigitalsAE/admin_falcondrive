@@ -18,6 +18,7 @@ class Highlight extends Model
         'title_ar',
         'image',
         'sorting',
+        'url',
         'created_by',
         'updated_by',
         'deleted_by',

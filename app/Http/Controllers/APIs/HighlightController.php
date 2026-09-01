@@ -13,14 +13,14 @@ class HighlightController extends BaseApiController
     protected string $resourceClass = HighlightResource::class;
     protected string $storeRequestClass = HighlightRequest::class;
     protected string $updateRequestClass = HighlightRequest::class;
-    protected array $searchable = ['title_en', 'title_ar'];
+    protected array $searchable = ['title_en', 'title_ar', 'url'];
     protected array $with = [];
     protected string $publicMessage = 'Highlight list fetched successfully';
     protected string $singleMessage = 'Highlight fetched successfully';
     protected string $storeMessage = 'Highlight created successfully';
     protected string $updateMessage = 'Highlight updated successfully';
     protected string $deleteMessage = 'Highlight deleted successfully';
-    protected array $sortable = ['id', 'title_en', 'title_ar', 'sorting'];
+    protected array $sortable = ['id', 'title_en', 'title_ar', 'sorting', 'url'];
 
     protected function query(Request $request): \Illuminate\Database\Eloquent\Builder
     {

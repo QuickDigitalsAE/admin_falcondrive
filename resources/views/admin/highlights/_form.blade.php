@@ -4,11 +4,12 @@
     @foreach ([
         ['id' => 'title_en', 'label' => 'Title EN', 'value' => old('title_en', $highlight->title_en ?? '')],
         ['id' => 'title_ar', 'label' => 'Title AR', 'value' => old('title_ar', $highlight->title_ar ?? '')],
+        ['id' => 'url', 'label' => 'URL', 'value' => old('url', $highlight->url ?? ''), 'type' => 'url'],
     ] as $field)
         <div class="min-w-0">
             <div class="space-y-2">
                 <div class="relative">
-                    <input id="{{ $field['id'] }}" type="text" name="{{ $field['id'] }}" value="{{ $field['value'] }}" placeholder="{{ $field['label'] }}"
+                    <input id="{{ $field['id'] }}" type="{{ $field['type'] ?? 'text' }}" name="{{ $field['id'] }}" value="{{ $field['value'] }}" placeholder="{{ $field['label'] }}"
                         class="peer w-full rounded-[18px] border {{ $errors->has($field['id']) ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-[#e5d7b1] focus:border-[#caa23c] focus:ring-[#f7e9b5]' }} bg-[#fffdf8] px-4 pt-6 pb-2 text-sm text-slate-800 placeholder-transparent outline-none transition duration-200 focus:ring-4 min-h-[58px]">
                     <label for="{{ $field['id'] }}" class="pointer-events-none absolute left-4 top-2.5 z-10 bg-[#fffdf8] px-1 text-xs font-medium tracking-[0.02em] {{ $errors->has($field['id']) ? 'text-red-500' : 'text-slate-500 peer-focus:text-[#a27d20]' }} transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-400 peer-focus:top-2.5 peer-focus:text-xs">{{ $field['label'] }}</label>
                 </div>
