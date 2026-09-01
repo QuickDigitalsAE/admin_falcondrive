@@ -46,7 +46,13 @@ class InquiryController extends BaseApiController
 
             $data = $formRequest->sanitize($request);
 
-            // $this->guardAgainstSpam($request, $data);
+            if (!$this->guardAgainstSpam($request, $data)) {
+                return $this->errorResponse(
+                    'Spam request detected. Inquiry was not submitted.',
+                    [],
+                    422
+                );
+            }
 
             $record = Inquiry::create($data);
 
@@ -141,22 +147,22 @@ class InquiryController extends BaseApiController
             }
         }
 
-        // try {
-        //     Mail::to(self::ADMIN_RECIPIENTS)->send(new InquiryConfirmationMail($record, 'admin'));
-        // } catch (Throwable $mailException) {
-        //     report($mailException);
-        // }
+        try {
+            Mail::to(self::ADMIN_RECIPIENTS)->send(new InquiryConfirmationMail($record, 'admin'));
+        } catch (Throwable $mailException) {
+            report($mailException);
+        }
     }
 
-    private function guardAgainstSpam(Request $request, array $data): void
+    private function guardAgainstSpam(Request $request, array $data): bool
     {
         if (blank($request->userAgent())) {
-            throw ValidationException::withMessages([
-                'request' => ['Invalid inquiry request.'],
-            ]);
+            return false;
         }
 
-        $this->verifyBotProtection($request);
+        if (!$this->verifyBotProtection($request)) {
+            return false;
+        }
 
         $recentDuplicate = Inquiry::query()
             ->where('number', $data['number'])
@@ -167,39 +173,36 @@ class InquiryController extends BaseApiController
             ->exists();
 
         if ($recentDuplicate) {
-            throw ValidationException::withMessages([
-                'request' => ['Duplicate inquiry detected. Please wait before submitting again.'],
-            ]);
+            return false;
         }
+
+        return true;
     }
 
-    private function verifyBotProtection(Request $request): void
+    private function verifyBotProtection(Request $request): bool
     {
         $recaptchaSecret = (string) config('services.recaptcha.secret');
 
-        if ($recaptchaSecret !== '') {
-            $token = (string) $request->input('g-recaptcha-response', '');
-
-            if ($token === '') {
-                throw ValidationException::withMessages([
-                    'g-recaptcha-response' => ['reCAPTCHA verification is required!'],
-                ]);
-            }
-
-            $response = Http::asForm()
-                ->timeout(10)
-                ->post('https://www.google.com/recaptcha/api/siteverify', [
-                    'secret' => $recaptchaSecret,
-                    'response' => $token,
-                    'remoteip' => $request->ip(),
-                ]);
-
-            if (!$response->ok() || !data_get($response->json(), 'success')) {
-                throw ValidationException::withMessages([
-                    'g-recaptcha-response' => ['reCAPTCHA verification failed.'],
-                ]);
-            }
+        if ($recaptchaSecret === '') {
+            return true;
         }
+
+        $token = (string) $request->input('g-recaptcha-response', '');
+
+        if ($token === '') {
+            return false;
+        }
+
+        $response = Http::asForm()
+            ->timeout(10)
+            ->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => $recaptchaSecret,
+                'response' => $token,
+                'remoteip' => $request->ip(),
+            ]);
+
+        return $response->ok() 
+            && data_get($response->json(), 'success') === true;
     }
 
 }
