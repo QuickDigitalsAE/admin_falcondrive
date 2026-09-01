@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('highlights', function (Blueprint $table) {
-            $table->text('url')->nullable()->after('sorting');
+            $table->string('url')->nullable()->after('sorting');
         });
     }
 

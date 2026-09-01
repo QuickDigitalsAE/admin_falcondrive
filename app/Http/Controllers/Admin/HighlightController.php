@@ -65,7 +65,7 @@ class HighlightController extends Controller
             'title_ar' => ['required', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'sorting' => ['nullable', 'integer', 'min:0'],
-            'url' => ['nullable', 'url', 'max:2048'],
+            'url' => ['nullable', 'string', 'max:2048'],
         ]);
 
         DB::transaction(function () use ($request, $validated) {
@@ -118,7 +118,7 @@ class HighlightController extends Controller
             'title_ar' => ['required', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'sorting' => ['nullable', 'integer', 'min:0'],
-            'url' => ['nullable', 'url', 'max:2048'],
+            'url' => ['nullable', 'string', 'max:2048'],
         ]);
 
         DB::transaction(function () use ($request, $validated, $highlight) {

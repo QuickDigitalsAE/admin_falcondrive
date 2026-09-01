@@ -4,7 +4,7 @@
     @foreach ([
         ['id' => 'title_en', 'label' => 'Title EN', 'value' => old('title_en', $highlight->title_en ?? '')],
         ['id' => 'title_ar', 'label' => 'Title AR', 'value' => old('title_ar', $highlight->title_ar ?? '')],
-        ['id' => 'url', 'label' => 'URL', 'value' => old('url', $highlight->url ?? ''), 'type' => 'url'],
+        ['id' => 'url', 'label' => 'URL', 'value' => old('url', $highlight->url ?? ''), 'type' => 'text'],
     ] as $field)
         <div class="min-w-0">
             <div class="space-y-2">
