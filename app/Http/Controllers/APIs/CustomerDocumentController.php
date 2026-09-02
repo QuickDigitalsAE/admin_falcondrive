@@ -59,9 +59,7 @@ class CustomerDocumentController extends Controller
             $document = CustomerDocument::create([
                 'customer_id' => $request->customer_id,
 
-                'customer_details' => json_encode(
-                    $request->customer_details
-                ),
+                'customer_details' => $request->customer_details,
 
                 'document_no' => $request->document_no,
 
@@ -126,10 +124,10 @@ class CustomerDocumentController extends Controller
             }
 
 
-            $customerDetails = json_decode(
-                $documents->first()->customer_details,
-                true
-            );
+            $customerDetails = $documents->first()->customer_details;
+            if (!is_array($customerDetails)) {
+                $customerDetails = json_decode((string) $customerDetails, true) ?: [];
+            }
 
 
             $identityDocuments = [];

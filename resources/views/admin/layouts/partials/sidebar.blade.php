@@ -91,6 +91,16 @@
                 </a>
             @endcan
 
+            @can('CustomerDocument_Menu')
+                <a href="{{ route('admin.customer-documents') }}"
+                    class="sidebar-link ml-10 flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.customer-documents*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0c1d35] {{ request()->routeIs('admin.customer-documents*') ? 'text-[#f8dd7c]' : 'text-slate-300' }}">
+                        <i class="fas fa-file-lines text-[11px]"></i>
+                    </span>
+                    <span class="truncate sidebar-text">Customers Documents</span>
+                </a>
+            @endcan
+
             @can('Blog_Menu')
                 <a href="{{ route('admin.blogs') }}"
                     class="sidebar-link flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors {{ request()->routeIs('admin.blogs') || request()->routeIs('admin.blogs.*') ? 'bg-[#e0bc5a]/22 text-[#fff7dc] ring-1 ring-[#e0bc5a]/25' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">

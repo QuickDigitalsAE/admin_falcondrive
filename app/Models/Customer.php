@@ -62,4 +62,9 @@ class Customer extends Model
     {
         return $this->email;
     }
+
+    public function documents()
+    {
+        return $this->hasMany(CustomerDocument::class);
+    }
 }

@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\DeliveryReturnLocationController;
 use App\Http\Controllers\Admin\PromoCodeController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\CustomerDocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -125,6 +126,17 @@ Route::middleware(['auth', 'active.user'])->prefix('admin')->name('admin.')->gro
         Route::get('/{id}', [CustomerController::class, 'show'])->name('.show');
         Route::get('/{id}/edit', [CustomerController::class, 'edit'])->name('.edit');
         Route::put('/{id}/update', [CustomerController::class, 'update'])->name('.update');
+    });
+
+    Route::prefix('customer-documents')->name('customer-documents')->group(function () {
+        Route::get('/', [CustomerDocumentController::class, 'index'])->name('');
+        Route::get('/create', [CustomerDocumentController::class, 'create'])->name('.create');
+        Route::post('/store', [CustomerDocumentController::class, 'store'])->name('.store');
+        Route::get('/{id}', [CustomerDocumentController::class, 'show'])->name('.show');
+        Route::get('/{id}/edit', [CustomerDocumentController::class, 'edit'])->name('.edit');
+        Route::put('/{id}/update', [CustomerDocumentController::class, 'update'])->name('.update');
+        Route::delete('/{id}/delete', [CustomerDocumentController::class, 'destroy'])->name('.delete');
+        Route::put('/{id}/restore', [CustomerDocumentController::class, 'restore'])->name('.restore');
     });
 
     Route::prefix('blogs')->name('blogs')->group(function () {

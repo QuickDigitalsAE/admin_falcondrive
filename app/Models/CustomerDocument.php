@@ -38,6 +38,11 @@ class CustomerDocument extends Model
         'customer_details'=>'array'
     ];
 
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
     public function createdByUser()
     {
         return $this->belongsTo(User::class, 'created_by');
