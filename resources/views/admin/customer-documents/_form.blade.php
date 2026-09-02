@@ -19,17 +19,23 @@
 
 <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
     <div class="relative xl:col-span-2">
-        <select id="customer_id" name="customer_id" required
-            class="w-full rounded-[18px] border border-[#e5d7b1] bg-[#fffdf8] px-4 pb-2 pt-6 text-sm text-slate-800 outline-none focus:border-[#caa23c] focus:ring-4 focus:ring-[#f7e9b5]">
-            <option value="">Select customer</option>
-            @foreach ($customers as $customer)
-                <option value="{{ $customer->customer_id }}" @selected((string) old('customer_id', $document?->customer_id) === (string) $customer->customer_id)>
-                    {{ trim($customer->first_name . ' ' . $customer->last_name) ?: 'Unnamed customer' }}
-                    (ID: {{ $customer->customer_id }}, {{ $customer->email }})
-                </option>
-            @endforeach
-        </select>
-        <label for="customer_id" class="pointer-events-none absolute left-4 top-2.5 bg-[#fffdf8] px-1 text-xs font-medium text-slate-500">
+        @if ($isEdit)
+            <input type="hidden" name="customer_id" value="{{ $document->customer_id }}">
+            <input type="text" value="{{ trim($document->customer?->first_name . ' ' . $document->customer?->last_name) ?: 'Unknown customer' }} (ID: {{ $document->customer_id }}, {{ $document->customer?->email }})" readonly
+                class="w-full cursor-not-allowed rounded-[18px] border border-[#e5d7b1] bg-[#f5f1e5] px-4 pb-2 pt-6 text-sm text-slate-500 outline-none">
+        @else
+            <select id="customer_id" name="customer_id" required
+                class="w-full rounded-[18px] border border-[#e5d7b1] bg-[#fffdf8] px-4 pb-2 pt-6 text-sm text-slate-800 outline-none focus:border-[#caa23c] focus:ring-4 focus:ring-[#f7e9b5]">
+                <option value="">Select customer</option>
+                @foreach ($customers as $customer)
+                    <option value="{{ $customer->customer_id }}" @selected((string) old('customer_id') === (string) $customer->customer_id)>
+                        {{ trim($customer->first_name . ' ' . $customer->last_name) ?: 'Unnamed customer' }}
+                        (ID: {{ $customer->customer_id }}, {{ $customer->email }})
+                    </option>
+                @endforeach
+            </select>
+        @endif
+        <label for="customer_id" class="pointer-events-none absolute left-4 top-2.5 bg-{{ $isEdit ? '[#f5f1e5]' : '[#fffdf8]' }} px-1 text-xs font-medium text-slate-500">
             Customer
         </label>
         @error('customer_id')

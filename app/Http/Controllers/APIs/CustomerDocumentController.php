@@ -59,9 +59,12 @@ class CustomerDocumentController extends Controller
 
             // Save Database
             $document = CustomerDocument::create([
+
                 'customer_id' => $request->customer_id,
 
-                'customer_details' => $request->customer_details,
+                'customer_details' => json_encode(
+                    $request->customer_details
+                ),
 
                 'document_no' => $request->document_no,
 
@@ -90,6 +93,7 @@ class CustomerDocumentController extends Controller
                 'status' => 'pending',
 
                 'created_by' => $request->customer_id
+
             ]);
 
             return response()->json([
@@ -106,7 +110,6 @@ class CustomerDocumentController extends Controller
             ], 500);
         }
     }
-
 
     public function getDocuments($customer_id)
     {
