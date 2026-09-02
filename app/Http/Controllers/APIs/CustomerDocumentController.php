@@ -50,6 +50,8 @@ class CustomerDocumentController extends Controller
             // Upload File
             $path = 'customer_documents/' . $fileName;
 
+            $encodedDocument = base64_encode($fileData);
+
             Storage::disk('public')->put(
                 $path,
                 $fileData
@@ -77,7 +79,7 @@ class CustomerDocumentController extends Controller
 
                 'data' => $request->data,
 
-                'document' => $request->document,
+                'document' => $encodedDocument,
 
                 'path' => $path,
 
@@ -185,7 +187,9 @@ class CustomerDocumentController extends Controller
                                 ? asset('storage/' . $document->path)
                                 : (str_starts_with((string) $document->document, 'data:')
                                     ? $document->document
-                                    : asset('storage/' . $document->document)),
+                                    : ($document->document && $document->data
+                                        ? 'data:' . $document->data . ';base64,' . $document->document
+                                        : asset('storage/' . $document->document))),
 
                             "path" => "",
 

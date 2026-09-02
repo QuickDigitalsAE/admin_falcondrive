@@ -41,6 +41,54 @@ class CustomerDocumentController extends Controller
 
         $documents = $query->paginate((int) $request->query('per_page', 10))->withQueryString();
 
+        if ($request->ajax() || $request->wantsJson()) {
+            $authUser = Auth::user();
+            $items = $documents->getCollection()->map(function (CustomerDocument $document) use ($authUser) {
+                return [
+                    'id' => $document->id,
+                    'customer_id' => $document->customer_id,
+                    'customer_name' => trim(($document->customer?->first_name ?? '') . ' ' . ($document->customer?->last_name ?? '')),
+                    'customer_email' => $document->customer?->email,
+                    'identity_name' => $document->identity_name,
+                    'identity_document_id' => $document->identity_document_id,
+                    'document_no' => $document->document_no,
+                    'issue_date' => $document->issue_date,
+                    'expiry_date' => $document->expiry_date,
+                    'issued_by' => $document->issued_by,
+                    'data' => $document->data,
+                    'status' => $document->status,
+                    'file_name' => $document->file_name_without_extension ?: $document->file_name,
+                    'deleted_at' => optional($document->deleted_at)->toDateTimeString(),
+                    'created_at_human' => optional($document->created_at)->format('d M Y, h:i A'),
+                    'show_url' => route('admin.customer-documents.show', $document->id),
+                    'edit_url' => route('admin.customer-documents.edit', $document->id),
+                    'delete_url' => route('admin.customer-documents.delete', $document->id),
+                    'restore_url' => route('admin.customer-documents.restore', $document->id),
+                    'permissions' => [
+                        'can_view' => $authUser->can('CustomerDocument_ViewAll') || $authUser->can('CustomerDocument_View'),
+                        'can_edit' => $authUser->can('CustomerDocument_Edit'),
+                        'can_delete' => $authUser->can('CustomerDocument_Delete'),
+                        'can_restore' => $authUser->can('CustomerDocument_Revoke'),
+                    ],
+                ];
+            })->values();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Customer documents fetched successfully.',
+                'data' => [
+                    'items' => $items,
+                    'pagination' => [
+                        'current_page' => $documents->currentPage(),
+                        'last_page' => $documents->lastPage(),
+                        'total' => $documents->total(),
+                        'from' => $documents->firstItem(),
+                        'to' => $documents->lastItem(),
+                    ],
+                ],
+            ]);
+        }
+
         return view('admin.customer-documents.index', compact('documents', 'search', 'isDeleted'));
     }
 
@@ -82,28 +130,37 @@ class CustomerDocumentController extends Controller
         return redirect()->route('admin.customer-documents')->with('success', 'Customer document updated successfully.');
     }
 
-    public function destroy(int $id)
+    public function destroy(Request $request, int $id)
     {
         $document = CustomerDocument::findOrFail($id);
         $document->update(['deleted_by' => Auth::id()]);
         $document->delete();
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => true, 'message' => 'Customer document deleted successfully.']);
+        }
+
         return redirect()->route('admin.customer-documents')->with('success', 'Customer document deleted successfully.');
     }
 
-    public function restore(int $id)
+    public function restore(Request $request, int $id)
     {
         $document = CustomerDocument::onlyTrashed()->findOrFail($id);
         $document->restore();
         $document->update(['deleted_by' => null, 'updated_by' => Auth::id()]);
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => true, 'message' => 'Customer document restored successfully.']);
+        }
+
         return redirect()->route('admin.customer-documents')->with('success', 'Customer document restored successfully.');
     }
 
     private function rules(bool $requiredFile = true): array
     {
         return [
-            'customer_id' => ['required', 'integer', 'exists:customers,id'],
+            'customer_id' => ['required', 'integer', 'exists:customers,customer_id'],
             'identity_name' => ['required', 'string', 'max:191'],
             'identity_document_id' => ['nullable', 'integer'],
+            'data' => ['nullable', 'string', 'max:191'],
             'document_no' => ['nullable', 'string', 'max:191'],
             'issued_by' => ['nullable', 'string', 'max:191'],
             'issue_date' => ['nullable', 'date'],
@@ -116,15 +173,13 @@ class CustomerDocumentController extends Controller
 
     private function documentData(Request $request, array $validated, ?CustomerDocument $existing = null): array
     {
-        $data = collect($validated)->except('document')->all();
-        $customer = Customer::findOrFail($validated['customer_id']);
-        $data['customer_details'] = [
-            'id' => $customer->id,
-            'customerId' => $customer->customer_id,
-            'firstName' => $customer->first_name,
-            'lastName' => $customer->last_name,
-            'email' => $customer->email,
-        ];
+        // Keep readonly identity_name and the original customer snapshot unchanged on update.
+        $data = collect($validated)->except(['document', 'identity_name', 'identity_document_id', 'data'])->all();
+
+        if (!$existing) {
+            $customer = Customer::where('customer_id', $validated['customer_id'])->firstOrFail();
+            $data['identity_name'] = $validated['identity_name'];
+        }
 
         if ($request->hasFile('document')) {
             if ($existing?->path || $existing?->document) {
@@ -133,8 +188,11 @@ class CustomerDocumentController extends Controller
             $file = $request->file('document');
             $baseName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
+            $fileContents = file_get_contents($file->getRealPath());
+
             $data['path'] = $file->storeAs('customer_documents/' . now()->format('FY'), $fileName, 'public');
-            $data['document'] = 'data:' . ($file->getMimeType() ?: 'application/octet-stream') . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $data['document'] = base64_encode($fileContents);
+            $data['data'] = $file->getMimeType();
             $data['file_name'] = $fileName;
             $data['file_name_without_extension'] = $baseName;
         }

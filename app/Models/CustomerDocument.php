@@ -41,7 +41,7 @@ class CustomerDocument extends Model
 
     public function customer()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
     }
 
     public function createdByUser()

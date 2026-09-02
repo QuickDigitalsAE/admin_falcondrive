@@ -65,6 +65,6 @@ class Customer extends Model
 
     public function documents()
     {
-        return $this->hasMany(CustomerDocument::class);
+        return $this->hasMany(CustomerDocument::class, 'customer_id', 'customer_id');
     }
 }
