@@ -45,7 +45,7 @@
                 </form>
             </div>
 
-            <div class="rounded-2xl border border-[#eee4ca] bg-white/95 p-3 shadow-sm">
+            <div class="rounded-2xl border border-[#eee4ca] bg-white/95 p-3 shadow-sm hidden">
                 <div class="flex flex-wrap items-center justify-start gap-2 xl:justify-end">
                     @can('Customer_Add')
                         <a href="{{ route('admin.customers.create') }}"
@@ -84,11 +84,11 @@
                                         @endif
 
                                         @can('Customer_Edit')
-                                            <a href="{{ route('admin.customers.edit', $customer->id) }}"
+                                            <!-- <a href="{{ route('admin.customers.edit', $customer->id) }}"
                                                 class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#d9c68f] bg-[#fff5d8] text-[#9b7a28] transition hover:bg-[#ffefc1]"
                                                 title="Edit">
                                                 <i class="fa-solid fa-pen text-[13px]"></i>
-                                            </a>
+                                            </a> -->
                                         @endcan
                                     </div>
                                 </td>

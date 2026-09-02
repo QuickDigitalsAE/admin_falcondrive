@@ -35,7 +35,14 @@ class CustomerDocumentController extends Controller
                 $builder->where('document_no', 'like', "%{$search}%")
                     ->orWhere('identity_name', 'like', "%{$search}%")
                     ->orWhere('issued_by', 'like', "%{$search}%")
-                    ->orWhereHas('customer', fn ($customer) => $customer->where('first_name', 'like', "%{$search}%")->orWhere('last_name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
+                    ->orWhereHas('customer', function ($customer) use ($search) {
+                        $customer->where('customer_id', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('mobile_no', 'like', "%{$search}%")
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                    });
             });
         }
 
@@ -58,6 +65,7 @@ class CustomerDocumentController extends Controller
                     'data' => $document->data,
                     'status' => $document->status,
                     'file_name' => $document->file_name_without_extension ?: $document->file_name,
+                    'document_url' => $this->documentUrl($document),
                     'deleted_at' => optional($document->deleted_at)->toDateTimeString(),
                     'created_at_human' => optional($document->created_at)->format('d M Y, h:i A'),
                     'show_url' => route('admin.customer-documents.show', $document->id),
@@ -198,5 +206,26 @@ class CustomerDocumentController extends Controller
         }
 
         return $data;
+    }
+
+    private function documentUrl(CustomerDocument $document): ?string
+    {
+        if ($document->path) {
+            return asset('storage/' . $document->path);
+        }
+
+        if (!$document->document) {
+            return null;
+        }
+
+        if (str_starts_with($document->document, 'data:')) {
+            return $document->document;
+        }
+
+        if ($document->data) {
+            return 'data:' . $document->data . ';base64,' . $document->document;
+        }
+
+        return asset('storage/' . $document->document);
     }
 }

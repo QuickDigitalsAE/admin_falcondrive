@@ -24,7 +24,7 @@
                             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#b49543]">
                                 <i class="fa-solid fa-magnifying-glass text-sm"></i>
                             </span>
-                            <input id="searchInput" type="text" placeholder="Search customer, document name or number"
+                            <input id="searchInput" type="text" placeholder="Search customer ID, name, email, mobile or document"
                                 class="w-full rounded-xl border border-[#eadfbe] bg-[#fffdf8] py-2.5 pl-11 pr-4 text-sm outline-none transition focus:border-[#d8bf79] focus:bg-white">
                         </div>
                     </div>
@@ -43,10 +43,10 @@
             <div class="rounded-2xl border border-[#eee4ca] bg-white/95 p-3 shadow-sm">
                 <div class="flex flex-wrap items-center justify-start gap-2 xl:justify-end">
                     @can('CustomerDocument_Add')
-                        <a href="{{ route('admin.customer-documents.create') }}" class="inline-flex items-center rounded-xl bg-[#c79a2b] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#b4871d]">
+                        <!-- <a href="{{ route('admin.customer-documents.create') }}" class="inline-flex items-center rounded-xl bg-[#c79a2b] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#b4871d]">
                             <i class="fa-solid fa-plus mr-2 text-[13px]"></i>
                             Add Document
-                        </a>
+                        </a> -->
                     @endcan
                     @can('CustomerDocument_Delete')
                         <button id="trashToggleBtn" type="button" class="inline-flex h-[42px] w-[42px] items-center justify-center rounded-xl border border-red-300 bg-red-50 text-red-700 shadow-sm transition hover:bg-red-100" title="View Trash">
@@ -209,7 +209,11 @@
                             <p class="text-xs text-slate-500">ID: ${escapeHtml(record.customer_id)}</p>
                             <p class="text-xs text-slate-400">${escapeHtml(record.customer_email || '')}</p>
                         </td>
-                        <td class="px-6 py-4"><p class="text-sm font-semibold text-slate-700">${escapeHtml(record.identity_name || 'N/A')}</p><p class="text-xs text-slate-400">${escapeHtml(record.data || record.file_name || '')}</p></td>
+                        <td class="px-6 py-4">
+                            <p class="text-sm font-semibold text-slate-700">${escapeHtml(record.identity_name || 'N/A')}</p>
+                            <p class="text-xs text-slate-400">${escapeHtml(record.data || record.file_name || '')}</p>
+                            ${record.document_url ? `<a href="${escapeHtml(record.document_url)}" target="_blank" rel="noopener" class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#9b7a28] hover:underline" title="Preview document"><i class="fa-solid fa-eye"></i> View file</a>` : '<span class="mt-2 inline-flex text-xs text-slate-400">No file</span>'}
+                        </td>
                         <td class="px-6 py-4 text-sm text-slate-600">${escapeHtml(record.document_no || 'N/A')}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">${escapeHtml(record.expiry_date || 'N/A')}</td>
                         <td class="px-6 py-4"><span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ${record.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${escapeHtml(record.status ? record.status.charAt(0).toUpperCase() + record.status.slice(1) : 'Pending')}</span></td>
