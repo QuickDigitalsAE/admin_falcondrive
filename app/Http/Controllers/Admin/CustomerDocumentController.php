@@ -127,13 +127,14 @@ class CustomerDocumentController extends Controller
         ];
 
         if ($request->hasFile('document')) {
-            if ($existing?->document) {
-                Storage::disk('public')->delete($existing->document);
+            if ($existing?->path || $existing?->document) {
+                Storage::disk('public')->delete($existing->path ?: $existing->document);
             }
             $file = $request->file('document');
             $baseName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $fileName = Str::random(22) . '.' . $file->getClientOriginalExtension();
-            $data['document'] = $file->storeAs('customer_documents/' . now()->format('FY'), $fileName, 'public');
+            $data['path'] = $file->storeAs('customer_documents/' . now()->format('FY'), $fileName, 'public');
+            $data['document'] = 'data:' . ($file->getMimeType() ?: 'application/octet-stream') . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
             $data['file_name'] = $fileName;
             $data['file_name_without_extension'] = $baseName;
         }

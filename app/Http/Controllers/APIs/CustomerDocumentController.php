@@ -77,7 +77,9 @@ class CustomerDocumentController extends Controller
 
                 'data' => $request->data,
 
-                'document' => $path,
+                'document' => $request->document,
+
+                'path' => $path,
 
                 'file_name' => $fileName,
 
@@ -179,10 +181,11 @@ class CustomerDocumentController extends Controller
                                     PATHINFO_EXTENSION
                                 ),
 
-                            "url" =>
-                                asset(
-                                    'storage/' . $document->document
-                                ),
+                            "url" => $document->path
+                                ? asset('storage/' . $document->path)
+                                : (str_starts_with((string) $document->document, 'data:')
+                                    ? $document->document
+                                    : asset('storage/' . $document->document)),
 
                             "path" => "",
 

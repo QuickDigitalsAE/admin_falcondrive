@@ -25,6 +25,7 @@ class CustomerDocument extends Model
         'description',
         'data',
         'document',
+        'path',
         'file_name',
         'file_name_without_extension',
         'status',
