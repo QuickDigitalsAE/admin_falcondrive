@@ -21,6 +21,7 @@ use App\Http\Controllers\APIs\PromotionController;
 use App\Http\Controllers\APIs\SettingController;
 use App\Http\Controllers\APIs\TestimonialController;
 use App\Http\Controllers\APIs\CustomerController;
+use App\Http\Controllers\APIs\CustomerDocumentController;
 use App\Http\Controllers\APIs\ProfileController;
 use App\Http\Controllers\APIs\PasswordController;
 use App\Http\Controllers\Admin\PromoCodeController;
@@ -47,6 +48,7 @@ Route::prefix('customer')->group(function () {
     Route::post('verify-otp', [PasswordController::class, 'verifyOtp']);
     Route::post('reset-password', [PasswordController::class, 'resetPassword']);
 
+    
     /*
     |--------------------------------------------------------------------------
     | Protected customer routes
@@ -62,6 +64,28 @@ Route::prefix('customer')->group(function () {
             PasswordController::class,
             'changePassword',
         ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Customer Documents
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            'documents/{customer_id}',
+            [
+                CustomerDocumentController::class,
+                'getDocuments'
+            ]
+        );
+
+        Route::post(
+            'documents',
+            [
+                CustomerDocumentController::class,
+                'store'
+            ]
+        );
     });
 });
 
