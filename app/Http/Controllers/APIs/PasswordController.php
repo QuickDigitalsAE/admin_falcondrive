@@ -60,8 +60,7 @@ class PasswordController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to send OTP email.',
-                'error' => $e->getMessage()
+                'message' => $e->getMessage()
             ], 500);
         }
     }
