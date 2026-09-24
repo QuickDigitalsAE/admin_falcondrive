@@ -24,7 +24,10 @@ jobs:
 
       - name: Deploy project
         run: |
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.CPANEL_PORT }} ${{ secrets.CPANEL_USERNAME }}@${{ secrets.CPANEL_HOST }} << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 \
+            -p ${{ secrets.CPANEL_PORT }} \
+            ${{ secrets.CPANEL_USERNAME }}@${{ secrets.CPANEL_HOST }} << 'EOF'
+
             set -e
 
             cd /home/falcondrive/public_html/admin.falcondrive.ae
@@ -34,13 +37,21 @@ jobs:
               exit 1
             fi
 
-            php artisan down || true
+            echo "Pulling latest dev branch..."
             git pull origin dev
-            composer install --no-dev --optimize-autoloader || true
+
+            echo "Installing Composer dependencies..."
+            composer install --no-dev --optimize-autoloader
+
+            echo "Clearing Laravel caches..."
             php artisan config:clear
             php artisan cache:clear
             php artisan route:clear
             php artisan view:clear
+
+            echo "Fixing storage permissions..."
             chmod -R 775 storage bootstrap/cache
-            php artisan up || true
+
+            echo "Deployment completed successfully."
+
           EOF
