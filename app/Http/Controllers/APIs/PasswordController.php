@@ -115,7 +115,7 @@ class PasswordController extends Controller
 
         $request->validate([
             'current_password' => 'required',
-            'new_password' => 'required|min:6|confirmed', // must have new_password_confirmation
+            'password' => 'required|min:6|confirmed', // must have password_confirmation
         ]);
 
         // Check current password
